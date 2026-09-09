@@ -63,8 +63,8 @@ Restaurant cards and dishes use compact left thumbnails (not large hero photos).
 
 ## iPhone (Safari)
 
-1. Open the public HTTPS URL (Cloudflare tunnel) — required for “In meiner Nähe”.
-2. Tap **Lieferadresse / PLZ**, type `60311` (or a chip), tap **Zeigen**.
+1. Open the public HTTPS URL (Cloudflare tunnel) — required for location.
+2. First visit: allow location (Safari) or we approximate via IP. Or tap **Lieferung nach**, type `60311` / pick a chip.
 3. Switch to `60487` or `65929` to see the list change.
 4. Pull to refresh if an old layout is cached.
 
