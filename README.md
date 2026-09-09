@@ -59,14 +59,14 @@ Restaurant and dish photos stay compact left thumbnails.
 
 Restaurant cards and dishes use compact left thumbnails (not large hero photos).
 
-**Standort:** Tap **Lieferung nach** for a full-screen picker (Standort eingeben): search a complete address, use current GPS (street + PLZ), saved addresses with distance, and recent searches. Choosing a place filters restaurants by your Umkreis.
+**Standort:** Default **Lieferung nach** is Frankfurt **60311** (Innenstadt). Tap it → **Aktueller Standort** (GPS only on that tap, as Safari requires). Success fills street + PLZ + city and filters the list. If GPS is denied, type an address. IP approx is used only when GPS times out and the IP is in the Frankfurt area — never a random German zip like 49661.
 
 ## iPhone (Safari)
 
-1. Open the public HTTPS URL (Cloudflare tunnel) — required for location.
-2. First visit: allow location (Safari) or we approximate via IP. Or tap **Lieferung nach**, type `60311` / pick a chip.
-3. Switch to `60487` or `65929` to see the list change. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row.
-4. Pull to refresh if an old layout is cached.
+1. Open the **public HTTPS** Cloudflare URL (Safari only allows GPS in a secure context).
+2. Tap **Lieferung nach**, then **Aktueller Standort**, and allow location. Street + PLZ should fill.
+3. If Safari blocks GPS: type `60311` / a street, or we may offer an IP approximation **only** if it is in Frankfurt.
+4. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row. Pull to refresh if an old layout is cached.
 
 Partner onboarding is apply-then-review (not self-serve panel signup):
 

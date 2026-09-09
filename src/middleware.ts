@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE } from "@/lib/constants";
+import { AUTH_COOKIE, CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
+import { defaultDemoPlace, sanitizeDemoPlz } from "@/lib/plz";
 
 const PROTECTED = [
   { prefix: "/admin", roles: ["ADMIN"] },
@@ -8,6 +9,22 @@ const PROTECTED = [
   { prefix: "/checkout", roles: ["CUSTOMER", "ADMIN"] },
   { prefix: "/orders", roles: ["CUSTOMER", "ADMIN", "RESTAURANT", "COURIER"] },
 ];
+
+function withDemoPlz(req: NextRequest, res: NextResponse) {
+  const raw = req.cookies.get(PLZ_COOKIE)?.value ?? null;
+  const hasStreet = Boolean(req.cookies.get(STREET_COOKIE)?.value?.trim());
+  const next = sanitizeDemoPlz(raw, hasStreet);
+  if (next === raw) return res;
+  const demo = defaultDemoPlace();
+  const cookie = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" as const };
+  res.cookies.set(PLZ_COOKIE, next, cookie);
+  if (!hasStreet && next === demo.postalCode) {
+    res.cookies.set(LAT_COOKIE, String(demo.lat), cookie);
+    res.cookies.set(LNG_COOKIE, String(demo.lng), cookie);
+    res.cookies.set(CITY_COOKIE, demo.city, cookie);
+  }
+  return res;
+}
 
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith("/api")) {
@@ -28,18 +45,34 @@ export async function middleware(req: NextRequest) {
   }
 
   const rule = PROTECTED.find((p) => req.nextUrl.pathname.startsWith(p.prefix));
-  if (!rule) return NextResponse.next();
-
-  const token = req.cookies.get(AUTH_COOKIE)?.value;
-  if (!token) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("next", req.nextUrl.pathname);
-    return NextResponse.redirect(url);
+  if (rule) {
+    const token = req.cookies.get(AUTH_COOKIE)?.value;
+    if (!token) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("next", req.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
+    return withDemoPlz(req, NextResponse.next());
   }
-  return NextResponse.next();
+
+  return withDemoPlz(req, NextResponse.next());
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/restaurant/:path*", "/courier/:path*", "/checkout", "/orders/:path*", "/api/:path*"],
+  matcher: [
+    "/",
+    "/cart",
+    "/checkout",
+    "/login/:path*",
+    "/register",
+    "/account/:path*",
+    "/restaurants/:path*",
+    "/orders/:path*",
+    "/admin/:path*",
+    "/restaurant/:path*",
+    "/courier/:path*",
+    "/partner/:path*",
+    "/api/:path*",
+  ],
 };

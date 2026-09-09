@@ -1,4 +1,4 @@
-import { haversineKm, lookupPlz, nearestPlz, normalizePlz } from "@/lib/plz";
+import { haversineKm, isFrankfurtServicePlz, isNearFrankfurt, lookupPlz, nearestPlz, normalizePlz } from "@/lib/plz";
 import { searchLocalStreets, type DeliveryPlace } from "@/lib/place";
 
 const NOMINATIM_REVERSE = "https://nominatim.openstreetmap.org/reverse";
@@ -161,6 +161,8 @@ export async function searchAddresses(q: string): Promise<DeliveryPlace[]> {
 export function clientIpFromHeaders(headers: Headers) {
   const cf = headers.get("cf-connecting-ip")?.trim();
   if (cf) return cf;
+  const trueClient = headers.get("true-client-ip")?.trim();
+  if (trueClient) return trueClient;
   const real = headers.get("x-real-ip")?.trim();
   if (real) return real;
   const forwarded = headers.get("x-forwarded-for")?.split(",")[0]?.trim();
@@ -194,42 +196,40 @@ export async function plzFromIp(ip: string): Promise<Omit<DetectedPlz, "source">
         country_code?: string;
       };
       if (data.success !== false) {
-        const zip = germanPlz(data.postal);
-        if (zip && data.country_code === "DE") {
-          return { plz: zip, city: data.city };
-        }
-        if (typeof data.latitude === "number" && typeof data.longitude === "number") {
-          const geo = await reverseGeocodePlz(data.latitude, data.longitude);
-          if (geo) return geo;
-        }
+        return constrainIpToFrankfurt({
+          plz: germanPlz(data.postal),
+          city: data.city,
+          lat: data.latitude,
+          lng: data.longitude,
+          country: data.country_code,
+        });
       }
     }
   } catch {
-    /* try ip-api next */
+    /* HTTPS IP lookup only */
   }
+  return null;
+}
 
-  try {
-    const res = await fetch(
-      `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,zip,lat,lon,city,countryCode`,
-      { cache: "no-store" },
-    );
-    if (!res.ok) return null;
-    const data = (await res.json()) as {
-      status?: string;
-      zip?: string;
-      lat?: number;
-      lon?: number;
-      city?: string;
-      countryCode?: string;
+async function constrainIpToFrankfurt(opts: {
+  plz?: string | null;
+  city?: string;
+  lat?: number;
+  lng?: number;
+  country?: string;
+}): Promise<Omit<DetectedPlz, "source"> | null> {
+  if (opts.plz && isFrankfurtServicePlz(opts.plz) && (!opts.country || opts.country === "DE")) {
+    const known = lookupPlz(opts.plz);
+    return {
+      plz: opts.plz,
+      city: opts.city ?? "Frankfurt am Main",
+      district: known?.district,
+      lat: known?.lat ?? opts.lat,
+      lng: known?.lng ?? opts.lng,
     };
-    if (data.status !== "success") return null;
-    const zip = germanPlz(data.zip);
-    if (zip && data.countryCode === "DE") return { plz: zip, city: data.city };
-    if (typeof data.lat === "number" && typeof data.lon === "number") {
-      return reverseGeocodePlz(data.lat, data.lon);
-    }
-  } catch {
-    return null;
+  }
+  if (typeof opts.lat === "number" && typeof opts.lng === "number" && isNearFrankfurt(opts.lat, opts.lng)) {
+    return reverseGeocodePlz(opts.lat, opts.lng);
   }
   return null;
 }

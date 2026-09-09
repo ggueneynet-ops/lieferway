@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Clock, MapPin, Navigation, Search, X } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
-import { formatDistanceShort, haversineKm } from "@/lib/plz";
+import { formatDistanceShort, haversineKm, lookupPlz } from "@/lib/plz";
 import { formatPlaceLine, placeKey, type DeliveryPlace } from "@/lib/place";
+import { geoErrorMessage, requestDeviceCoords } from "@/lib/browser-geo";
 
 const RECENT_KEY = "lw_recent_places";
 
@@ -30,15 +31,22 @@ export function saveRecentPlace(place: DeliveryPlace) {
   }
 }
 
-function coordsFromBrowser(): Promise<{ lat: number; lng: number } | null> {
-  if (!navigator.geolocation) return Promise.resolve(null);
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => resolve(null),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60_000 },
-    );
-  });
+function placeFromIpPayload(data: {
+  plz?: string | null;
+  city?: string;
+  street?: string;
+  lat?: number;
+  lng?: number;
+}): DeliveryPlace | null {
+  if (!data.plz) return null;
+  const known = lookupPlz(data.plz);
+  return {
+    street: data.street || known?.district || "",
+    postalCode: data.plz,
+    city: data.city ?? "Frankfurt am Main",
+    lat: data.lat ?? known?.lat ?? 50.1109,
+    lng: data.lng ?? known?.lng ?? 8.6821,
+  };
 }
 
 export function LocationPicker({
@@ -62,6 +70,7 @@ export function LocationPicker({
   const [here, setHere] = useState<DeliveryPlace | null>(null);
   const [hereBusy, setHereBusy] = useState(false);
   const [hereError, setHereError] = useState("");
+  const [hereHint, setHereHint] = useState("");
   const gpsRef = useRef<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -71,6 +80,9 @@ export function LocationPicker({
     setEditingRecent(false);
     setRecent(loadRecent());
     setHereError("");
+    setHereHint("");
+    setHere(null);
+    gpsRef.current = null;
     const tId = window.setTimeout(() => inputRef.current?.focus(), 50);
     document.body.style.overflow = "hidden";
 
@@ -84,27 +96,6 @@ export function LocationPicker({
       }
     })();
 
-    void (async () => {
-      setHereBusy(true);
-      const coords = await coordsFromBrowser();
-      gpsRef.current = coords;
-      if (!coords) {
-        setHereError(t.geoDenied);
-        setHereBusy(false);
-        return;
-      }
-      try {
-        const res = await fetch(`/api/geo/plz?lat=${coords.lat}&lng=${coords.lng}`);
-        const data = (await res.json()) as { place?: DeliveryPlace | null; plz?: string | null };
-        if (data.place) setHere(data.place);
-        else setHereError(t.geoFailed);
-      } catch {
-        setHereError(t.geoFailed);
-      } finally {
-        setHereBusy(false);
-      }
-    })();
-
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
@@ -114,7 +105,7 @@ export function LocationPicker({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose, t.geoDenied, t.geoFailed]);
+  }, [open, onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -153,6 +144,74 @@ export function LocationPicker({
     onPick(place);
   }
 
+  async function applyCoords(lat: number, lng: number, apply: boolean) {
+    gpsRef.current = { lat, lng };
+    const res = await fetch(`/api/geo/plz?lat=${lat}&lng=${lng}`);
+    const data = (await res.json()) as { place?: DeliveryPlace | null };
+    if (!data.place) {
+      setHereError(t.geoFailed);
+      return false;
+    }
+    setHere(data.place);
+    setHereError("");
+    setHereHint("");
+    if (apply) pick(data.place);
+    return true;
+  }
+
+  async function fallbackIp() {
+    try {
+      const ipRes = await fetch("/api/geo/ip");
+      const ipData = (await ipRes.json()) as {
+        plz?: string | null;
+        city?: string;
+        street?: string;
+        lat?: number;
+        lng?: number;
+      };
+      const approx = placeFromIpPayload(ipData);
+      if (approx) {
+        setHere(approx);
+        setHereHint(t.geoIpFallback);
+        setHereError("");
+        return true;
+      }
+    } catch {
+      /* type address */
+    }
+    return false;
+  }
+
+  function onCurrentLocationClick() {
+    if (here && !hereBusy) {
+      pick(here);
+      return;
+    }
+    setHereBusy(true);
+    setHereError("");
+    setHereHint("");
+    const resultPromise = requestDeviceCoords();
+    void (async () => {
+      const result = await resultPromise;
+      try {
+        if (result.ok) {
+          await applyCoords(result.lat, result.lng, true);
+          return;
+        }
+        if (result.error === "denied" || result.error === "insecure") {
+          setHereError(geoErrorMessage(result.error, t));
+          return;
+        }
+        const usedIp = await fallbackIp();
+        if (!usedIp) setHereError(geoErrorMessage(result.error, t));
+      } catch {
+        setHereError(t.geoFailed);
+      } finally {
+        setHereBusy(false);
+      }
+    })();
+  }
+
   function removeRecent(place: DeliveryPlace) {
     const next = recent.filter((p) => placeKey(p) !== placeKey(place));
     setRecent(next);
@@ -179,6 +238,12 @@ export function LocationPicker({
   const list = useMemo(() => hits, [hits]);
 
   if (!open) return null;
+
+  const hereSubtitle = hereBusy
+    ? t.geoLocating
+    : here
+      ? `${formatPlaceLine(here)}${hereHint ? ` · ${hereHint}` : ""}`
+      : hereError || t.geoTapHint;
 
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/40 sm:items-center sm:p-4">
@@ -249,16 +314,14 @@ export function LocationPicker({
             <>
               <button
                 type="button"
-                onClick={() => here && pick(here)}
-                disabled={!here}
-                className="flex w-full items-start gap-3 py-3 text-left disabled:opacity-60"
+                onClick={onCurrentLocationClick}
+                disabled={hereBusy}
+                className="flex w-full items-start gap-3 py-3 text-left disabled:opacity-70"
               >
                 <Navigation className="mt-0.5 size-5 shrink-0 text-ink" />
                 <span className="min-w-0 flex-1">
                   <span className="block font-semibold text-ink">{t.currentLocation}</span>
-                  <span className="block truncate text-sm text-text-secondary">
-                    {hereBusy ? t.geoLocating : here ? formatPlaceLine(here) : hereError || t.geoPermission}
-                  </span>
+                  <span className="block text-sm text-text-secondary">{hereSubtitle}</span>
                 </span>
               </button>
 

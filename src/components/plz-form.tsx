@@ -2,13 +2,12 @@
 
 import { useI18n } from "@/components/locale-provider";
 import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
-import { GEO_ATTEMPTED_KEY, PLZ_STORAGE_KEY } from "@/lib/geo";
-import { waitForSplashIntro } from "@/lib/splash";
-import { lookupPlz, normalizePlz } from "@/lib/plz";
+import { PLZ_STORAGE_KEY } from "@/lib/geo";
+import { defaultDemoPlace, lookupPlz, sanitizeDemoPlz } from "@/lib/plz";
 import { formatPlaceLine, type DeliveryPlace } from "@/lib/place";
 import { CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import { ChevronDown, MapPin } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 function setCookie(name: string, value: string) {
   document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=31536000;SameSite=Lax`;
@@ -56,17 +55,6 @@ function goMarketplace(place: DeliveryPlace | null, q: string, cuisine: string, 
   window.location.assign(qs ? `/?${qs}` : "/");
 }
 
-function coordsFromBrowser(): Promise<{ lat: number; lng: number } | null> {
-  if (!navigator.geolocation) return Promise.resolve(null);
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => resolve(null),
-      { enableHighAccuracy: false, timeout: 9000, maximumAge: 5 * 60_000 },
-    );
-  });
-}
-
 export function PlzForm({
   initialPlz,
   initialStreet = "",
@@ -86,8 +74,6 @@ export function PlzForm({
 }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const [busyGeo, setBusyGeo] = useState(false);
-  const detecting = useRef(false);
   const placeMeta = initialPlz ? lookupPlz(initialPlz) : undefined;
 
   const applyPlace = useCallback(
@@ -100,92 +86,44 @@ export function PlzForm({
   );
 
   useEffect(() => {
-    if (initialPlz) {
+    if (!autoDetect) return;
+    const hasStreet = Boolean(initialStreet.trim());
+    const next = sanitizeDemoPlz(initialPlz, hasStreet);
+    if (next === initialPlz) {
       try {
-        window.localStorage.setItem(PLZ_STORAGE_KEY, initialPlz);
+        window.localStorage.setItem(PLZ_STORAGE_KEY, next);
       } catch {
         /* ignore */
       }
-    }
-  }, [initialPlz]);
-
-  useEffect(() => {
-    if (!autoDetect || initialPlz || detecting.current) return;
-    detecting.current = true;
-
-    let stored: string | null = null;
-    try {
-      stored = normalizePlz(window.localStorage.getItem(PLZ_STORAGE_KEY));
-    } catch {
-      stored = null;
-    }
-    if (stored) {
-      const known = lookupPlz(stored);
-      applyPlace({
-        street: known?.district ?? "",
-        postalCode: stored,
-        city: "Frankfurt am Main",
-        lat: known?.lat ?? 50.1109,
-        lng: known?.lng ?? 8.6821,
-      });
       return;
     }
+    const demo = defaultDemoPlace();
+    persistPlace({
+      street: "",
+      postalCode: demo.postalCode,
+      city: demo.city,
+      lat: demo.lat,
+      lng: demo.lng,
+    });
+    goMarketplace(
+      {
+        street: "",
+        postalCode: demo.postalCode,
+        city: demo.city,
+        lat: demo.lat,
+        lng: demo.lng,
+      },
+      q,
+      cuisine,
+      km,
+    );
+  }, [autoDetect, cuisine, initialPlz, initialStreet, km, q]);
 
-    try {
-      if (sessionStorage.getItem(GEO_ATTEMPTED_KEY) === "1") {
-        setOpen(true);
-        return;
-      }
-      sessionStorage.setItem(GEO_ATTEMPTED_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-
-    async function run() {
-      await waitForSplashIntro();
-      setBusyGeo(true);
-      try {
-        const coords = await coordsFromBrowser();
-        if (coords) {
-          const res = await fetch(`/api/geo/plz?lat=${coords.lat}&lng=${coords.lng}`);
-          const data = (await res.json()) as { place?: DeliveryPlace | null; plz?: string | null };
-          if (data.place) {
-            applyPlace(data.place);
-            return;
-          }
-        }
-
-        const ipRes = await fetch("/api/geo/ip");
-        const ipData = (await ipRes.json()) as { plz?: string | null; city?: string };
-        if (ipData.plz) {
-          const known = lookupPlz(ipData.plz);
-          applyPlace({
-            street: known?.district ?? "",
-            postalCode: ipData.plz,
-            city: ipData.city ?? "Frankfurt am Main",
-            lat: known?.lat ?? 50.1109,
-            lng: known?.lng ?? 8.6821,
-          });
-          return;
-        }
-        setOpen(true);
-      } catch {
-        setOpen(true);
-      } finally {
-        setBusyGeo(false);
-      }
-    }
-
-    void run();
-  }, [applyPlace, autoDetect, initialPlz]);
-
-  const summary = busyGeo && !initialPlz
-    ? t.geoLocating
-    : initialStreet
-      ? initialStreet
-      : initialPlz
-        ? `${initialPlz}${placeMeta ? ` · ${placeMeta.district}` : ""}`
-        : t.enterLocation;
+  const summary = initialStreet
+    ? initialStreet
+    : initialPlz
+      ? `${initialPlz}${placeMeta ? ` · ${placeMeta.district}` : ""}`
+      : t.enterLocation;
 
   const subtitle = initialStreet
     ? `${initialPlz}${initialCity ? ` ${initialCity}` : ""}`

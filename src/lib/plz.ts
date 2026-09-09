@@ -60,6 +60,39 @@ export const DEMO_PLZ_CHIPS = [
 
 export const DEFAULT_NEW_RESTAURANT_PLZS = ["60311", "60313", "60329", "60314", "60316"];
 
+/** Demo marketplace default when the user has not chosen a place yet. */
+export const DEFAULT_DEMO_PLZ = "60311";
+export const FRANKFURT_CENTER = { lat: 50.1109, lng: 8.6821 };
+
+export function isFrankfurtServicePlz(plz?: string | null) {
+  const n = normalizePlz(plz);
+  return Boolean(n && FRANKFURT_PLZ.some((p) => p.plz === n));
+}
+
+export function isNearFrankfurt(lat: number, lng: number, maxKm = 40) {
+  return haversineKm({ lat, lng }, FRANKFURT_CENTER) <= maxKm;
+}
+
+/** Drop stale/wrong IP zips (e.g. 49661) unless the user actually picked a street. */
+export function sanitizeDemoPlz(plz?: string | null, hasStreet = false) {
+  const n = normalizePlz(plz);
+  if (n && isFrankfurtServicePlz(n)) return n;
+  if (n && hasStreet) return n;
+  return DEFAULT_DEMO_PLZ;
+}
+
+export function defaultDemoPlace() {
+  const place = lookupPlz(DEFAULT_DEMO_PLZ)!;
+  return {
+    street: "",
+    postalCode: place.plz,
+    city: "Frankfurt am Main",
+    lat: place.lat,
+    lng: place.lng,
+    district: place.district,
+  };
+}
+
 export function normalizePlz(raw?: string | null): string | null {
   const digits = (raw ?? "").replace(/\D/g, "");
   if (digits.length < 5) return null;

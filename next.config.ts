@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
     "*.trycloudflare.com",
-    "thumbnail-run-alerts-speaking.trycloudflare.com",
+    "provincial-lenses-delhi-cotton.trycloudflare.com",
     "127.0.0.1",
     "localhost",
   ],
@@ -20,6 +20,18 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Permissions-Policy", value: "geolocation=(self)" },
+          { key: "Feature-Policy", value: 'geolocation \'self\'' },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+    ];
   },
 };
 

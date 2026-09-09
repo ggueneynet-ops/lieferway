@@ -2,12 +2,12 @@ import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { RestaurantCard } from "@/components/restaurant-card";
-import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constants";
+import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import { HomeSectionTitle } from "@/components/home-copy";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
-import { formatDistanceKm, normalizePlz } from "@/lib/plz";
+import { formatDistanceKm, normalizePlz, sanitizeDemoPlz } from "@/lib/plz";
 import { CuisineRow } from "@/components/cuisine-row";
 import { SplashIntro } from "@/components/splash-intro";
 import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
@@ -22,13 +22,16 @@ export default async function Home({
   const { q, cuisine, plz: plzParam, km: kmParam } = await searchParams;
   const { locale, t: copy } = await getCopy();
   const jar = await cookies();
-  const plz = normalizePlz(plzParam) ?? normalizePlz(jar.get(PLZ_COOKIE)?.value);
+  const street = (jar.get(STREET_COOKIE)?.value ?? "").trim();
+  const rawPlz = normalizePlz(plzParam) ?? normalizePlz(jar.get(PLZ_COOKIE)?.value);
   const gps = parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value);
+  const plz = sanitizeDemoPlz(rawPlz, Boolean(street));
   const km = resolveUserRadius(kmParam, jar.get(RADIUS_COOKIE)?.value);
+  const useGps = Boolean(street && gps && rawPlz === plz);
   const origin = resolveOrigin({
     plz,
-    lat: gps?.lat ?? null,
-    lng: gps?.lng ?? null,
+    lat: useGps && gps ? gps.lat : null,
+    lng: useGps && gps ? gps.lng : null,
   });
   const filtered = await listMarketplaceRestaurants({ q, cuisine, plz, km, origin });
 

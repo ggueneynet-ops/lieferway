@@ -1,16 +1,16 @@
 import { cookies } from "next/headers";
 import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/auth";
-import { LOCALE_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE, CITY_COOKIE } from "@/lib/constants";
+import { CITY_COOKIE, LOCALE_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import { parseLocale, type Locale } from "@/lib/i18n";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { CartButton } from "@/components/cart-button";
 import { AccountMenu } from "@/components/account-menu";
-import { normalizePlz } from "@/lib/plz";
+import { resolveUserRadius } from "@/lib/radius";
+import { sanitizeDemoPlz } from "@/lib/plz";
 import { PlzForm } from "@/components/plz-form";
 import { HomeSearch } from "@/components/home-search";
 import { RadiusChips } from "@/components/radius-chips";
-import { resolveUserRadius } from "@/lib/radius";
 
 export async function SiteHeader({
   plz,
@@ -28,7 +28,8 @@ export async function SiteHeader({
   const user = await getSession();
   const cookieStore = await cookies();
   const locale: Locale = parseLocale(cookieStore.get(LOCALE_COOKIE)?.value);
-  const activePlz = plz ?? normalizePlz(cookieStore.get(PLZ_COOKIE)?.value);
+  const hasStreet = Boolean(cookieStore.get(STREET_COOKIE)?.value?.trim());
+  const activePlz = sanitizeDemoPlz(plz ?? cookieStore.get(PLZ_COOKIE)?.value, hasStreet);
   const activeKm =
     km !== undefined
       ? km
