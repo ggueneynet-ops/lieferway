@@ -1,10 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["*.trycloudflare.com", "127.0.0.1:43123", "localhost:43123"],
+  allowedDevOrigins: [
+    "*.trycloudflare.com",
+    "thumbnail-run-alerts-speaking.trycloudflare.com",
+    "127.0.0.1",
+    "localhost",
+  ],
   experimental: {
     serverActions: {
-      allowedOrigins: ["*.trycloudflare.com", "127.0.0.1:43123", "localhost:43123"],
+      allowedOrigins: [
+        "*.trycloudflare.com",
+        "127.0.0.1:43123",
+        "localhost:43123",
+      ],
     },
   },
   images: {
