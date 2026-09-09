@@ -41,10 +41,10 @@ export function SiteHeader() {
           : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <Logo />
-        <div className="hidden items-center gap-1 rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground sm:flex">
+        <div className="hidden items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-sm text-ink sm:flex">
           <span className="size-1.5 rounded-full bg-primary" />
           {t.city}
         </div>
@@ -91,7 +91,7 @@ export function SiteHeader() {
               <ShoppingBag className="size-4" />
               <span className="hidden sm:inline">{t.cart}</span>
               {count > 0 && (
-                <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-foreground text-[11px] text-background">
+                <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-ink text-[11px] text-text-inverse">
                   {count}
                 </span>
               )}

@@ -33,13 +33,13 @@ export default async function Home({
     <>
       <SiteHeader />
       <main className="flex-1">
-        <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50">
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-2 md:items-center md:py-16">
+        <section className="relative overflow-hidden bg-gradient-to-b from-primary-soft to-background">
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-2 md:items-center md:py-20">
             <div>
-              <p className="mb-3 text-sm font-medium uppercase tracking-wider text-primary">
+              <p className="mb-3 text-sm font-medium uppercase tracking-[0.14em] text-primary">
                 Frankfurt am Main
               </p>
-              <h1 className="text-4xl font-semibold tracking-tight text-pretty sm:text-5xl">
+              <h1 className="font-display text-4xl font-semibold tracking-tight text-pretty text-ink sm:text-5xl">
                 Essen bestellen.
                 <span className="block text-primary">Dein Weg zum Tisch.</span>
               </h1>
@@ -67,7 +67,7 @@ export default async function Home({
 
         <section className="mx-auto max-w-6xl px-4 py-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Küchen</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">Küchen</h2>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2">
             <Link
@@ -89,11 +89,11 @@ export default async function Home({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 pb-16">
-          <h2 className="mb-4 text-lg font-semibold">
+          <h2 className="mb-5 font-display text-lg font-semibold text-ink">
             {filtered.length} Restaurants in Frankfurt
           </h2>
           {filtered.length === 0 ? (
-            <p className="rounded-2xl border bg-white p-8 text-center text-muted-foreground">
+            <p className="rounded-2xl border border-border bg-surface p-8 text-center text-muted-foreground">
               Keine Restaurants gefunden. Anderen Suchbegriff versuchen.
             </p>
           ) : (

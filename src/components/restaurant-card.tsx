@@ -20,7 +20,7 @@ export function RestaurantCard({ r }: { r: RestaurantCardData }) {
   return (
     <Link
       href={`/restaurants/${r.slug}`}
-      className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative aspect-[16/9] overflow-hidden bg-muted">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -41,7 +41,7 @@ export function RestaurantCard({ r }: { r: RestaurantCardData }) {
       <div className="space-y-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold leading-tight">{r.name}</h3>
-          <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium text-ink">
             <Star className="size-3 fill-primary text-primary" />
             {r.rating.toFixed(1)}
           </span>

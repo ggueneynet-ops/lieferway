@@ -63,27 +63,31 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
   const active = orders.filter((o) => ["ACCEPTED", "PREPARING", "READY"].includes(o.status));
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between rounded-2xl border bg-white p-4">
-        <p className="text-sm">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2">
+        <p className="text-[13px]">
           Status: <strong>{open ? "Geöffnet" : "Geschlossen"}</strong>
         </p>
-        <Button variant="outline" onClick={toggleOpen}>
+        <Button variant="outline" size="sm" onClick={toggleOpen}>
           {open ? "Schließen" : "Öffnen"}
         </Button>
       </div>
       <section>
-        <h2 className="mb-3 font-semibold">Neue Bestellungen</h2>
+        <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">
+          Neue Bestellungen
+        </h2>
         {incoming.length === 0 ? (
-          <p className="rounded-2xl border bg-white p-6 text-sm text-muted-foreground">Keine offenen Eingänge.</p>
+          <p className="rounded-lg border border-border bg-surface p-3 text-[13px] text-text-secondary">
+            Keine offenen Eingänge.
+          </p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {incoming.map((o) => (
               <OrderCard key={o.id} order={o} onAct={act}>
                 <Button size="sm" onClick={() => act(o.id, "accept")}>
                   Annehmen
                 </Button>
-                <Button size="sm" variant="destructive" onClick={() => act(o.id, "reject")}>
+                <Button size="sm" variant="outline" onClick={() => act(o.id, "reject")}>
                   Ablehnen
                 </Button>
               </OrderCard>
@@ -92,8 +96,10 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
         )}
       </section>
       <section>
-        <h2 className="mb-3 font-semibold">In der Küche</h2>
-        <div className="space-y-3">
+        <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">
+          In der Küche
+        </h2>
+        <div className="space-y-2">
           {active.map((o) => (
             <OrderCard key={o.id} order={o} onAct={act}>
               {o.status === "ACCEPTED" && (
@@ -109,7 +115,9 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
             </OrderCard>
           ))}
           {active.length === 0 && (
-            <p className="rounded-2xl border bg-white p-6 text-sm text-muted-foreground">Nichts in Arbeit.</p>
+            <p className="rounded-lg border border-border bg-surface p-3 text-[13px] text-text-secondary">
+              Nichts in Arbeit.
+            </p>
           )}
         </div>
       </section>
@@ -126,7 +134,7 @@ function OrderCard({
   children?: React.ReactNode;
 }) {
   return (
-    <article className="rounded-2xl border bg-white p-4">
+    <article className="rounded-lg border border-border bg-surface p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-medium">

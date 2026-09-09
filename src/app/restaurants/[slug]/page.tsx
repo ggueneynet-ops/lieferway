@@ -33,7 +33,7 @@ export default async function RestaurantPage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-4 left-0 right-0 mx-auto max-w-6xl px-4 text-white">
             <p className="text-sm text-white/80">{restaurant.cuisine} · {restaurant.postalCode} {restaurant.city}</p>
-            <h1 className="text-3xl font-semibold">{restaurant.name}</h1>
+            <h1 className="font-display text-3xl font-semibold">{restaurant.name}</h1>
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-4 py-6">

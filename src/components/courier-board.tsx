@@ -118,7 +118,7 @@ function Card({ order, children }: { order: Order; children?: React.ReactNode })
         <p className="text-muted-foreground">
           Zustellung: {order.street}, {order.postalCode} {order.city}
         </p>
-        <div className="mt-2 h-24 rounded-lg bg-[linear-gradient(135deg,#fed7aa_0%,#fdba74_40%,#fb923c_100%)] opacity-80" />
+        <div className="mt-2 h-24 rounded-lg bg-primary-soft" />
       </div>
       <p className="mt-2 text-sm">
         {order.customer.name} · {order.paymentMethod === "CASH" ? "Bar" : "Bezahlt"} · {formatEUR(order.totalCents)}

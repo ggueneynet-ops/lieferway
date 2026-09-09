@@ -94,11 +94,11 @@ export function MenuEditor({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-6">
+    <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+      <div className="space-y-3">
         {categories.map((cat) => (
-          <section key={cat.id} className="rounded-2xl border bg-white p-4">
-            <h2 className="font-semibold">{cat.name}</h2>
+          <section key={cat.id} className="rounded-lg border border-border bg-surface p-3">
+            <h2 className="text-[13px] font-semibold">{cat.name}</h2>
             <ul className="mt-3 divide-y">
               {cat.items.map((item) => (
                 <li key={item.id} className="flex items-center justify-between gap-3 py-2 text-sm">
@@ -122,16 +122,16 @@ export function MenuEditor({
           </section>
         ))}
       </div>
-      <aside className="space-y-6">
-        <div className="rounded-2xl border bg-white p-4">
-          <h2 className="font-semibold">Kategorie</h2>
+      <aside className="space-y-3">
+        <div className="rounded-lg border border-border bg-surface p-3">
+          <h2 className="text-[13px] font-semibold">Kategorie</h2>
           <Input className="mt-3" value={catName} onChange={(e) => setCatName(e.target.value)} placeholder="z. B. Meze" />
           <Button className="mt-3 w-full" variant="outline" onClick={addCategory}>
             Kategorie anlegen
           </Button>
         </div>
-        <div className="rounded-2xl border bg-white p-4">
-          <h2 className="font-semibold">Neuer Artikel</h2>
+        <div className="rounded-lg border border-border bg-surface p-3">
+          <h2 className="text-[13px] font-semibold">Neuer Artikel</h2>
           <div className="mt-3 space-y-3">
             <div>
               <Label>Name</Label>

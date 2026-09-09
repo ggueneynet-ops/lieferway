@@ -35,36 +35,39 @@ export async function PanelShell({
   const links = NAV[session.role === "ADMIN" && roles.includes("ADMIN") ? "ADMIN" : session.role] ?? NAV.ADMIN;
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
-      <aside className="border-b bg-white md:w-60 md:border-b-0 md:border-r">
-        <div className="flex items-center justify-between px-4 py-4 md:block">
+    <div className="dashboard-shell flex min-h-full flex-col md:flex-row">
+      <aside className="border-b border-border bg-surface md:w-56 md:border-b-0 md:border-r">
+        <div className="flex items-center justify-between px-3 py-3 md:block">
           <Logo size="sm" />
-          <p className="mt-3 hidden text-xs text-muted-foreground md:block">
+          <p className="mt-2 hidden text-[11px] leading-snug text-text-secondary md:block">
             {session.name}
             <br />
             {session.email}
           </p>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-2 pb-3 md:flex-col md:pb-6">
+        <nav className="flex gap-0.5 overflow-x-auto px-2 pb-2 md:flex-col md:pb-4">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="whitespace-nowrap rounded-lg px-3 py-2 text-sm hover:bg-accent"
+              className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-bg-muted"
             >
               {l.label}
             </Link>
           ))}
-          <Link href="/" className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
+          <Link
+            href="/"
+            className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] text-text-secondary hover:bg-bg-muted"
+          >
             Zum Marktplatz
           </Link>
         </nav>
       </aside>
       <div className="flex-1">
-        <header className="border-b bg-white px-4 py-4 md:px-8">
-          <h1 className="text-xl font-semibold">{title}</h1>
+        <header className="border-b border-border bg-surface px-4 py-3 md:px-6">
+          <h1 className="text-base font-semibold tracking-tight text-ink">{title}</h1>
         </header>
-        <div className="p-4 md:p-8">{children}</div>
+        <div className="p-3 md:p-5">{children}</div>
       </div>
     </div>
   );

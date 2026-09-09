@@ -27,8 +27,8 @@ type CartLine = {
   quantity: number;
 };
 
-const ORANGE = "#F05A00";
-const BG = "#FFF8F3";
+const ORANGE = "#FF6A00";
+const BG = "#FFFFFF";
 
 function eur(cents: number) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(cents / 100);
@@ -308,14 +308,14 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: BG, paddingTop: 54 },
   top: { paddingHorizontal: 20, marginBottom: 8 },
   brand: { fontSize: 22, fontWeight: "700", color: ORANGE },
-  city: { color: "#6B5A4E", fontSize: 13 },
+  city: { color: "#64748B", fontSize: 13 },
   pad: { paddingHorizontal: 20, paddingBottom: 40 },
-  h1: { fontSize: 26, fontWeight: "700", marginBottom: 6, color: "#2A1F18" },
-  h2: { fontSize: 18, fontWeight: "600", marginTop: 8, color: "#2A1F18" },
-  muted: { color: "#6B5A4E", marginBottom: 10, fontSize: 13 },
+  h1: { fontSize: 26, fontWeight: "700", marginBottom: 6, color: "#0F172A" },
+  h2: { fontSize: 18, fontWeight: "600", marginTop: 8, color: "#0F172A" },
+  muted: { color: "#64748B", marginBottom: 10, fontSize: 13 },
   input: {
     borderWidth: 1,
-    borderColor: "#E8D9CC",
+    borderColor: "#E5E7EB",
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 12,
@@ -323,13 +323,13 @@ const styles = StyleSheet.create({
   },
   btn: { backgroundColor: ORANGE, borderRadius: 14, padding: 14, marginTop: 16, alignItems: "center" },
   btnText: { color: "#fff", fontWeight: "700" },
-  error: { color: "#B42318", paddingHorizontal: 20, marginBottom: 6 },
-  card: { backgroundColor: "#fff", borderRadius: 16, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: "#F0E4D8" },
-  cardTitle: { fontSize: 16, fontWeight: "600", color: "#2A1F18" },
-  row: { flexDirection: "row", gap: 8, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: "#E8D9CC" },
+  error: { color: "#DC2626", paddingHorizontal: 20, marginBottom: 6 },
+  card: { backgroundColor: "#fff", borderRadius: 16, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: "#E5E7EB" },
+  cardTitle: { fontSize: 16, fontWeight: "600", color: "#0F172A" },
+  row: { flexDirection: "row", gap: 8, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: "#E5E7EB" },
   price: { fontWeight: "600" },
   link: { marginBottom: 14 },
   linkText: { color: ORANGE, fontWeight: "600" },
-  pay: { padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#E8D9CC", backgroundColor: "#fff", marginBottom: 8 },
-  payOn: { borderColor: ORANGE, backgroundColor: "#FFE8D6" },
+  pay: { padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#fff", marginBottom: 8 },
+  payOn: { borderColor: ORANGE, backgroundColor: "#FFF0E6" },
 });
