@@ -30,7 +30,7 @@ type Restaurant = {
 
 export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
   const { add, cart, foodSubtotal, count } = useCart();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const inThis = cart?.restaurantId === restaurant.id;
 
   return (
@@ -57,7 +57,7 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                       <h3 className="font-medium">{item.name}</h3>
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
                       <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-                        <span className="font-semibold">{formatEUR(item.priceCents)}</span>
+                        <span className="font-semibold">{formatEUR(item.priceCents, locale)}</span>
                         <Button
                           size="sm"
                           disabled={!restaurant.isOpen || !item.isAvailable}
@@ -78,8 +78,8 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                               },
                             );
                             if (!same) {
-                              toast.message("Warenkorb ersetzt", {
-                                description: "Nur ein Restaurant pro Bestellung – vorheriger Warenkorb geleert.",
+                              toast.message(t.cartReplaced, {
+                                description: t.cartReplacedHint,
                               });
                             } else {
                               toast.success(`${item.name} ${t.add.toLowerCase()}`);
@@ -115,17 +115,17 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                       {i.quantity}× {i.name}
                     </span>
                   </span>
-                  <span className="shrink-0">{formatEUR(i.priceCents * i.quantity)}</span>
+                  <span className="shrink-0">{formatEUR(i.priceCents * i.quantity, locale)}</span>
                 </li>
               ))}
             </ul>
             <p className="mt-3 flex justify-between text-sm">
               <span>{t.subtotal}</span>
-              <span>{formatEUR(foodSubtotal)}</span>
+              <span>{formatEUR(foodSubtotal, locale)}</span>
             </p>
             <p className="flex justify-between text-sm text-muted-foreground">
               <span>{t.fee}</span>
-              <span>{formatEUR(cart!.deliveryFeeCents)}</span>
+              <span>{formatEUR(cart!.deliveryFeeCents, locale)}</span>
             </p>
             <Button asChild className="mt-4 w-full">
               <Link href="/checkout">{t.checkout}</Link>

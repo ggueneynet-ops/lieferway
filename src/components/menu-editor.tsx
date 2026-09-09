@@ -1,5 +1,6 @@
 import { formatEUR } from "@/lib/money";
 import { dishPhoto } from "@/lib/media";
+import { getCopy } from "@/lib/get-locale";
 
 type Item = {
   id: string;
@@ -12,7 +13,7 @@ type Item = {
 };
 type Category = { id: string; name: string; items: Item[] };
 
-export function MenuEditor({
+export async function MenuEditor({
   categories,
   cuisine,
 }: {
@@ -20,15 +21,16 @@ export function MenuEditor({
   categories: Category[];
   cuisine: string;
 }) {
+  const { t, locale } = await getCopy();
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-ink">Neuen Artikel hinzufügen</h2>
-        <p className="mt-1 text-sm text-text-secondary">Name, Preis, Kategorie, optional ein Foto.</p>
+        <h2 className="text-lg font-semibold text-ink">{t.addItem}</h2>
+        <p className="mt-1 text-sm text-text-secondary">{t.addItemHint}</p>
         <form action="/restaurant/menu/add" method="post" className="mt-5 space-y-4">
           <div>
             <label htmlFor="item-name" className="text-base font-medium">
-              Name
+              {t.name}
             </label>
             <input
               id="item-name"
@@ -41,7 +43,7 @@ export function MenuEditor({
           </div>
           <div>
             <label htmlFor="item-price" className="text-base font-medium">
-              Preis (€)
+              {t.price}
             </label>
             <input
               id="item-price"
@@ -54,7 +56,7 @@ export function MenuEditor({
           </div>
           <div>
             <label htmlFor="item-cat" className="text-base font-medium">
-              Kategorie
+              {t.category}
             </label>
             {categories.length > 0 && (
               <select
@@ -73,34 +75,34 @@ export function MenuEditor({
             <input
               name="categoryName"
               className="mt-2 h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
-              placeholder={categories.length ? "Oder neue Kategorie eingeben" : "z. B. Grill"}
+              placeholder={categories.length ? t.newCategoryHint : "Grill"}
             />
           </div>
           <div>
             <label htmlFor="item-photo" className="text-base font-medium">
-              Foto-URL (optional)
+              {t.photoOptional}
             </label>
             <input
               id="item-photo"
               name="imageUrl"
               className="mt-1 h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
-              placeholder="https://… oder leer lassen für Platzhalter"
+              placeholder={t.photoHint}
             />
           </div>
           <button type="submit" className="h-14 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed">
-            Speichern
+            {t.save}
           </button>
           </form>
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-ink">Speisekarte</h2>
+          <h2 className="mb-3 text-lg font-semibold text-ink">{t.menuTitle}</h2>
         <div className="space-y-3">
           {categories.map((cat) => (
             <div key={cat.id} className="rounded-2xl border border-border bg-surface">
               <p className="border-b border-border px-4 py-3 font-medium">{cat.name}</p>
               {cat.items.length === 0 ? (
-                <p className="px-4 py-4 text-sm text-text-secondary">Noch keine Artikel.</p>
+                <p className="px-4 py-4 text-sm text-text-secondary">{t.noItems}</p>
               ) : (
                 <ul>
                   {cat.items.map((item) => {
@@ -116,19 +118,19 @@ export function MenuEditor({
                           <p className={item.isAvailable ? "font-medium" : "text-text-secondary line-through"}>
                             {item.name}
                           </p>
-                          <p className="text-sm text-text-secondary">{formatEUR(item.priceCents)}</p>
+                          <p className="text-sm text-text-secondary">{formatEUR(item.priceCents, locale)}</p>
                         </div>
                         <div className="flex shrink-0 gap-2">
                           <form action="/restaurant/menu/toggle" method="post">
                             <input type="hidden" name="id" value={item.id} />
                             <button type="submit" className="h-11 rounded-xl border border-border px-3 text-sm">
-                              {item.isAvailable ? "Aus" : "An"}
+                              {item.isAvailable ? t.turnOff : t.turnOn}
                             </button>
                           </form>
                           <form action="/restaurant/menu/delete" method="post">
                             <input type="hidden" name="id" value={item.id} />
                             <button type="submit" className="h-11 rounded-xl px-3 text-sm text-danger">
-                              Löschen
+                              {t.delete}
                             </button>
                           </form>
                         </div>

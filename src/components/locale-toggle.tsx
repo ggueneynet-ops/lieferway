@@ -2,33 +2,27 @@
 
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/locale-provider";
+import { LOCALES, type Locale } from "@/lib/i18n";
 
 export function LocaleToggle() {
   const { locale, setLocale } = useI18n();
   const router = useRouter();
 
   return (
-    <div className="flex overflow-hidden rounded-full border text-xs font-medium">
-      <button
-        type="button"
-        onClick={() => {
-          setLocale("de");
-          router.refresh();
-        }}
-        className={`px-2.5 py-1 ${locale === "de" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-      >
-        DE
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          setLocale("tr");
-          router.refresh();
-        }}
-        className={`px-2.5 py-1 ${locale === "tr" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-      >
-        TR
-      </button>
+    <div className="flex overflow-hidden rounded-full border text-[11px] font-medium sm:text-xs" role="group" aria-label="Language">
+      {LOCALES.map((code: Locale) => (
+        <button
+          key={code}
+          type="button"
+          onClick={() => {
+            setLocale(code);
+            router.refresh();
+          }}
+          className={`px-2 py-1 sm:px-2.5 ${locale === code ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+        >
+          {code.toUpperCase()}
+        </button>
+      ))}
     </div>
   );
 }

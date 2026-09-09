@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/auth";
 import { LOCALE_COOKIE } from "@/lib/constants";
-import { t, type Locale } from "@/lib/i18n";
+import { parseLocale, t, type Locale } from "@/lib/i18n";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { CartButton } from "@/components/cart-button";
 import { AccountMenu } from "@/components/account-menu";
@@ -10,7 +10,7 @@ import { AccountMenu } from "@/components/account-menu";
 export async function SiteHeader() {
   const user = await getSession();
   const cookieStore = await cookies();
-  const locale: Locale = cookieStore.get(LOCALE_COOKIE)?.value === "tr" ? "tr" : "de";
+  const locale: Locale = parseLocale(cookieStore.get(LOCALE_COOKIE)?.value);
   const copy = t(locale);
 
   return (

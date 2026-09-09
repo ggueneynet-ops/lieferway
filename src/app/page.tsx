@@ -6,6 +6,8 @@ import { CUISINES } from "@/lib/constants";
 import { HomeSearch } from "@/components/home-search";
 import { AllLabel, HomeHeroCopy, HomeSectionTitle } from "@/components/home-copy";
 import { restaurantPhoto } from "@/lib/media";
+import { cuisineName } from "@/lib/i18n";
+import { getCopy } from "@/lib/get-locale";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,7 @@ export default async function Home({
   searchParams: Promise<{ q?: string; cuisine?: string }>;
 }) {
   const { q, cuisine } = await searchParams;
+  const { locale, t: copy } = await getCopy();
   const restaurants = await prisma.restaurant.findMany({
     where: {
       isActive: true,
@@ -87,7 +90,7 @@ export default async function Home({
                 href={`/?cuisine=${encodeURIComponent(c)}`}
                 className={`shrink-0 rounded-full border px-4 py-1.5 text-sm ${cuisine === c ? "bg-primary text-primary-foreground border-primary" : "bg-white hover:bg-muted"}`}
               >
-                {c}
+                {cuisineName(locale, c)}
               </Link>
             ))}
           </div>
@@ -100,7 +103,12 @@ export default async function Home({
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((r) => (
-                <RestaurantCard key={r.id} r={r} />
+                <RestaurantCard
+                  key={r.id}
+                  r={r}
+                  closedLabel={copy.closed}
+                  cuisineLabel={cuisineName(locale, r.cuisine)}
+                />
               ))}
             </div>
           )}

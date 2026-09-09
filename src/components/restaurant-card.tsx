@@ -18,7 +18,15 @@ export type RestaurantCardData = {
   isOpen: boolean;
 };
 
-export function RestaurantCard({ r }: { r: RestaurantCardData }) {
+export function RestaurantCard({
+  r,
+  closedLabel = "Geschlossen",
+  cuisineLabel,
+}: {
+  r: RestaurantCardData;
+  closedLabel?: string;
+  cuisineLabel?: string;
+}) {
   const photo = restaurantPhoto(r.imageUrl, r.cuisine, r.slug);
 
   return (
@@ -35,12 +43,12 @@ export function RestaurantCard({ r }: { r: RestaurantCardData }) {
         />
         {!r.isOpen && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-medium text-white">
-            Geschlossen
+            {closedLabel}
           </div>
         )}
         <RestaurantLogo name={r.name} size={44} className="absolute bottom-3 left-3 ring-2 ring-white" />
         <span className="absolute right-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium shadow">
-          {r.cuisine}
+          {cuisineLabel ?? r.cuisine}
         </span>
       </div>
       <div className="space-y-2 p-4">

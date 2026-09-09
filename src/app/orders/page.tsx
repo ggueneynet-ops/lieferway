@@ -7,10 +7,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
+import { getCopy } from "@/lib/get-locale";
+import { dateLocale } from "@/lib/i18n";
 
 export default async function OrdersPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/orders");
+  const { t, locale } = await getCopy();
 
   const orders = await prisma.order.findMany({
     where: session.role === "ADMIN" ? {} : { customerId: session.id },
@@ -22,10 +25,10 @@ export default async function OrdersPage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
-        <h1 className="text-2xl font-semibold">Bestellungen</h1>
+        <h1 className="text-2xl font-semibold">{t.orders}</h1>
         {orders.length === 0 ? (
           <p className="mt-6 rounded-2xl border bg-white p-8 text-center text-muted-foreground">
-            Noch keine Bestellungen.
+            {t.noOrders}
           </p>
         ) : (
           <ul className="mt-6 space-y-3">
@@ -44,11 +47,11 @@ export default async function OrdersPage() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium">{o.restaurant.name}</p>
-                      <StatusBadge status={o.status} />
+                      <StatusBadge status={o.status} locale={locale} />
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {o.shortCode} · {formatEUR(o.totalCents)} ·{" "}
-                      {new Date(o.createdAt).toLocaleString("de-DE")}
+                      {o.shortCode} · {formatEUR(o.totalCents, locale)} ·{" "}
+                      {new Date(o.createdAt).toLocaleString(dateLocale(locale))}
                     </p>
                   </div>
                 </Link>

@@ -51,7 +51,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 - Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
 - Auth with roles (JWT cookie + Bearer for mobile)
 
-The **customer marketplace** is the main app (header: logo, language, account, cart). Restaurant / courier / admin sit behind footer **Partner** links and the account menu — they do not share the top nav.
+Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
 Restaurant cards and dishes use local food photos (plus a small letter logo on each venue).
 

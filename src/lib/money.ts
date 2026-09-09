@@ -1,5 +1,6 @@
-export function formatEUR(cents: number, locale: string = "de-DE") {
-  return new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "de-DE", {
+export function formatEUR(cents: number, locale: string = "de") {
+  const tag = locale === "tr" || locale.startsWith("tr") ? "tr-TR" : locale === "en" || locale.startsWith("en") ? "en-GB" : "de-DE";
+  return new Intl.NumberFormat(tag, {
     style: "currency",
     currency: "EUR",
   }).format(cents / 100);

@@ -6,6 +6,8 @@ import { MenuClient } from "@/components/menu-client";
 import { Bike, Clock, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
+import { getCopy } from "@/lib/get-locale";
+import { cuisineName } from "@/lib/i18n";
 
 export default async function RestaurantPage({
   params,
@@ -13,6 +15,7 @@ export default async function RestaurantPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const { t, locale } = await getCopy();
   const restaurant = await prisma.restaurant.findUnique({
     where: { slug },
     include: {
@@ -37,7 +40,7 @@ export default async function RestaurantPage({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-4 left-0 right-0 mx-auto max-w-6xl px-4 text-white">
-            <p className="text-sm text-white/80">{restaurant.cuisine} · {restaurant.postalCode} {restaurant.city}</p>
+            <p className="text-sm text-white/80">{cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}</p>
             <h1 className="font-display text-3xl font-semibold">{restaurant.name}</h1>
           </div>
         </div>
@@ -53,12 +56,12 @@ export default async function RestaurantPage({
             </span>
             <span className="inline-flex items-center gap-1">
               <Bike className="size-4" />
-              {formatEUR(restaurant.deliveryFeeCents)} Lieferung
+              {formatEUR(restaurant.deliveryFeeCents, locale)} {t.delivery}
             </span>
-            <span>Min. {formatEUR(restaurant.minOrderCents)}</span>
+            <span>{t.minOrder} {formatEUR(restaurant.minOrderCents, locale)}</span>
             <span>{restaurant.address}</span>
             {!restaurant.isOpen && (
-              <span className="font-medium text-destructive">Derzeit geschlossen</span>
+              <span className="font-medium text-destructive">{t.closedNow}</span>
             )}
           </div>
           <p className="mb-8 max-w-2xl text-muted-foreground">{restaurant.description}</p>

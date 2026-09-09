@@ -3,20 +3,8 @@ import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import type { Role } from "@/lib/constants";
-
-const NAV: Record<string, { href: string; label: string }[]> = {
-  RESTAURANT: [
-    { href: "/restaurant", label: "Bestellungen" },
-    { href: "/restaurant/menu", label: "Speisekarte" },
-  ],
-  COURIER: [{ href: "/courier", label: "Touren" }],
-  ADMIN: [
-    { href: "/admin", label: "Start" },
-    { href: "/admin/restaurants", label: "Restaurants" },
-    { href: "/admin/orders", label: "Bestellungen" },
-    { href: "/admin/payouts", label: "Auszahlungen" },
-  ],
-};
+import { getCopy } from "@/lib/get-locale";
+import { LocaleToggle } from "@/components/locale-toggle";
 
 export async function PanelShell({
   children,
@@ -30,6 +18,20 @@ export async function PanelShell({
   const session = await getSession();
   if (!session) redirect("/login");
   if (!roles.includes(session.role) && session.role !== "ADMIN") redirect("/");
+  const { t } = await getCopy();
+  const NAV: Record<string, { href: string; label: string }[]> = {
+    RESTAURANT: [
+      { href: "/restaurant", label: t.navOrders },
+      { href: "/restaurant/menu", label: t.navMenu },
+    ],
+    COURIER: [{ href: "/courier", label: t.navTours }],
+    ADMIN: [
+      { href: "/admin", label: t.navStart },
+      { href: "/admin/restaurants", label: t.restaurants },
+      { href: "/admin/orders", label: t.navOrders },
+      { href: "/admin/payouts", label: t.navPayouts },
+    ],
+  };
   const links = NAV[session.role === "ADMIN" && roles.includes("ADMIN") ? "ADMIN" : session.role] ?? NAV.ADMIN;
 
   return (
@@ -57,13 +59,14 @@ export async function PanelShell({
             href="/"
             className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] text-text-secondary hover:bg-bg-muted"
           >
-            Zum Marktplatz
+            {t.toMarketplace}
           </Link>
         </nav>
       </aside>
       <div className="flex-1">
-        <header className="border-b border-border bg-surface px-4 py-3 md:px-6">
+        <header className="flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 md:px-6">
           <h1 className="text-base font-semibold tracking-tight text-ink">{title}</h1>
+          <LocaleToggle />
         </header>
         <div className="p-3 md:p-5">{children}</div>
       </div>

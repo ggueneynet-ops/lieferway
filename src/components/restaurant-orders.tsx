@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
+import { useI18n } from "@/components/locale-provider";
 import { toast } from "sonner";
+import type { Locale } from "@/lib/i18n";
 
 type Order = {
   id: string;
@@ -24,6 +26,7 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
   const [orders, setOrders] = useState(initial);
   const [open, setOpen] = useState(isOpen);
   const router = useRouter();
+  const { t, locale } = useI18n();
 
   useEffect(() => {
     const t = setInterval(async () => {
@@ -66,29 +69,29 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
     <div className="space-y-4">
       <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2">
         <p className="text-[13px]">
-          Status: <strong>{open ? "Geöffnet" : "Geschlossen"}</strong>
+          Status: <strong>{open ? t.open : t.closed}</strong>
         </p>
         <Button variant="outline" size="sm" onClick={toggleOpen}>
-          {open ? "Schließen" : "Öffnen"}
+          {open ? t.closeNow : t.openNow}
         </Button>
       </div>
       <section>
         <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">
-          Neue Bestellungen
+          {t.newIncoming}
         </h2>
         {incoming.length === 0 ? (
           <p className="rounded-lg border border-border bg-surface p-3 text-[13px] text-text-secondary">
-            Keine offenen Eingänge.
+            {t.noIncoming}
           </p>
         ) : (
           <div className="space-y-2">
             {incoming.map((o) => (
-              <OrderCard key={o.id} order={o} onAct={act}>
+              <OrderCard key={o.id} order={o} onAct={act} locale={locale} noteLabel={t.note}>
                 <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "accept")}>
-                  Annehmen
+                  {t.accept}
                 </Button>
                 <Button className="h-11 px-5 text-base" variant="outline" onClick={() => act(o.id, "reject")}>
-                  Ablehnen
+                  {t.reject}
                 </Button>
               </OrderCard>
             ))}
@@ -97,26 +100,26 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
       </section>
       <section>
         <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">
-          In der Küche
+          {t.kitchen}
         </h2>
         <div className="space-y-2">
           {active.map((o) => (
-            <OrderCard key={o.id} order={o} onAct={act}>
+            <OrderCard key={o.id} order={o} onAct={act} locale={locale} noteLabel={t.note}>
               {o.status === "ACCEPTED" && (
                 <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "preparing")}>
-                  Zubereitung starten
+                  {t.startPrep}
                 </Button>
               )}
               {o.status === "PREPARING" && (
                 <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "ready")}>
-                  Bereit für Kurier
+                  {t.readyForCourier}
                 </Button>
               )}
             </OrderCard>
           ))}
           {active.length === 0 && (
             <p className="rounded-lg border border-border bg-surface p-3 text-[13px] text-text-secondary">
-              Nichts in Arbeit.
+              {t.nothingCooking}
             </p>
           )}
         </div>
@@ -128,10 +131,14 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
 function OrderCard({
   order,
   children,
+  locale,
+  noteLabel,
 }: {
   order: Order;
   onAct: (id: string, action: string) => void;
   children?: React.ReactNode;
+  locale: Locale;
+  noteLabel: string;
 }) {
   return (
     <article className="rounded-lg border border-border bg-surface p-3">
@@ -141,10 +148,10 @@ function OrderCard({
             {order.shortCode} · {order.customer.name}
           </p>
           <p className="text-xs text-muted-foreground">
-            {order.paymentMethod} · {formatEUR(order.totalCents)} · {order.customer.phone}
+            {order.paymentMethod} · {formatEUR(order.totalCents, locale)} · {order.customer.phone}
           </p>
         </div>
-        <StatusBadge status={order.status} />
+        <StatusBadge status={order.status} locale={locale} />
       </div>
       <ul className="mt-2 text-sm">
         {order.items.map((i) => (
@@ -153,7 +160,7 @@ function OrderCard({
           </li>
         ))}
       </ul>
-      {order.notes && <p className="mt-2 text-sm text-amber-800">Hinweis: {order.notes}</p>}
+      {order.notes && <p className="mt-2 text-sm text-amber-800">{noteLabel}: {order.notes}</p>}
       <div className="mt-3 flex flex-wrap gap-2">{children}</div>
     </article>
   );

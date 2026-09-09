@@ -12,18 +12,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatEUR } from "@/lib/money";
 import { applyCoupon, computeOrderTotals } from "@/lib/orders";
 import type { PaymentMethod } from "@/lib/constants";
+import { interpolate } from "@/lib/i18n";
 import { toast } from "sonner";
-
-const METHODS: { id: PaymentMethod; label: string; hint: string }[] = [
-  { id: "CARD", label: "Kreditkarte", hint: "Visa, Mastercard · Stripe-Mock" },
-  { id: "APPLE_PAY", label: "Apple Pay", hint: "Touch ID / Face ID · Mock-Erfolg" },
-  { id: "GOOGLE_PAY", label: "Google Pay", hint: "Google-Konto · Mock-Erfolg" },
-  { id: "CASH", label: "Bar bei Lieferung", hint: "Provision erscheint separat im Ledger" },
-];
 
 export function CheckoutClient() {
   const { cart, foodSubtotal, clear } = useCart();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const router = useRouter();
   const [street, setStreet] = useState("Berger Straße 142");
   const [postalCode, setPostalCode] = useState("60316");
@@ -52,7 +46,7 @@ export function CheckoutClient() {
       <main className="mx-auto max-w-lg flex-1 px-4 py-16 text-center">
         <p className="text-muted-foreground">{t.emptyCart}</p>
         <Button asChild className="mt-4">
-          <Link href="/">Zur Startseite</Link>
+          <Link href="/">{t.toHome}</Link>
         </Button>
       </main>
     );
@@ -70,12 +64,12 @@ export function CheckoutClient() {
     const res = await fetch(`/api/coupons/${encodeURIComponent(couponCode)}`);
     const data = await res.json();
     if (!res.ok) {
-      toast.error(data.error ?? "Ungültig");
+      toast.error(data.error ?? t.couponInvalid);
       setCoupon(null);
       return;
     }
     setCoupon(data.coupon);
-    toast.success(`Gutschein ${data.coupon.code} aktiv`);
+    toast.success(interpolate(t.couponActive, { code: data.coupon.code }));
   }
 
   async function pay() {
@@ -86,7 +80,7 @@ export function CheckoutClient() {
       return;
     }
     if (foodSubtotal < current.minOrderCents) {
-      toast.error("Mindestbestellwert nicht erreicht.");
+      toast.error(t.minNotMet);
       return;
     }
     setBusy(true);
@@ -116,10 +110,10 @@ export function CheckoutClient() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       clear();
-      toast.success("Bestellung aufgegeben");
+      toast.success(t.orderPlaced);
       router.push(`/orders/${data.order.id}`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Fehler");
+      toast.error(e instanceof Error ? e.message : t.error);
     } finally {
       setBusy(false);
     }
@@ -127,11 +121,15 @@ export function CheckoutClient() {
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
-        <h1 className="text-2xl font-semibold">Kasse</h1>
+        <h1 className="text-2xl font-semibold">{t.checkoutTitle}</h1>
         <p className="text-sm text-muted-foreground">{cart.restaurantName}</p>
         {authed === false && (
           <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm">
-            Bitte <Link className="font-medium text-primary underline" href="/login?next=/checkout">anmelden</Link>, um zu bestellen.
+            <Link className="font-medium text-primary underline" href="/login?next=/checkout">
+              {t.login}
+            </Link>
+            {" — "}
+            {t.loginToOrder}
           </p>
         )}
         <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
@@ -160,12 +158,17 @@ export function CheckoutClient() {
               </div>
             </section>
             <section className="rounded-2xl border bg-white p-5">
-              <h2 className="font-semibold">Zahlung an Lieferway</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Stripe-Mock: Karte / Apple Pay / Google Pay werden als erfolgreich simuliert. Kein PayPal.
-              </p>
+              <h2 className="font-semibold">{t.payToPlatform}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{t.payHint}</p>
               <div className="mt-4 grid gap-2">
-                {METHODS.map((m) => (
+                {(
+                  [
+                    { id: "CARD" as const, label: t.payCard, hint: t.payCardHint },
+                    { id: "APPLE_PAY" as const, label: t.payApple, hint: t.payAppleHint },
+                    { id: "GOOGLE_PAY" as const, label: t.payGoogle, hint: t.payGoogleHint },
+                    { id: "CASH" as const, label: t.payCash, hint: t.payCashHint },
+                  ] satisfies { id: PaymentMethod; label: string; hint: string }[]
+                ).map((m) => (
                   <button
                     key={m.id}
                     type="button"
@@ -180,40 +183,40 @@ export function CheckoutClient() {
               {method === "CARD" && (
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   <div className="sm:col-span-3">
-                    <Label>Kartennummer</Label>
+                    <Label>{t.cardNumber}</Label>
                     <Input className="mt-1" value={card} onChange={(e) => setCard(e.target.value)} />
                   </div>
                   <div>
-                    <Label>Gültig bis</Label>
+                    <Label>{t.expiry}</Label>
                     <Input className="mt-1" value={expiry} onChange={(e) => setExpiry(e.target.value)} />
                   </div>
                   <div>
-                    <Label>CVC</Label>
+                    <Label>{t.cvc}</Label>
                     <Input className="mt-1" value={cvc} onChange={(e) => setCvc(e.target.value)} />
                   </div>
                 </div>
               )}
               {method === "APPLE_PAY" && (
                 <div className="mt-4 rounded-xl bg-black px-4 py-3 text-center text-sm font-medium text-white">
-                  Apple Pay · Betrag {formatEUR(totals.totalCents)}
+                  Apple Pay · {formatEUR(totals.totalCents, locale)}
                 </div>
               )}
               {method === "GOOGLE_PAY" && (
                 <div className="mt-4 rounded-xl border-2 border-zinc-800 px-4 py-3 text-center text-sm font-medium">
-                  GPay · {formatEUR(totals.totalCents)}
+                  GPay · {formatEUR(totals.totalCents, locale)}
                 </div>
               )}
             </section>
           </div>
           <aside className="h-fit rounded-2xl border bg-white p-5">
-            <h2 className="font-semibold">Summe</h2>
+            <h2 className="font-semibold">{t.summary}</h2>
             <ul className="mt-3 space-y-1 text-sm">
               {cart.items.map((i) => (
                 <li key={i.menuItemId} className="flex justify-between gap-2">
                   <span>
                     {i.quantity}× {i.name}
                   </span>
-                  <span>{formatEUR(i.priceCents * i.quantity)}</span>
+                  <span>{formatEUR(i.priceCents * i.quantity, locale)}</span>
                 </li>
               ))}
             </ul>
@@ -230,21 +233,21 @@ export function CheckoutClient() {
             <div className="mt-4 space-y-1 text-sm">
               <p className="flex justify-between">
                 <span>{t.subtotal}</span>
-                <span>{formatEUR(foodSubtotal)}</span>
+                <span>{formatEUR(foodSubtotal, locale)}</span>
               </p>
               {discountCents > 0 && (
                 <p className="flex justify-between text-emerald-700">
                   <span>{t.discount}</span>
-                  <span>−{formatEUR(discountCents)}</span>
+                  <span>−{formatEUR(discountCents, locale)}</span>
                 </p>
               )}
               <p className="flex justify-between text-muted-foreground">
                 <span>{t.fee}</span>
-                <span>{formatEUR(cart.deliveryFeeCents)}</span>
+                <span>{formatEUR(cart.deliveryFeeCents, locale)}</span>
               </p>
               <p className="flex justify-between font-semibold">
                 <span>{t.total}</span>
-                <span>{formatEUR(totals.totalCents)}</span>
+                <span>{formatEUR(totals.totalCents, locale)}</span>
               </p>
             </div>
             <Button className="mt-4 w-full" size="lg" disabled={busy} onClick={pay}>
