@@ -27,7 +27,7 @@ type CartLine = {
   quantity: number;
 };
 
-const ORANGE = "#FF6A00";
+const PINK = "#E91E63";
 const BG = "#FFFFFF";
 
 function eur(cents: number) {
@@ -159,7 +159,7 @@ export default function App() {
         <Text style={styles.city}>Frankfurt am Main</Text>
       </View>
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      {busy && screen !== "login" ? <ActivityIndicator color={ORANGE} style={{ marginTop: 8 }} /> : null}
+      {busy && screen !== "login" ? <ActivityIndicator color={PINK} style={{ marginTop: 8 }} /> : null}
 
       {screen === "login" && (
         <View style={styles.pad}>
@@ -307,7 +307,7 @@ export default function App() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: BG, paddingTop: 54 },
   top: { paddingHorizontal: 20, marginBottom: 8 },
-  brand: { fontSize: 22, fontWeight: "700", color: ORANGE },
+  brand: { fontSize: 22, fontWeight: "700", color: PINK },
   city: { color: "#64748B", fontSize: 13 },
   pad: { paddingHorizontal: 20, paddingBottom: 40 },
   h1: { fontSize: 26, fontWeight: "700", marginBottom: 6, color: "#0F172A" },
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
   },
-  btn: { backgroundColor: ORANGE, borderRadius: 14, padding: 14, marginTop: 16, alignItems: "center" },
+  btn: { backgroundColor: PINK, borderRadius: 14, padding: 14, marginTop: 16, alignItems: "center" },
   btnText: { color: "#fff", fontWeight: "700" },
   error: { color: "#DC2626", paddingHorizontal: 20, marginBottom: 6 },
   card: { backgroundColor: "#fff", borderRadius: 16, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: "#E5E7EB" },
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", gap: 8, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: "#E5E7EB" },
   price: { fontWeight: "600" },
   link: { marginBottom: 14 },
-  linkText: { color: ORANGE, fontWeight: "600" },
+  linkText: { color: PINK, fontWeight: "600" },
   pay: { padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#fff", marginBottom: 8 },
-  payOn: { borderColor: ORANGE, backgroundColor: "#FFF0E6" },
+  payOn: { borderColor: PINK, backgroundColor: "#FCE4EC" },
 });

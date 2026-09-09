@@ -53,7 +53,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout follows common Turkish/German food-app patterns (location bar, cuisine rail, dense list, sticky cart) with Lieferway orange `#FF6A00` — not a third-party brand clone.
+Marketplace layout follows common Turkish food-app patterns (location bar, cuisine rail, dense list, sticky cart) with a Yemeksepeti-like **pink** `#E91E63`. Name and logo stay **Lieferway** — not a third-party clone.
 
 Restaurant and dish photos stay compact left thumbnails.
 

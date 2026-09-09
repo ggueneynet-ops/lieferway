@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** Placeholder Logo A: L + route arrow + shopping bag. Swap for final SVG later. */
+/** Placeholder mark: L + route arrow + shopping bag. Pink from brand tokens — not a third-party logo. */
 export function LogoMark({ size = 34 }: { size?: number }) {
   return (
     <svg

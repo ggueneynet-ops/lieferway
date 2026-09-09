@@ -1,8 +1,8 @@
 /** Locked brand tokens. CSS source of truth: src/app/globals.css */
 export const theme = {
-  primary: "#FF6A00",
-  primaryPressed: "#E55F00",
-  primarySoft: "#FFF0E6",
+  primary: "#E91E63",
+  primaryPressed: "#C2185B",
+  primarySoft: "#FCE4EC",
   secondary: "#0F172A",
   bg: "#FFFFFF",
   bgMuted: "#F4F5F7",
