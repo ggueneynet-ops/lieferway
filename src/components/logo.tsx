@@ -39,13 +39,13 @@ export function Logo({
 }) {
   const img = (
     <img
-      src={onDark ? "/logo-header-white.png" : "/logo-header-h96.png"}
+      src={onDark ? "/logo-header-white.png?v=3" : "/logo-header.png?v=3"}
       srcSet={
         onDark
           ? undefined
-          : "/logo-header-h64.png 64w, /logo-header-h96.png 96w, /logo-header-h128.png 128w"
+          : "/logo-header-h64.png?v=3 64w, /logo-header-h96.png?v=3 96w, /logo-header-h128.png?v=3 128w"
       }
-      sizes="160px"
+      sizes="(max-width: 640px) 148px, 176px"
       alt="Lieferway"
       draggable={false}
       className="block h-full w-auto max-w-none"
