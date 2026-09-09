@@ -36,13 +36,13 @@ export default async function OrdersPage() {
               <li key={o.id}>
                 <Link
                   href={`/orders/${o.id}`}
-                  className="flex gap-4 rounded-2xl border bg-white p-4 transition hover:shadow-sm"
+                  className="flex gap-3 rounded-2xl border bg-white p-3 transition hover:shadow-sm"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={restaurantPhoto(o.restaurant.imageUrl, o.restaurant.cuisine, o.restaurant.slug)}
                     alt=""
-                    className="h-16 w-16 rounded-xl object-cover"
+                    className="h-14 w-14 rounded-lg object-cover"
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between gap-2">

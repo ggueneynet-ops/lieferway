@@ -30,7 +30,7 @@ export function CartClient() {
               <li key={item.menuItemId} className="flex items-center justify-between gap-3 p-4">
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt="" className="h-14 w-14 rounded-xl object-cover" />
+                  <img src={item.imageUrl} alt="" className="h-12 w-12 rounded-lg object-cover sm:h-14 sm:w-14" />
                 ) : null}
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{item.name}</p>

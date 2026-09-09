@@ -39,24 +39,24 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
         {restaurant.categories.map((cat) => (
           <section key={cat.id} id={cat.id}>
             <h2 className="mb-4 font-display text-xl font-semibold text-ink">{cat.name}</h2>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {cat.items.map((item) => {
                 const photo = dishPhoto(item.imageUrl, restaurant.cuisine, item.name);
                 return (
                   <article
                     key={item.id}
-                    className="flex gap-3 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:gap-4"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={photo}
                       alt=""
-                      className="h-24 w-24 shrink-0 rounded-xl object-cover sm:h-28 sm:w-28"
+                      className="h-16 w-16 shrink-0 rounded-lg object-cover"
                     />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <h3 className="font-medium">{item.name}</h3>
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
-                      <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                    <div className="flex min-w-0 flex-1 flex-col justify-center">
+                      <h3 className="text-[15px] font-medium leading-tight">{item.name}</h3>
+                      <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{item.description}</p>
+                      <div className="mt-1.5 flex items-center justify-between gap-2">
                         <span className="font-semibold">{formatEUR(item.priceCents, locale)}</span>
                         <Button
                           size="sm"

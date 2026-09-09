@@ -31,7 +31,7 @@ export default async function RestaurantPage({
     <>
       <SiteHeader />
       <main className="flex-1">
-        <div className="relative h-52 w-full bg-muted sm:h-72">
+        <div className="relative h-32 w-full bg-muted sm:h-40">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={restaurantPhoto(restaurant.imageUrl, restaurant.cuisine, restaurant.slug)}
@@ -39,9 +39,9 @@ export default async function RestaurantPage({
             className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-4 left-0 right-0 mx-auto max-w-6xl px-4 text-white">
-            <p className="text-sm text-white/80">{cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}</p>
-            <h1 className="font-display text-3xl font-semibold">{restaurant.name}</h1>
+          <div className="absolute bottom-3 left-0 right-0 mx-auto max-w-6xl px-4 text-white">
+            <p className="text-xs text-white/80 sm:text-sm">{cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}</p>
+            <h1 className="font-display text-2xl font-semibold sm:text-3xl">{restaurant.name}</h1>
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-4 py-6">

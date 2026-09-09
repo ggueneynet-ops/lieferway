@@ -45,14 +45,14 @@ export default async function Home({
             <div>
               <HomeHeroCopy />
               <HomeSearch initialQ={q ?? ""} />
-              <div className="mt-8 flex gap-3 overflow-x-auto pb-1 md:hidden">
+              <div className="mt-6 flex gap-2 overflow-x-auto pb-1 md:hidden">
                 {restaurants.slice(0, 6).map((r) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     key={r.id}
                     src={restaurantPhoto(r.imageUrl, r.cuisine, r.slug)}
                     alt={r.name}
-                    className="h-28 w-36 shrink-0 rounded-2xl object-cover shadow-sm"
+                    className="h-16 w-16 shrink-0 rounded-xl object-cover shadow-sm"
                   />
                 ))}
               </div>
@@ -101,7 +101,7 @@ export default async function Home({
           {filtered.length === 0 ? (
             <HomeSectionTitle kind="empty" />
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               {filtered.map((r) => (
                 <RestaurantCard
                   key={r.id}

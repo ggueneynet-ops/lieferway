@@ -122,7 +122,7 @@ export default async function AdminRestaurantsPage({
                 <img
                   src={restaurantPhoto(r.imageUrl, r.cuisine, r.slug)}
                   alt=""
-                  className="h-16 w-20 shrink-0 rounded-xl object-cover"
+                  className="h-12 w-12 shrink-0 rounded-lg object-cover"
                 />
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 text-base font-medium text-ink">
