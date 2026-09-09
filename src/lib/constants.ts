@@ -1,0 +1,42 @@
+export const DEFAULT_COMMISSION_PERCENT = 5;
+export const AUTH_COOKIE = "lw_session";
+export const LOCALE_COOKIE = "lw_locale";
+export const CITY = "Frankfurt am Main";
+
+export const ROLES = ["CUSTOMER", "RESTAURANT", "COURIER", "ADMIN"] as const;
+export type Role = (typeof ROLES)[number];
+
+export const ORDER_STATUSES = [
+  "PLACED",
+  "ACCEPTED",
+  "PREPARING",
+  "READY",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "REJECTED",
+  "CANCELLED",
+] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export const PAYMENT_METHODS = ["CARD", "APPLE_PAY", "GOOGLE_PAY", "CASH"] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export const CUISINES = [
+  "Türkisch",
+  "Italienisch",
+  "Burger",
+  "Sushi",
+  "Deutsch",
+  "Vietnamesisch",
+  "Gesund",
+  "Pizza",
+] as const;
+
+export const STATUS_FLOW: OrderStatus[] = [
+  "PLACED",
+  "ACCEPTED",
+  "PREPARING",
+  "READY",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+];

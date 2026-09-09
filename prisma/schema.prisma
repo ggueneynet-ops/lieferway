@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         String   @default("CUSTOMER")
+  locale       String   @default("de")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  restaurant    Restaurant?
+  customerOrders Order[]    @relation("CustomerOrders")
+  courierOrders  Order[]    @relation("CourierOrders")
+  addresses      Address[]
+}
+
+model Address {
+  id         String  @id @default(cuid())
+  userId     String
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String  @default("Zuhause")
+  street     String
+  city       String  @default("Frankfurt am Main")
+  postalCode String
+  notes      String?
+}
+
+model Restaurant {
+  id                String   @id @default(cuid())
+  ownerId           String   @unique
+  owner             User     @relation(fields: [ownerId], references: [id])
+  name              String
+  slug              String   @unique
+  description       String
+  cuisine           String
+  address           String
+  city              String   @default("Frankfurt am Main")
+  postalCode        String
+  imageUrl          String
+  rating            Float    @default(4.5)
+  reviewCount       Int      @default(120)
+  deliveryFeeCents  Int      @default(249)
+  minOrderCents     Int      @default(1000)
+  etaMin            Int      @default(25)
+  etaMax            Int      @default(45)
+  commissionPercent Float    @default(5)
+  isOpen            Boolean  @default(true)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  categories MenuCategory[]
+  items      MenuItem[]
+  orders     Order[]
+  payouts    Payout[]
+}
+
+model MenuCategory {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name         String
+  sortOrder    Int        @default(0)
+  items        MenuItem[]
+}
+
+model MenuItem {
+  id           String       @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name         String
+  description  String
+  priceCents   Int
+  imageUrl     String?
+  isAvailable  Boolean      @default(true)
+  orderItems   OrderItem[]
+}
+
+model Coupon {
+  id              String  @id @default(cuid())
+  code            String  @unique
+  description     String
+  discountPercent Int?
+  discountCents   Int?
+  isActive        Boolean @default(true)
+  orders          Order[]
+}
+
+model Order {
+  id                    String   @id @default(cuid())
+  shortCode             String   @unique
+  customerId            String
+  customer              User     @relation("CustomerOrders", fields: [customerId], references: [id])
+  restaurantId          String
+  restaurant            Restaurant @relation(fields: [restaurantId], references: [id])
+  courierId             String?
+  courier               User?    @relation("CourierOrders", fields: [courierId], references: [id])
+  status                String   @default("PLACED")
+  paymentMethod         String
+  paymentStatus         String
+  stripePaymentIntentId String?
+  couponId              String?
+  coupon                Coupon?  @relation(fields: [couponId], references: [id])
+  couponCode            String?
+  foodSubtotalCents     Int
+  deliveryFeeCents      Int
+  discountCents         Int      @default(0)
+  totalCents            Int
+  commissionPercent     Float
+  commissionCents       Int
+  restaurantPayoutCents Int
+  street                String
+  city                  String
+  postalCode            String
+  notes                 String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  acceptedAt            DateTime?
+  deliveredAt           DateTime?
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  name       String
+  priceCents Int
+  quantity   Int
+}
+
+model Payout {
+  id                     String     @id @default(cuid())
+  restaurantId           String
+  restaurant             Restaurant @relation(fields: [restaurantId], references: [id])
+  weekStart              DateTime
+  weekEnd                DateTime
+  foodTotalCents         Int
+  commissionCents        Int
+  netPayoutCents         Int
+  cashCommissionDueCents Int        @default(0)
+  cardPayoutCents        Int        @default(0)
+  status                 String     @default("PENDING")
+  paidAt                 DateTime?
+  createdAt              DateTime   @default(now())
+
+  @@unique([restaurantId, weekStart])
+}
