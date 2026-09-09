@@ -190,6 +190,10 @@ export const dictionaries = {
     enterPlz: "PLZ eingeben",
     goToCart: "Zum Warenkorb",
     itemCount: "{count} Artikel",
+    geoLocating: "Standort wird ermittelt…",
+    geoPermission: "Bitte Standortzugriff erlauben – so erkennen wir deine PLZ.",
+    geoFailed: "PLZ konnte nicht ermittelt werden. Bitte manuell eingeben.",
+    geoIpFallback: "Ungefährer Standort (IP).",
   },
   en: {
     brand: "Lieferway",
@@ -369,6 +373,10 @@ export const dictionaries = {
     enterPlz: "Enter postcode",
     goToCart: "View cart",
     itemCount: "{count} items",
+    geoLocating: "Finding your location…",
+    geoPermission: "Allow location access so we can detect your postcode.",
+    geoFailed: "Could not detect a postcode. Please enter it manually.",
+    geoIpFallback: "Approximate location (IP).",
   },
   tr: {
     brand: "Lieferway",
@@ -548,6 +556,10 @@ export const dictionaries = {
     enterPlz: "Posta kodu gir",
     goToCart: "Sepete git",
     itemCount: "{count} ürün",
+    geoLocating: "Konumun bulunuyor…",
+    geoPermission: "Posta kodunu algılamak için konum izni ver.",
+    geoFailed: "Posta kodu algılanamadı. Lütfen elle gir.",
+    geoIpFallback: "Yaklaşık konum (IP).",
   },
 } as const;
 

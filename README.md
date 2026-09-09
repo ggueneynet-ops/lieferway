@@ -59,7 +59,7 @@ Restaurant and dish photos stay compact left thumbnails.
 
 Restaurant cards and dishes use compact left thumbnails (not large hero photos).
 
-**PLZ / nearby:** On the homepage enter a Frankfurt postcode (e.g. `60311`). The list only shows restaurants that deliver there, sorted by distance. Choice is saved in a cookie. Demo chips: Innenstadt, Nordend, Bockenheim, Sachsenhausen, Bornheim, Höchst (no delivery).
+**PLZ / nearby:** On first visit the app asks for location (or uses IP if denied), reverse-geocodes to a German PLZ, and filters restaurants. Choice is saved in a cookie + localStorage. You can still type a PLZ or pick a chip. Demo chips: Innenstadt, Nordend, Bockenheim, Sachsenhausen, Bornheim, Höchst (no delivery).
 
 ## iPhone (Safari)
 

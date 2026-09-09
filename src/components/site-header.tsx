@@ -43,7 +43,7 @@ export async function SiteHeader({
           </div>
         </div>
         <div className="space-y-2 px-3 pb-3 sm:px-4">
-          <PlzForm initialPlz={activePlz ?? ""} q={q ?? ""} cuisine={cuisine ?? ""} />
+          <PlzForm initialPlz={activePlz ?? ""} q={q ?? ""} cuisine={cuisine ?? ""} autoDetect={showSearch} />
           {showSearch ? <HomeSearch initialQ={q ?? ""} plz={activePlz} cuisine={cuisine} /> : null}
         </div>
       </div>
