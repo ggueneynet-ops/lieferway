@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { toast } from "sonner";
 import { MapPin } from "lucide-react";
+import { useI18n } from "@/components/locale-provider";
 
 type Order = {
   id: string;
@@ -100,6 +101,7 @@ export function CourierBoard({ initial, courierId }: { initial: Order[]; courier
 }
 
 function Card({ order, children }: { order: Order; children?: React.ReactNode }) {
+  const { t } = useI18n();
   return (
     <article className="rounded-2xl border bg-white p-4">
       <div className="flex items-center justify-between">
@@ -121,10 +123,10 @@ function Card({ order, children }: { order: Order; children?: React.ReactNode })
         <div className="mt-2 h-24 rounded-lg bg-primary-soft" />
       </div>
       <p className="mt-2 text-sm font-medium">
-        Name: {order.customer.name}
+        {t.fullName}: {order.customer.name}
       </p>
       <p className="text-sm font-medium">
-        Telefon:{" "}
+        {t.phoneNumber}:{" "}
         {order.customer.phone ? (
           <a className="underline-offset-2 hover:underline" href={`tel:${order.customer.phone}`}>
             {order.customer.phone}

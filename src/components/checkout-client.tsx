@@ -170,14 +170,19 @@ export function CheckoutClient() {
               <h2 className="font-semibold">{t.address}</h2>
               <div className="mt-4 grid gap-3">
                 <div>
-                  <Label htmlFor="checkout-name">{t.fullName}</Label>
+                  <Label htmlFor="checkout-name">
+                    {t.fullName} <span className="text-primary">*</span>
+                  </Label>
                   <Input
                     id="checkout-name"
                     className="mt-1"
                     autoComplete="name"
+                    name="name"
+                    placeholder={t.fullNameHint}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
+                    minLength={2}
                   />
                   <p className="mt-1 text-xs text-muted-foreground">{t.fullNameHint}</p>
                 </div>
