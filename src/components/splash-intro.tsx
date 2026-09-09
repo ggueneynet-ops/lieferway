@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { LogoMark } from "@/components/logo";
 import { useI18n } from "@/components/locale-provider";
 import { markSplashShown, notifySplashDone, splashAlreadyShown } from "@/lib/splash";
 
@@ -64,15 +63,17 @@ export function SplashIntro() {
       }`}
     >
       <span className="lw-splash-mark">
-        <LogoMark size={88} onBrand />
+        <img
+          src="/logo-master-a.png?v=4"
+          alt="Lieferway"
+          width={260}
+          height={198}
+          draggable={false}
+          className="mx-auto h-auto w-[min(68vw,260px)]"
+        />
       </span>
-      <span className="text-center">
-        <span className="font-display block text-[2rem] font-bold italic tracking-tight text-white">
-          Lieferway
-        </span>
-        <span className="mt-1 block text-[13px] font-medium text-white/85">
-          {t.tagline}
-        </span>
+      <span className="text-center text-[13px] font-medium text-[#FCE4EC]">
+        {t.tagline}
       </span>
       <span className="absolute bottom-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] text-[11px] font-medium text-white/70">
         {t.tapToSkip}

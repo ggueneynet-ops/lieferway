@@ -1,3 +1,4 @@
+/** Logo is locked. Do not run this — it rebuilds a reconstructed lockup. */
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";

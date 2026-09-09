@@ -1,29 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const FULL_RATIO = 260 / 188;
-
-/** Full scooter+cloche mark with speed lines — splash only. */
-export function LogoMark({
-  size = 34,
-  onBrand = false,
-  className,
-}: {
-  size?: number;
-  onBrand?: boolean;
-  className?: string;
-}) {
-  return (
-    <img
-      src={onBrand ? "/logo-mark-white.svg" : "/logo-mark.svg"}
-      alt=""
-      width={Math.round(size * FULL_RATIO)}
-      height={size}
-      draggable={false}
-      className={cn("shrink-0 object-contain object-left", className)}
-    />
-  );
-}
+const ASSET = "v=4";
 
 /** Single-piece lockup (icon + wordmark). Never add a second “Lieferway” label beside it. */
 export function Logo({
@@ -39,11 +17,11 @@ export function Logo({
 }) {
   const img = (
     <img
-      src={onDark ? "/logo-header-white.png?v=3" : "/logo-header.png?v=3"}
+      src={onDark ? `/logo-header-white.png?${ASSET}` : `/logo-header.png?${ASSET}`}
       srcSet={
         onDark
           ? undefined
-          : "/logo-header-h64.png?v=3 64w, /logo-header-h96.png?v=3 96w, /logo-header-h128.png?v=3 128w"
+          : `/logo-header-h64.png?${ASSET} 64w, /logo-header-h96.png?${ASSET} 96w, /logo-header-h128.png?${ASSET} 128w`
       }
       sizes="(max-width: 640px) 148px, 176px"
       alt="Lieferway"
