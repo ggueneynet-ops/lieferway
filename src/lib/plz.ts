@@ -100,6 +100,13 @@ export function formatDistanceKm(km: number, locale: string) {
   return `${km.toLocaleString(tag, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`;
 }
 
+/** Compact badge like “809 m” / “1,2 km”. */
+export function formatDistanceShort(km: number, locale: string) {
+  if (!Number.isFinite(km) || km < 0) return "";
+  if (km < 1) return `${Math.max(1, Math.round(km * 1000))} m`;
+  return formatDistanceKm(km, locale);
+}
+
 export function plzCookieOptions() {
   return {
     path: "/",

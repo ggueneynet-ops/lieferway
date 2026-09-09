@@ -41,6 +41,10 @@ export function CheckoutClient() {
     fetch("/api/auth/me").then((r) => setAuthed(r.ok));
     const match = document.cookie.match(/(?:^|; )lw_plz=(\d{5})/);
     if (match?.[1]) setPostalCode(match[1]);
+    const streetCk = document.cookie.match(/(?:^|; )lw_street=([^;]*)/);
+    if (streetCk?.[1]) setStreet(decodeURIComponent(streetCk[1]));
+    const cityCk = document.cookie.match(/(?:^|; )lw_city=([^;]*)/);
+    if (cityCk?.[1]) setCity(decodeURIComponent(cityCk[1]));
   }, []);
 
   if (!cart) {

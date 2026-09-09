@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/auth";
-import { LOCALE_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constants";
+import { LOCALE_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE, CITY_COOKIE } from "@/lib/constants";
 import { parseLocale, type Locale } from "@/lib/i18n";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { CartButton } from "@/components/cart-button";
@@ -53,6 +53,8 @@ export async function SiteHeader({
         <div className="space-y-2 px-3 pb-3 sm:px-4">
           <PlzForm
             initialPlz={activePlz ?? ""}
+            initialStreet={cookieStore.get(STREET_COOKIE)?.value ?? ""}
+            initialCity={cookieStore.get(CITY_COOKIE)?.value ?? ""}
             q={q ?? ""}
             cuisine={cuisine ?? ""}
             km={activeKm}

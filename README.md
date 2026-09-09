@@ -59,7 +59,7 @@ Restaurant and dish photos stay compact left thumbnails.
 
 Restaurant cards and dishes use compact left thumbnails (not large hero photos).
 
-**PLZ / nearby:** On first visit the app asks for location (or uses IP if denied), reverse-geocodes to a German PLZ, and filters restaurants. Choice is saved in a cookie + localStorage. You can still type a PLZ or pick a chip. With a PLZ set, **Umkreis** chips (3 / 5 / 10 km or Stadt) keep only venues within that distance of the PLZ centre (or GPS). Restaurants can set their own max delivery radius. Demo chips: Innenstadt, Nordend, Bockenheim, Sachsenhausen, Bornheim, Höchst (outside most radii).
+**Standort:** Tap **Lieferung nach** for a full-screen picker (Standort eingeben): search a complete address, use current GPS (street + PLZ), saved addresses with distance, and recent searches. Choosing a place filters restaurants by your Umkreis.
 
 ## iPhone (Safari)
 

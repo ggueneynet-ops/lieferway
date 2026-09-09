@@ -1,5 +1,5 @@
 import { json, options, fail } from "@/lib/http";
-import { reverseGeocodePlz } from "@/lib/geo";
+import { reverseGeocodeAddress } from "@/lib/geo";
 
 export async function OPTIONS() {
   return options();
@@ -12,7 +12,15 @@ export async function GET(req: Request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return fail("lat and lng required", 400);
   }
-  const found = await reverseGeocodePlz(lat, lng);
-  if (!found) return json({ plz: null });
-  return json({ ...found, source: "gps" });
+  const found = await reverseGeocodeAddress(lat, lng);
+  if (!found) return json({ plz: null, place: null });
+  return json({
+    plz: found.postalCode,
+    city: found.city,
+    street: found.street,
+    lat: found.lat,
+    lng: found.lng,
+    source: "gps",
+    place: found,
+  });
 }

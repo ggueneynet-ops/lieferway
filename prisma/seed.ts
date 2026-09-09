@@ -56,12 +56,11 @@ async function main() {
       phone: "+49 171 5550101",
       role: "CUSTOMER",
       addresses: {
-        create: {
-          label: "Zuhause",
-          street: "Berger Straße 142",
-          city: "Frankfurt am Main",
-          postalCode: "60316",
-        },
+        create: [
+          { label: "Zuhause", street: "Berger Straße 142", city: "Frankfurt am Main", postalCode: "60316" },
+          { label: "Arbeit", street: "Leipziger Straße 4", city: "Frankfurt am Main", postalCode: "60487" },
+          { label: "Eltern", street: "Schweizer Straße 30", city: "Frankfurt am Main", postalCode: "60594" },
+        ],
       },
     },
   });
