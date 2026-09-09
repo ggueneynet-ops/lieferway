@@ -11,12 +11,10 @@ const NAV: Record<string, { href: string; label: string }[]> = {
   ],
   COURIER: [{ href: "/courier", label: "Touren" }],
   ADMIN: [
-    { href: "/admin", label: "Übersicht" },
+    { href: "/admin", label: "Start" },
     { href: "/admin/restaurants", label: "Restaurants" },
-    { href: "/admin/users", label: "Nutzer" },
     { href: "/admin/orders", label: "Bestellungen" },
     { href: "/admin/payouts", label: "Auszahlungen" },
-    { href: "/admin/coupons", label: "Gutscheine" },
   ],
 };
 
@@ -50,7 +48,7 @@ export async function PanelShell({
             <Link
               key={l.href}
               href={l.href}
-              className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-bg-muted"
+              className="whitespace-nowrap rounded-lg px-3 py-2.5 text-[15px] text-ink hover:bg-bg-muted"
             >
               {l.label}
             </Link>

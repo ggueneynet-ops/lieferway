@@ -42,9 +42,10 @@ export async function GET() {
 
 const itemSchema = z.object({
   name: z.string().min(2),
-  description: z.string().min(2),
+  description: z.string().optional(),
   priceCents: z.number().int().positive(),
-  categoryId: z.string(),
+  categoryId: z.string().optional(),
+  categoryName: z.string().optional(),
   imageUrl: z.string().optional(),
   isAvailable: z.boolean().optional(),
 });
@@ -64,15 +65,31 @@ export async function POST(req: Request) {
       return json({ category }, 201);
     }
     const parsed = itemSchema.safeParse(body);
-    if (!parsed.success) return fail("Artikel unvollständig.");
+    if (!parsed.success) return fail("Bitte Name und Preis angeben.");
+    let categoryId = parsed.data.categoryId;
+    if (!categoryId && parsed.data.categoryName?.trim()) {
+      const category = await prisma.menuCategory.create({
+        data: {
+          restaurantId: restaurant.id,
+          name: parsed.data.categoryName.trim(),
+          sortOrder: 99,
+        },
+      });
+      categoryId = category.id;
+    }
+    if (!categoryId) return fail("Bitte eine Kategorie wählen oder neu eingeben.");
     const item = await prisma.menuItem.create({
       data: {
         restaurantId: restaurant.id,
-        ...parsed.data,
+        categoryId,
+        name: parsed.data.name,
+        description: parsed.data.description?.trim() || "",
+        priceCents: parsed.data.priceCents,
+        imageUrl: parsed.data.imageUrl?.trim() || null,
         isAvailable: parsed.data.isAvailable ?? true,
       },
     });
-    return json({ item }, 201);
+    return json({ item, categoryId }, 201);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);

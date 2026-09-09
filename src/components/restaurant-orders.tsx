@@ -84,10 +84,10 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
           <div className="space-y-2">
             {incoming.map((o) => (
               <OrderCard key={o.id} order={o} onAct={act}>
-                <Button size="sm" onClick={() => act(o.id, "accept")}>
+                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "accept")}>
                   Annehmen
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => act(o.id, "reject")}>
+                <Button className="h-11 px-5 text-base" variant="outline" onClick={() => act(o.id, "reject")}>
                   Ablehnen
                 </Button>
               </OrderCard>
@@ -103,12 +103,12 @@ export function RestaurantOrders({ initial, isOpen }: { initial: Order[]; isOpen
           {active.map((o) => (
             <OrderCard key={o.id} order={o} onAct={act}>
               {o.status === "ACCEPTED" && (
-                <Button size="sm" onClick={() => act(o.id, "preparing")}>
+                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "preparing")}>
                   Zubereitung starten
                 </Button>
               )}
               {o.status === "PREPARING" && (
-                <Button size="sm" onClick={() => act(o.id, "ready")}>
+                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "ready")}>
                   Bereit für Kurier
                 </Button>
               )}

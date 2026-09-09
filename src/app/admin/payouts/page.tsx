@@ -8,10 +8,9 @@ export default async function AdminPayoutsPage() {
     orderBy: [{ weekStart: "desc" }, { restaurant: { name: "asc" } }],
   });
   return (
-    <PanelShell roles={["ADMIN"]} title="Wöchentliche Auszahlungen (Montag)">
-      <p className="mb-4 max-w-3xl text-sm text-muted-foreground">
-        Netto = Speisen minus Provision bei Karten-/Wallet-Zahlungen, abzüglich offener
-        Bar-Provision. Liefergebühr ist nicht Teil der Restaurant-Auszahlung.
+    <PanelShell roles={["ADMIN"]} title="Auszahlungen">
+      <p className="mb-4 max-w-xl text-sm text-text-secondary">
+        Jeden Montag: Speisen minus Provision. Bar-Bestellungen: Provision wird abgezogen.
       </p>
       <AdminPayouts initial={JSON.parse(JSON.stringify(payouts))} />
     </PanelShell>
