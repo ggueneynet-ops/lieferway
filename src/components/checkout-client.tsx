@@ -39,6 +39,8 @@ export function CheckoutClient() {
 
   useEffect(() => {
     fetch("/api/auth/me").then((r) => setAuthed(r.ok));
+    const match = document.cookie.match(/(?:^|; )lw_plz=(\d{5})/);
+    if (match?.[1]) setPostalCode(match[1]);
   }, []);
 
   if (!cart) {

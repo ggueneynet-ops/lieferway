@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
 import { CUISINE_RESTAURANT_PHOTO, DEFAULT_RESTAURANT_PHOTO } from "@/lib/media";
+import { DEFAULT_NEW_RESTAURANT_PLZS, lookupPlz } from "@/lib/plz";
 
 export function slugifyName(name: string) {
   const base = name
@@ -80,6 +81,7 @@ export async function createRestaurantRecord(
         ownerId = owner.id;
       }
 
+      const place = lookupPlz("60311");
       const restaurant = await tx.restaurant.create({
         data: {
           ownerId,
@@ -89,10 +91,16 @@ export async function createRestaurantRecord(
           cuisine,
           address: "Frankfurt am Main",
           postalCode: "60311",
+          district: place?.district ?? "Innenstadt",
+          lat: place?.lat ?? 50.1109,
+          lng: place?.lng ?? 8.6821,
           imageUrl: CUISINE_RESTAURANT_PHOTO[cuisine] ?? DEFAULT_RESTAURANT_PHOTO,
           commissionPercent,
           isActive: true,
           isOpen: true,
+          serviceAreas: {
+            create: DEFAULT_NEW_RESTAURANT_PLZS.map((postalCode) => ({ postalCode })),
+          },
         },
         include: { owner: { select: { email: true, name: true } } },
       });

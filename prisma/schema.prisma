@@ -46,6 +46,9 @@ model Restaurant {
   address           String
   city              String   @default("Frankfurt am Main")
   postalCode        String
+  district          String?
+  lat               Float?
+  lng               Float?
   imageUrl          String
   rating            Float    @default(4.5)
   reviewCount       Int      @default(120)
@@ -58,10 +61,21 @@ model Restaurant {
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
 
-  categories MenuCategory[]
-  items      MenuItem[]
-  orders     Order[]
-  payouts    Payout[]
+  categories   MenuCategory[]
+  items        MenuItem[]
+  orders       Order[]
+  payouts      Payout[]
+  serviceAreas RestaurantServiceArea[]
+}
+
+model RestaurantServiceArea {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  postalCode   String
+
+  @@unique([restaurantId, postalCode])
+  @@index([postalCode])
 }
 
 model MenuCategory {

@@ -1,6 +1,7 @@
 export const DEFAULT_COMMISSION_PERCENT = 5;
 export const AUTH_COOKIE = "lw_session";
 export const LOCALE_COOKIE = "lw_locale";
+export const PLZ_COOKIE = "lw_plz";
 export const CITY = "Frankfurt am Main";
 
 export const ROLES = ["CUSTOMER", "RESTAURANT", "COURIER", "ADMIN"] as const;

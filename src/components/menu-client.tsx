@@ -45,13 +45,13 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                 return (
                   <article
                     key={item.id}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5"
+                    className="flex items-center gap-2.5 rounded-xl border border-border bg-surface px-3 py-2"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={photo}
                       alt=""
-                      className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                      className="h-14 w-14 shrink-0 rounded-lg object-cover"
                     />
                     <div className="flex min-w-0 flex-1 flex-col justify-center">
                       <h3 className="text-[15px] font-medium leading-tight">{item.name}</h3>

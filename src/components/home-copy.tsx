@@ -19,9 +19,13 @@ export function HomeHeroCopy() {
 export function HomeSectionTitle({
   kind,
   count,
+  plz,
+  nearby,
 }: {
   kind: "cuisines" | "restaurants" | "empty";
   count?: number;
+  plz?: string | null;
+  nearby?: boolean;
 }) {
   const { t } = useI18n();
   if (kind === "cuisines") return <h2 className="font-display text-lg font-semibold text-ink">{t.cuisines}</h2>;
@@ -30,9 +34,13 @@ export function HomeSectionTitle({
       <p className="rounded-2xl border border-border bg-surface p-8 text-center text-muted-foreground">{t.noResults}</p>
     );
   }
+  const title = plz
+    ? t.restaurantsInPlz.replace("{count}", String(count ?? 0)).replace("{plz}", plz)
+    : `${count} ${t.restaurants} · ${t.city}`;
   return (
-    <h2 className="mb-5 font-display text-lg font-semibold text-ink">
-      {count} {t.restaurants} · {t.city}
+    <h2 className="mb-4 font-display text-lg font-semibold text-ink">
+      {title}
+      {nearby ? <span className="ml-2 text-sm font-normal text-muted-foreground">{t.sortedNearby}</span> : null}
     </h2>
   );
 }

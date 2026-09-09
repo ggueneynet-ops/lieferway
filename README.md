@@ -53,7 +53,16 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Restaurant cards and dishes use local food photos (plus a small letter logo on each venue).
+Restaurant cards and dishes use compact left thumbnails (not large hero photos).
+
+**PLZ / nearby:** On the homepage enter a Frankfurt postcode (e.g. `60311`). The list only shows restaurants that deliver there, sorted by distance. Choice is saved in a cookie. Demo chips: Innenstadt, Nordend, Bockenheim, Sachsenhausen, Bornheim, Höchst (no delivery).
+
+## iPhone (Safari)
+
+1. Open the public HTTPS URL (Cloudflare tunnel) — required for “In meiner Nähe”.
+2. Tap **Lieferadresse / PLZ**, type `60311` (or a chip), tap **Zeigen**.
+3. Switch to `60487` or `65929` to see the list change.
+4. Pull to refresh if an old layout is cached.
 
 Admin **Restaurants** uses a short HTML form (no client JS). Submit creates an owner account (`lieferway`) and lists the venue on the marketplace.
 
