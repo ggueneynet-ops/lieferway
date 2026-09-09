@@ -7,6 +7,8 @@ import { HomeSearch } from "@/components/home-search";
 import { AllLabel, HomeHeroCopy, HomeSectionTitle } from "@/components/home-copy";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home({
   searchParams,
 }: {

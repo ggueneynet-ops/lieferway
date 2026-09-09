@@ -51,6 +51,8 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 - Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
 - Auth with roles (JWT cookie + Bearer for mobile)
 
+Admin **Restaurants** uses a short HTML form (no client JS). Submit creates an owner account (`lieferway`) and lists the venue on the marketplace.
+
 ## Money rules
 
 - Commission = `%` of **food subtotal** (not delivery). Default 5%, overridable per restaurant.
