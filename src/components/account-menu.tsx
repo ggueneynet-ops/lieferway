@@ -30,9 +30,14 @@ export function AccountMenu({
       <div className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded-xl border border-border bg-surface py-1 shadow-lg">
         <p className="truncate px-3 py-2 text-xs text-text-secondary">{user.email}</p>
         {user.role === "CUSTOMER" ? (
-          <Link href="/orders" className="block px-3 py-2.5 text-sm hover:bg-muted">
-            {copy.myOrders}
-          </Link>
+          <>
+            <Link href="/account" className="block px-3 py-2.5 text-sm hover:bg-muted">
+              {copy.profile}
+            </Link>
+            <Link href="/orders" className="block px-3 py-2.5 text-sm hover:bg-muted">
+              {copy.myOrders}
+            </Link>
+          </>
         ) : null}
         {user.role === "RESTAURANT" ? (
           <Link href="/restaurant" className="block px-3 py-2.5 text-sm hover:bg-muted">

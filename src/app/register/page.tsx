@@ -12,22 +12,28 @@ import { LocaleToggle } from "@/components/locale-toggle";
 import { useI18n } from "@/components/locale-provider";
 import { GoogleSignIn } from "@/components/google-sign-in";
 import { LOCALES, type Locale } from "@/lib/i18n";
+import { normalizePhone } from "@/lib/phone";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { t, locale, setLocale } = useI18n();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!normalizePhone(phone)) {
+      toast.error(t.phoneInvalid);
+      return;
+    }
     setBusy(true);
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, locale }),
+      body: JSON.stringify({ name, email, phone, password, locale }),
     });
     const data = await res.json();
     setBusy(false);
@@ -55,6 +61,20 @@ export default function RegisterPage() {
         <div>
           <Label>{t.email}</Label>
           <Input className="mt-1" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+        <div>
+          <Label>{t.phoneNumber}</Label>
+          <Input
+            className="mt-1 h-12"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+49 171 …"
+            required
+          />
+          <p className="mt-1 text-xs text-muted-foreground">{t.phoneHint}</p>
         </div>
         <div>
           <Label>{t.password}</Label>

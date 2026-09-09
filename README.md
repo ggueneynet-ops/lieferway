@@ -49,7 +49,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 - Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell** (mute) and flash/badge. Admin creates venue + owner (`lieferway`) and shows credentials once.
 - Courier: claim READY jobs, out for delivery, delivered (map stub)
 - Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
-- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register` or **Mit Google anmelden**. Restaurants **apply** at `/partner` / `/partner/anmelden` (pending request only — no login, no panel). Admin approves under **Partneranfragen**, then owner credentials are created (`lieferway`) and shown once. Existing partners log in at `/login?next=/restaurant`. Couriers/admin are still created by admin.
+- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register` (**phone required**) or **Mit Google anmelden** (then **Telefonnummer angeben** if none on file). Restaurants **apply** at `/partner` / `/partner/anmelden` (pending request only — no login, no panel). Admin approves under **Partneranfragen**, then owner credentials are created (`lieferway`) and shown once. Existing partners log in at `/login?next=/restaurant`. Couriers/admin are still created by admin.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
@@ -98,6 +98,8 @@ NEXT_PUBLIC_APP_URL=https://your-origin.example
 ```
 
 OAuth is wired into the existing JWT session (same cookie as email/password). We did not add a second auth library.
+
+**Customer phone is mandatory.** Register requires a number (German format preferred, e.g. `+49 171 1234567`). After Google sign-in, if no phone is on file, Lieferway sends you to **Telefonnummer angeben** before you can order. Checkout (UI and `POST /api/orders`) refuses orders without a valid phone. Kitchen tickets and courier cards show the number for contact.
 
 ## Money rules
 

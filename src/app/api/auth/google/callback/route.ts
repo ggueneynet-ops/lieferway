@@ -11,6 +11,7 @@ import {
   sessionToken,
   verifyOAuthState,
 } from "@/lib/google-oauth";
+import { withPhoneGate } from "@/lib/phone";
 
 function redirectLogin(origin: string, next: string, error: string) {
   const url = new URL("/login", origin);
@@ -46,5 +47,5 @@ export async function GET(req: Request) {
     return redirectLogin(origin, next, result.error === "partner" ? "google_partner" : "google");
   }
   await setSessionCookie(await sessionToken(result.session));
-  return NextResponse.redirect(new URL(safeNext(next), origin));
+  return NextResponse.redirect(new URL(withPhoneGate(next, result.phone, result.session.role), origin));
 }

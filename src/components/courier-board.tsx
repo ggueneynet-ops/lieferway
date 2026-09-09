@@ -120,8 +120,18 @@ function Card({ order, children }: { order: Order; children?: React.ReactNode })
         </p>
         <div className="mt-2 h-24 rounded-lg bg-primary-soft" />
       </div>
-      <p className="mt-2 text-sm">
-        {order.customer.name} · {order.paymentMethod === "CASH" ? "Bar" : "Bezahlt"} · {formatEUR(order.totalCents)}
+      <p className="mt-2 text-sm font-medium">
+        {order.customer.name} ·{" "}
+        {order.customer.phone ? (
+          <a className="underline-offset-2 hover:underline" href={`tel:${order.customer.phone}`}>
+            {order.customer.phone}
+          </a>
+        ) : (
+          "—"
+        )}
+      </p>
+      <p className="text-sm text-muted-foreground">
+        {order.paymentMethod === "CASH" ? "Bar" : "Bezahlt"} · {formatEUR(order.totalCents)}
       </p>
       <ul className="text-sm text-muted-foreground">
         {order.items.map((i) => (

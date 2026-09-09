@@ -282,6 +282,16 @@ export const dictionaries = {
     clearRecent: "Leeren",
     noRecentSearches: "Noch keine Suchanfragen.",
     noAddressResults: "Keine Adressen gefunden.",
+    phoneHint: "Bitte mit Ländervorwahl, z. B. +49 171 1234567.",
+    phoneInvalid: "Bitte eine gültige Telefonnummer angeben (z. B. +49…).",
+    addPhoneTitle: "Telefonnummer angeben",
+    addPhoneLead:
+      "Für Lieferung und Rückfragen brauchen wir Ihre Nummer. Ohne Telefon können wir keine Bestellung annehmen.",
+    savePhone: "Nummer speichern",
+    phoneSaved: "Telefonnummer gespeichert.",
+    profile: "Profil",
+    phoneOnTicket: "Wird auf dem Bestellticket für Küche und Kurier angezeigt.",
+    changePhone: "Nummer ändern",
   },
   en: {
     brand: "Lieferway",
@@ -553,6 +563,16 @@ export const dictionaries = {
     clearRecent: "Clear",
     noRecentSearches: "No recent searches yet.",
     noAddressResults: "No addresses found.",
+    phoneHint: "Include country code, e.g. +49 171 1234567.",
+    phoneInvalid: "Please enter a valid phone number (e.g. +49…).",
+    addPhoneTitle: "Add your phone number",
+    addPhoneLead:
+      "We need your number for delivery and questions. You cannot place an order without a phone number.",
+    savePhone: "Save number",
+    phoneSaved: "Phone number saved.",
+    profile: "Profile",
+    phoneOnTicket: "Shown on the restaurant ticket for kitchen and courier.",
+    changePhone: "Change number",
   },
   tr: {
     brand: "Lieferway",
@@ -824,6 +844,16 @@ export const dictionaries = {
     clearRecent: "Temizle",
     noRecentSearches: "Henüz arama yok.",
     noAddressResults: "Adres bulunamadı.",
+    phoneHint: "Ülke kodu ile, örn. +49 171 1234567.",
+    phoneInvalid: "Geçerli bir telefon numarası girin (örn. +49…).",
+    addPhoneTitle: "Telefon numarası girin",
+    addPhoneLead:
+      "Teslimat ve iletişim için numaranız gerekir. Telefon olmadan sipariş veremezsiniz.",
+    savePhone: "Numarayı kaydet",
+    phoneSaved: "Telefon numarası kaydedildi.",
+    profile: "Profil",
+    phoneOnTicket: "Restoran sipariş fişinde mutfak ve kurye için görünür.",
+    changePhone: "Numarayı değiştir",
   },
 } as const;
 

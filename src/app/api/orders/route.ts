@@ -4,6 +4,7 @@ import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { applyCoupon, computeOrderTotals, paymentStatusFor, uniqueShortCode } from "@/lib/orders";
 import { PAYMENT_METHODS } from "@/lib/constants";
+import { normalizePhone } from "@/lib/phone";
 
 export async function OPTIONS() {
   return options();
@@ -56,6 +57,16 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => null);
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) return fail("Bestellung unvollständig.");
+
+    if (session.role === "CUSTOMER") {
+      const customer = await prisma.user.findUnique({
+        where: { id: session.id },
+        select: { phone: true },
+      });
+      if (!normalizePhone(customer?.phone ?? "")) {
+        return fail("Bitte zuerst eine Telefonnummer hinterlegen.", 400);
+      }
+    }
 
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: parsed.data.restaurantId },

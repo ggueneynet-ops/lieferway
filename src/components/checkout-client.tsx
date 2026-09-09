@@ -13,6 +13,7 @@ import { formatEUR } from "@/lib/money";
 import { applyCoupon, computeOrderTotals } from "@/lib/orders";
 import type { PaymentMethod } from "@/lib/constants";
 import { interpolate } from "@/lib/i18n";
+import { customerNeedsPhone } from "@/lib/phone";
 import { toast } from "sonner";
 
 export function CheckoutClient() {
@@ -36,16 +37,28 @@ export function CheckoutClient() {
   } | null>(null);
   const [busy, setBusy] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
-    fetch("/api/auth/me").then((r) => setAuthed(r.ok));
+    fetch("/api/auth/me")
+      .then(async (r) => {
+        setAuthed(r.ok);
+        if (!r.ok) return;
+        const data = (await r.json()) as { user?: { phone?: string | null; role?: string } };
+        const number = data.user?.phone ?? "";
+        setPhone(number);
+        if (customerNeedsPhone(number, data.user?.role)) {
+          router.replace("/account/phone?next=/checkout");
+        }
+      })
+      .catch(() => setAuthed(false));
     const match = document.cookie.match(/(?:^|; )lw_plz=(\d{5})/);
     if (match?.[1]) setPostalCode(match[1]);
     const streetCk = document.cookie.match(/(?:^|; )lw_street=([^;]*)/);
     if (streetCk?.[1]) setStreet(decodeURIComponent(streetCk[1]));
     const cityCk = document.cookie.match(/(?:^|; )lw_city=([^;]*)/);
     if (cityCk?.[1]) setCity(decodeURIComponent(cityCk[1]));
-  }, []);
+  }, [router]);
 
   if (!cart) {
     return (
@@ -83,6 +96,10 @@ export function CheckoutClient() {
     if (!current) return;
     if (!authed) {
       router.push("/login?next=/checkout");
+      return;
+    }
+    if (customerNeedsPhone(phone, "CUSTOMER")) {
+      router.replace("/account/phone?next=/checkout");
       return;
     }
     if (foodSubtotal < current.minOrderCents) {
@@ -156,6 +173,16 @@ export function CheckoutClient() {
                     <Label>{t.cityField}</Label>
                     <Input className="mt-1" value={city} onChange={(e) => setCity(e.target.value)} />
                   </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <Label>{t.phoneNumber}</Label>
+                    <Link href="/account/phone?next=/checkout" className="text-xs font-medium text-primary">
+                      {t.changePhone}
+                    </Link>
+                  </div>
+                  <Input className="mt-1" type="tel" value={phone} readOnly />
+                  <p className="mt-1 text-xs text-muted-foreground">{t.phoneOnTicket}</p>
                 </div>
                 <div>
                   <Label>{t.notes}</Label>
@@ -256,7 +283,12 @@ export function CheckoutClient() {
                 <span>{formatEUR(totals.totalCents, locale)}</span>
               </p>
             </div>
-            <Button className="mt-4 w-full" size="lg" disabled={busy} onClick={pay}>
+            <Button
+              className="mt-4 w-full"
+              size="lg"
+              disabled={busy || customerNeedsPhone(phone, "CUSTOMER")}
+              onClick={pay}
+            >
               {busy ? t.processing : t.payNow}
             </Button>
           </aside>

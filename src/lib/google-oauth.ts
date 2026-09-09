@@ -78,7 +78,7 @@ export type GoogleProfile = {
 
 export async function completeGoogleCustomer(
   profile: GoogleProfile,
-): Promise<{ error: "partner" | "email" } | { session: SessionUser }> {
+): Promise<{ error: "partner" | "email" } | { session: SessionUser; phone: string | null }> {
   const email = profile.email.toLowerCase().trim();
   if (!email.includes("@")) return { error: "email" };
 
@@ -103,6 +103,7 @@ export async function completeGoogleCustomer(
         role: user.role as Role,
         locale: user.locale,
       },
+      phone: user.phone,
     };
   }
 
@@ -125,6 +126,7 @@ export async function completeGoogleCustomer(
       role: "CUSTOMER",
       locale: user.locale,
     },
+    phone: user.phone,
   };
 }
 

@@ -25,6 +25,7 @@ export type SessionUser = {
   email: string;
   name: string;
   role: string;
+  phone?: string | null;
 };
 
 export type MenuItem = {

@@ -13,6 +13,7 @@ import { api, setToken, type Restaurant, type SessionUser } from "./src/api";
 
 type Screen =
   | "login"
+  | "phone"
   | "home"
   | "menu"
   | "cart"
@@ -39,6 +40,7 @@ export default function App() {
   const [email, setEmail] = React.useState("kunde@lieferway.de");
   const [password, setPassword] = React.useState("lieferway");
   const [user, setUser] = React.useState<SessionUser | null>(null);
+  const [phone, setPhone] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
   const [restaurants, setRestaurants] = React.useState<Restaurant[]>([]);
@@ -57,15 +59,20 @@ export default function App() {
     setBusy(true);
     setError("");
     try {
-      const data = await api<{ user: SessionUser; token: string }>("/api/auth/login", {
+      const data = await api<{ user: SessionUser; token: string; next?: string }>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
       setToken(data.token);
       setUser(data.user);
+      setPhone(data.user.phone ?? "");
       const list = await api<{ restaurants: Restaurant[] }>("/api/restaurants");
       setRestaurants(list.restaurants);
-      setScreen("home");
+      if (data.user.role === "CUSTOMER" && !data.user.phone) {
+        setScreen("phone");
+      } else {
+        setScreen("home");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Fehler");
     } finally {
@@ -103,8 +110,31 @@ export default function App() {
     });
   }
 
+  async function savePhone() {
+    setBusy(true);
+    setError("");
+    try {
+      const data = await api<{ phone: string }>("/api/account/phone", {
+        method: "PATCH",
+        body: JSON.stringify({ phone }),
+      });
+      setUser((prev) => (prev ? { ...prev, phone: data.phone } : prev));
+      setPhone(data.phone);
+      setScreen("home");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Fehler");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function checkout() {
     if (!cart) return;
+    if (!phone.trim()) {
+      setScreen("phone");
+      setError("Telefonnummer ist Pflicht.");
+      return;
+    }
     setBusy(true);
     setError("");
     try {
@@ -169,6 +199,25 @@ export default function App() {
           <TextInput style={styles.input} secureTextEntry value={password} onChangeText={setPassword} />
           <Pressable style={styles.btn} onPress={login} disabled={busy}>
             <Text style={styles.btnText}>{busy ? "…" : "Weiter"}</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {screen === "phone" && (
+        <View style={styles.pad}>
+          <Text style={styles.h1}>Telefonnummer angeben</Text>
+          <Text style={styles.muted}>
+            Für Lieferung und Rückfragen brauchen wir Ihre Nummer. Ohne Telefon keine Bestellung.
+          </Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="phone-pad"
+            placeholder="+49 171 …"
+            value={phone}
+            onChangeText={setPhone}
+          />
+          <Pressable style={styles.btn} onPress={savePhone} disabled={busy}>
+            <Text style={styles.btnText}>{busy ? "…" : "Nummer speichern"}</Text>
           </Pressable>
         </View>
       )}
@@ -238,7 +287,7 @@ export default function App() {
           ))}
           <Text style={{ marginTop: 12 }}>Lieferung {eur(cart.restaurant.deliveryFeeCents)}</Text>
           <Text style={styles.h2}>Gesamt {eur(total)}</Text>
-          <Pressable style={styles.btn} onPress={() => setScreen("checkout")}>
+          <Pressable style={styles.btn} onPress={() => (phone.trim() ? setScreen("checkout") : setScreen("phone"))}>
             <Text style={styles.btnText}>Zur Kasse</Text>
           </Pressable>
         </ScrollView>
@@ -247,6 +296,7 @@ export default function App() {
       {screen === "checkout" && (
         <ScrollView contentContainerStyle={styles.pad}>
           <Text style={styles.h1}>Kasse</Text>
+          <Text style={styles.muted}>Telefon: {phone || "—"}</Text>
           <TextInput style={styles.input} value={street} onChangeText={setStreet} />
           {(["CARD", "APPLE_PAY", "GOOGLE_PAY", "CASH"] as const).map((m) => (
             <Pressable

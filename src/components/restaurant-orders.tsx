@@ -287,6 +287,7 @@ export function RestaurantOrders({
                 locale={locale}
                 noteLabel={t.note}
                 deliveryLabel={t.deliveryTo}
+                phoneLabel={t.phoneNumber}
                 highlight={highlight.has(o.id)}
               >
                 <Button className="h-11 min-w-28 px-5 text-base" onClick={() => act(o.id, "accept")}>
@@ -311,6 +312,7 @@ export function RestaurantOrders({
               locale={locale}
               noteLabel={t.note}
               deliveryLabel={t.deliveryTo}
+              phoneLabel={t.phoneNumber}
             >
               {o.status === "ACCEPTED" && (
                 <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "preparing")}>
@@ -341,6 +343,7 @@ function OrderCard({
   locale,
   noteLabel,
   deliveryLabel,
+  phoneLabel,
   highlight,
 }: {
   order: KitchenOrder;
@@ -348,6 +351,7 @@ function OrderCard({
   locale: Locale;
   noteLabel: string;
   deliveryLabel: string;
+  phoneLabel: string;
   highlight?: boolean;
 }) {
   return (
@@ -362,7 +366,16 @@ function OrderCard({
           </p>
           <p className="text-xs text-muted-foreground">
             {order.paymentMethod} · {formatEUR(order.totalCents, locale)}
-            {order.customer.phone ? ` · ${order.customer.phone}` : ""}
+          </p>
+          <p className="text-sm font-medium text-ink">
+            {phoneLabel}:{" "}
+            {order.customer.phone ? (
+              <a className="underline-offset-2 hover:underline" href={`tel:${order.customer.phone}`}>
+                {order.customer.phone}
+              </a>
+            ) : (
+              "—"
+            )}
           </p>
           <p className="text-xs text-text-secondary">
             {deliveryLabel}: {order.street}, {order.postalCode} {order.city}

@@ -6,6 +6,7 @@ import {
   safeNext,
   sessionToken,
 } from "@/lib/google-oauth";
+import { withPhoneGate } from "@/lib/phone";
 
 export async function POST(req: Request) {
   if (googleConfigured()) {
@@ -37,5 +38,5 @@ export async function POST(req: Request) {
     return NextResponse.redirect(url, 303);
   }
   await setSessionCookie(await sessionToken(result.session));
-  return NextResponse.redirect(new URL(next, req.url), 303);
+  return NextResponse.redirect(new URL(withPhoneGate(next, result.phone, result.session.role), req.url), 303);
 }

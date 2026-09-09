@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { authenticate, setSessionCookie, signToken } from "@/lib/auth";
 import { fail, json, options } from "@/lib/http";
+import { prisma } from "@/lib/prisma";
+import { withPhoneGate } from "@/lib/phone";
 
 export async function OPTIONS() {
   return options();
@@ -19,5 +21,13 @@ export async function POST(req: Request) {
   if (!session) return fail("Anmeldung fehlgeschlagen.", 401);
   const token = await signToken(session);
   await setSessionCookie(token);
-  return json({ user: session, token });
+  const db = await prisma.user.findUnique({
+    where: { id: session.id },
+    select: { phone: true, role: true },
+  });
+  return json({
+    user: { ...session, phone: db?.phone ?? null },
+    token,
+    next: withPhoneGate("/", db?.phone, db?.role ?? session.role),
+  });
 }
