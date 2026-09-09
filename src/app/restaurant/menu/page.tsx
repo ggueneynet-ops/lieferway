@@ -7,7 +7,7 @@ import { getCopy } from "@/lib/get-locale";
 
 export default async function RestaurantMenuPage() {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?next=/restaurant");
   const { t } = await getCopy();
   const restaurant = await prisma.restaurant.findUnique({
     where: { ownerId: session.id },

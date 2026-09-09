@@ -72,12 +72,16 @@ function LoginForm() {
           <li>{t.adminPanel} · admin@lieferway.de</li>
         </ul>
       )}
-      <p className="mt-6 text-sm">
-        {t.noAccountYet}{" "}
-        <Link href="/register" className="font-medium text-primary">
-          {t.register}
-        </Link>
-      </p>
+      {partner ? (
+        <p className="mt-6 text-sm text-muted-foreground">{t.partnerNoSignup}</p>
+      ) : (
+        <p className="mt-6 text-sm">
+          {t.noAccountYet}{" "}
+          <Link href="/register" className="font-medium text-primary">
+            {t.register}
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

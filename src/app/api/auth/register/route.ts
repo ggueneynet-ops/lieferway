@@ -16,11 +16,15 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
+  if (body && typeof body === "object" && "role" in body && body.role && body.role !== "CUSTOMER") {
+    return fail("Nur Kundinnen und Kunden können sich registrieren.", 403);
+  }
   const parsed = schema.safeParse(body);
   if (!parsed.success) return fail("Bitte Name, E-Mail und Passwort (min. 6 Zeichen) angeben.");
   const email = parsed.data.email.toLowerCase().trim();
   const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) return fail("Diese E-Mail ist bereits registriert.");
+  // Customers only — restaurant/courier/admin accounts are created by admin.
   const user = await prisma.user.create({
     data: {
       email,

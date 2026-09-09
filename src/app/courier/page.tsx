@@ -7,7 +7,7 @@ import { getCopy } from "@/lib/get-locale";
 
 export default async function CourierPage() {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?next=/courier");
   const { t } = await getCopy();
   const orders = await prisma.order.findMany({
     where:

@@ -49,7 +49,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 - Restaurant panel: menu CRUD, accept/reject, kitchen statuses
 - Courier: claim READY jobs, out for delivery, delivered (map stub)
 - Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
-- Auth with roles (JWT cookie + Bearer for mobile)
+- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register; restaurant/courier/admin accounts are created by admin (partners log in only).
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
@@ -65,10 +65,10 @@ Restaurant cards and dishes use compact left thumbnails (not large hero photos).
 
 1. Open the public HTTPS URL (Cloudflare tunnel) — required for location.
 2. First visit: allow location (Safari) or we approximate via IP. Or tap **Lieferung nach**, type `60311` / pick a chip.
-3. Switch to `60487` or `65929` to see the list change.
+3. Switch to `60487` or `65929` to see the list change. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row.
 4. Pull to refresh if an old layout is cached.
 
-Admin **Restaurants** uses a short HTML form (no client JS). Submit creates an owner account (`lieferway`) and lists the venue on the marketplace.
+Admin **Restaurants** is the only place that creates a venue: a short HTML form (no client JS) that adds an **owner account** (`lieferway`) and lists the restaurant. Restaurants cannot self-register. Customers can create an account at `/register`. Partner links (Restaurant / Kurier / Admin) are **login only**.
 
 ## Money rules
 

@@ -1,34 +1,22 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
-import { requireSession } from "@/lib/auth";
-import { createRestaurantRecord } from "@/lib/create-restaurant";
-import { DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
+import { getSession } from "@/lib/auth";
 
 function redirectTo(path: string) {
-  revalidatePath("/");
-  revalidatePath("/restaurant");
-  revalidatePath("/restaurant/menu");
-  revalidatePath("/admin/restaurants");
   return new NextResponse(null, { status: 303, headers: { Location: path } });
 }
 
-export async function POST(req: Request) {
-  try {
-    const session = await requireSession(["RESTAURANT", "ADMIN"]);
-    const formData = await req.formData();
-    const result = await createRestaurantRecord({
-      name: String(formData.get("name") ?? ""),
-      cuisine: String(formData.get("cuisine") ?? ""),
-      existingOwnerId: session.id,
-      commissionPercent: DEFAULT_COMMISSION_PERCENT,
-    });
+/** Restaurants cannot self-register. Only admin creates restaurant + owner. */
+async function bounce() {
+  const session = await getSession();
+  if (!session) return redirectTo("/login?next=/restaurant");
+  if (session.role === "ADMIN") return redirectTo("/admin/restaurants");
+  return redirectTo("/restaurant");
+}
 
-    if ("error" in result) {
-      return redirectTo(`/restaurant?error=${encodeURIComponent(result.error)}`);
-    }
+export async function GET() {
+  return bounce();
+}
 
-    return redirectTo("/restaurant?ok=1");
-  } catch {
-    return redirectTo("/login?next=/restaurant");
-  }
+export async function POST() {
+  return bounce();
 }

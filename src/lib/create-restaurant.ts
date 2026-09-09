@@ -58,6 +58,9 @@ export async function createRestaurantRecord(
       if (input.existingOwnerId) {
         const existing = await tx.user.findUnique({ where: { id: input.existingOwnerId } });
         if (!existing) return { error: "Konto nicht gefunden." };
+        if (existing.role !== "RESTAURANT" && existing.role !== "ADMIN") {
+          return { error: "Kundenkonten können kein Restaurant anlegen. Nur Admin legt Betriebe an." };
+        }
         const already = await tx.restaurant.findUnique({ where: { ownerId: existing.id } });
         if (already) return { error: "Dieses Konto hat schon ein Restaurant." };
         ownerId = existing.id;

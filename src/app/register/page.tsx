@@ -45,6 +45,7 @@ export default function RegisterPage() {
         <LocaleToggle />
       </div>
       <h1 className="mt-8 text-2xl font-semibold">{t.createAccount}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t.registerCustomerOnly}</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div>
           <Label>{t.name}</Label>

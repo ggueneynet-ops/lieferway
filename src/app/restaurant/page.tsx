@@ -3,7 +3,6 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { RestaurantOrders } from "@/components/restaurant-orders";
-import { CUISINES } from "@/lib/constants";
 import { getCopy } from "@/lib/get-locale";
 import { interpolate } from "@/lib/i18n";
 
@@ -15,7 +14,7 @@ export default async function RestaurantHome({
   searchParams: Promise<{ error?: string; ok?: string }>;
 }) {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?next=/restaurant");
   const { t } = await getCopy();
   const q = await searchParams;
   const restaurant = await prisma.restaurant.findUnique({
@@ -32,41 +31,7 @@ export default async function RestaurantHome({
             <p className="rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.radiusSaved}</p>
           ) : null}
           <p className="text-base text-ink">{t.noRestaurantYet}</p>
-          <form action="/restaurant/create" method="post" className="space-y-4 rounded-2xl border border-border bg-surface p-5">
-            <div>
-              <label htmlFor="name" className="text-base font-medium">
-                {t.name}
-              </label>
-              <input
-                id="name"
-                name="name"
-                required
-                minLength={2}
-                className="mt-1 h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
-                placeholder="z. B. Café Main"
-              />
-            </div>
-            <div>
-              <label htmlFor="cuisine" className="text-base font-medium">
-                {t.cuisine}
-              </label>
-              <select
-                id="cuisine"
-                name="cuisine"
-                className="mt-1 h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
-                defaultValue={CUISINES[0]}
-              >
-                {CUISINES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className="h-14 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed">
-              {t.createRestaurant}
-            </button>
-          </form>
+          <p className="text-sm text-muted-foreground">{t.partnerNoSignup}</p>
         </div>
       </PanelShell>
     );

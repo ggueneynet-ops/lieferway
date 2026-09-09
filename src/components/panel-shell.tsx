@@ -16,7 +16,16 @@ export async function PanelShell({
   title: string;
 }) {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) {
+    const next = roles.includes("ADMIN")
+      ? "/admin"
+      : roles.includes("RESTAURANT")
+        ? "/restaurant"
+        : roles.includes("COURIER")
+          ? "/courier"
+          : "/";
+    redirect(`/login?next=${encodeURIComponent(next)}`);
+  }
   if (!roles.includes(session.role) && session.role !== "ADMIN") redirect("/");
   const { t } = await getCopy();
   const NAV: Record<string, { href: string; label: string }[]> = {
