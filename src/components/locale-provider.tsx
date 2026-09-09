@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { type Dictionary, t as dict } from "@/lib/i18n";
 
@@ -18,6 +18,16 @@ const LocaleContext = createContext<Ctx>({
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("de");
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )lw_locale=(de|tr)/);
+    const stored = window.localStorage.getItem("lw_locale");
+    const next = match?.[1] ?? stored;
+    if (next === "tr" || next === "de") {
+      setLocaleState(next);
+      document.documentElement.lang = next === "tr" ? "tr" : "de";
+    }
+  }, []);
 
   function setLocale(l: Locale) {
     setLocaleState(l);

@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
+import { restaurantPhoto } from "@/lib/media";
 
 export default async function OrdersPage() {
   const session = await getSession();
@@ -13,7 +14,7 @@ export default async function OrdersPage() {
 
   const orders = await prisma.order.findMany({
     where: session.role === "ADMIN" ? {} : { customerId: session.id },
-    include: { restaurant: { select: { name: true, slug: true, imageUrl: true } } },
+    include: { restaurant: { select: { name: true, slug: true, imageUrl: true, cuisine: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -35,7 +36,11 @@ export default async function OrdersPage() {
                   className="flex gap-4 rounded-2xl border bg-white p-4 transition hover:shadow-sm"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={o.restaurant.imageUrl} alt="" className="h-16 w-16 rounded-xl object-cover" />
+                  <img
+                    src={restaurantPhoto(o.restaurant.imageUrl, o.restaurant.cuisine, o.restaurant.slug)}
+                    alt=""
+                    className="h-16 w-16 rounded-xl object-cover"
+                  />
                   <div className="flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium">{o.restaurant.name}</p>

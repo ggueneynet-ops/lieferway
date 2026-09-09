@@ -5,6 +5,7 @@ import { RestaurantCard } from "@/components/restaurant-card";
 import { CUISINES } from "@/lib/constants";
 import { HomeSearch } from "@/components/home-search";
 import { AllLabel, HomeHeroCopy, HomeSectionTitle } from "@/components/home-copy";
+import { restaurantPhoto } from "@/lib/media";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,17 @@ export default async function Home({
             <div>
               <HomeHeroCopy />
               <HomeSearch initialQ={q ?? ""} />
+              <div className="mt-8 flex gap-3 overflow-x-auto pb-1 md:hidden">
+                {restaurants.slice(0, 6).map((r) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={r.id}
+                    src={restaurantPhoto(r.imageUrl, r.cuisine, r.slug)}
+                    alt={r.name}
+                    className="h-28 w-36 shrink-0 rounded-2xl object-cover shadow-sm"
+                  />
+                ))}
+              </div>
             </div>
             <div className="relative hidden md:block">
               <div className="grid grid-cols-2 gap-3">
@@ -48,7 +60,7 @@ export default async function Home({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     key={r.id}
-                    src={r.imageUrl}
+                    src={restaurantPhoto(r.imageUrl, r.cuisine, r.slug)}
                     alt={r.name}
                     className="h-36 w-full rounded-2xl object-cover shadow-sm last:translate-y-4 first:-translate-y-2"
                   />

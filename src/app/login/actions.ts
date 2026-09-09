@@ -12,15 +12,6 @@ export async function loginAction(formData: FormData) {
     redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
   }
   await setSessionCookie(await signToken(session));
-  const dest =
-    session.role === "ADMIN"
-      ? "/admin"
-      : session.role === "RESTAURANT"
-        ? "/restaurant"
-        : session.role === "COURIER"
-          ? "/courier"
-          : next.startsWith("/")
-            ? next
-            : "/";
+  const dest = next.startsWith("/") ? next : "/";
   redirect(dest);
 }

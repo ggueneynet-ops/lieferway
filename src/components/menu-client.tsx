@@ -4,6 +4,7 @@ import { useCart } from "@/components/cart-provider";
 import { useI18n } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { formatEUR } from "@/lib/money";
+import { dishPhoto } from "@/lib/media";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -20,6 +21,7 @@ type Restaurant = {
   id: string;
   slug: string;
   name: string;
+  cuisine?: string;
   minOrderCents: number;
   deliveryFeeCents: number;
   isOpen: boolean;
@@ -38,58 +40,59 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
           <section key={cat.id} id={cat.id}>
             <h2 className="mb-4 font-display text-xl font-semibold text-ink">{cat.name}</h2>
             <div className="space-y-3">
-              {cat.items.map((item) => (
-                <article
-                  key={item.id}
-                  className="flex gap-4 rounded-2xl border border-border bg-surface p-3 shadow-sm"
-                >
-                  {item.imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
+              {cat.items.map((item) => {
+                const photo = dishPhoto(item.imageUrl, restaurant.cuisine, item.name);
+                return (
+                  <article
+                    key={item.id}
+                    className="flex gap-3 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:gap-4"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.imageUrl}
+                      src={photo}
                       alt=""
-                      className="hidden h-24 w-28 rounded-xl object-cover sm:block"
+                      className="h-24 w-24 shrink-0 rounded-xl object-cover sm:h-28 sm:w-28"
                     />
-                  )}
-                  <div className="flex flex-1 flex-col">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
-                    <div className="mt-auto flex items-center justify-between pt-2">
-                      <span className="font-semibold">{formatEUR(item.priceCents)}</span>
-                      <Button
-                        size="sm"
-                        disabled={!restaurant.isOpen || !item.isAvailable}
-                        onClick={() => {
-                          const same = add(
-                            {
-                              restaurantId: restaurant.id,
-                              restaurantSlug: restaurant.slug,
-                              restaurantName: restaurant.name,
-                              minOrderCents: restaurant.minOrderCents,
-                              deliveryFeeCents: restaurant.deliveryFeeCents,
-                            },
-                            {
-                              menuItemId: item.id,
-                              name: item.name,
-                              priceCents: item.priceCents,
-                              imageUrl: item.imageUrl,
-                            },
-                          );
-                          if (!same) {
-                            toast.message("Warenkorb ersetzt", {
-                              description: "Nur ein Restaurant pro Bestellung – vorheriger Warenkorb geleert.",
-                            });
-                          } else {
-                            toast.success(`${item.name} ${t.add.toLowerCase()}`);
-                          }
-                        }}
-                      >
-                        {item.isAvailable ? t.add : t.unavailable}
-                      </Button>
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <h3 className="font-medium">{item.name}</h3>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
+                      <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                        <span className="font-semibold">{formatEUR(item.priceCents)}</span>
+                        <Button
+                          size="sm"
+                          disabled={!restaurant.isOpen || !item.isAvailable}
+                          onClick={() => {
+                            const same = add(
+                              {
+                                restaurantId: restaurant.id,
+                                restaurantSlug: restaurant.slug,
+                                restaurantName: restaurant.name,
+                                minOrderCents: restaurant.minOrderCents,
+                                deliveryFeeCents: restaurant.deliveryFeeCents,
+                              },
+                              {
+                                menuItemId: item.id,
+                                name: item.name,
+                                priceCents: item.priceCents,
+                                imageUrl: photo,
+                              },
+                            );
+                            if (!same) {
+                              toast.message("Warenkorb ersetzt", {
+                                description: "Nur ein Restaurant pro Bestellung – vorheriger Warenkorb geleert.",
+                              });
+                            } else {
+                              toast.success(`${item.name} ${t.add.toLowerCase()}`);
+                            }
+                          }}
+                        >
+                          {item.isAvailable ? t.add : t.unavailable}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </section>
         ))}
@@ -102,11 +105,17 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
           <>
             <ul className="mt-3 space-y-2 text-sm">
               {cart!.items.map((i) => (
-                <li key={i.menuItemId} className="flex justify-between gap-2">
-                  <span>
-                    {i.quantity}× {i.name}
+                <li key={i.menuItemId} className="flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-center gap-2">
+                    {i.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={i.imageUrl} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                    ) : null}
+                    <span className="truncate">
+                      {i.quantity}× {i.name}
+                    </span>
                   </span>
-                  <span>{formatEUR(i.priceCents * i.quantity)}</span>
+                  <span className="shrink-0">{formatEUR(i.priceCents * i.quantity)}</span>
                 </li>
               ))}
             </ul>

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Clock, Star, Bike } from "lucide-react";
 import { formatEUR } from "@/lib/money";
+import { restaurantPhoto } from "@/lib/media";
+import { RestaurantLogo } from "@/components/restaurant-logo";
 
 export type RestaurantCardData = {
   slug: string;
@@ -17,16 +19,18 @@ export type RestaurantCardData = {
 };
 
 export function RestaurantCard({ r }: { r: RestaurantCardData }) {
+  const photo = restaurantPhoto(r.imageUrl, r.cuisine, r.slug);
+
   return (
     <Link
       href={`/restaurants/${r.slug}`}
       className="group overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted sm:aspect-[16/9]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={r.imageUrl}
-          alt=""
+          src={photo}
+          alt={r.name}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         {!r.isOpen && (
@@ -34,7 +38,8 @@ export function RestaurantCard({ r }: { r: RestaurantCardData }) {
             Geschlossen
           </div>
         )}
-        <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium shadow">
+        <RestaurantLogo name={r.name} size={44} className="absolute bottom-3 left-3 ring-2 ring-white" />
+        <span className="absolute right-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium shadow">
           {r.cuisine}
         </span>
       </div>

@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { MenuClient } from "@/components/menu-client";
 import { Bike, Clock, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
+import { restaurantPhoto } from "@/lib/media";
 
 export default async function RestaurantPage({
   params,
@@ -29,7 +30,11 @@ export default async function RestaurantPage({
       <main className="flex-1">
         <div className="relative h-52 w-full bg-muted sm:h-72">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={restaurant.imageUrl} alt="" className="h-full w-full object-cover" />
+          <img
+            src={restaurantPhoto(restaurant.imageUrl, restaurant.cuisine, restaurant.slug)}
+            alt=""
+            className="h-full w-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-4 left-0 right-0 mx-auto max-w-6xl px-4 text-white">
             <p className="text-sm text-white/80">{restaurant.cuisine} · {restaurant.postalCode} {restaurant.city}</p>

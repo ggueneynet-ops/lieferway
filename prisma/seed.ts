@@ -1,5 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { dishPhoto } from "../src/lib/media";
+
+function dishImage(name: string, cuisine: string) {
+  return dishPhoto(null, cuisine, name);
+}
 
 const prisma = new PrismaClient();
 
@@ -599,7 +604,7 @@ async function main() {
         cuisine: r.cuisine,
         address: r.address,
         postalCode: r.postalCode,
-        imageUrl: r.imageUrl,
+            imageUrl: `/media/restaurants/${r.slug}.jpg`,
         rating: r.rating,
         reviewCount: r.reviewCount,
         deliveryFeeCents: r.deliveryFeeCents,
@@ -628,7 +633,7 @@ async function main() {
             name: item.name,
             description: item.description,
             priceCents: item.priceCents,
-            imageUrl: "imageUrl" in item ? item.imageUrl : null,
+            imageUrl: dishImage(item.name, r.cuisine),
           },
         });
         itemIds.push(created.id);

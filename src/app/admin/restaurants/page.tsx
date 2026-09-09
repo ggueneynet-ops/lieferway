@@ -1,6 +1,8 @@
 import { PanelShell } from "@/components/panel-shell";
 import { prisma } from "@/lib/prisma";
 import { CUISINES, DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
+import { restaurantPhoto } from "@/lib/media";
+import { RestaurantLogo } from "@/components/restaurant-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -108,10 +110,23 @@ export default async function AdminRestaurantsPage({
           <h2 className="text-lg font-semibold text-ink">Liste ({restaurants.length})</h2>
           {restaurants.map((r) => (
             <div key={r.id} className="rounded-2xl border border-border bg-surface p-4">
-              <p className="text-base font-medium text-ink">{r.name}</p>
-              <p className="text-sm text-text-secondary">
-                {r.cuisine} · {r.owner.email}
-              </p>
+              <div className="flex gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={restaurantPhoto(r.imageUrl, r.cuisine, r.slug)}
+                  alt=""
+                  className="h-16 w-20 shrink-0 rounded-xl object-cover"
+                />
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 text-base font-medium text-ink">
+                    <RestaurantLogo name={r.name} size={28} />
+                    {r.name}
+                  </p>
+                  <p className="text-sm text-text-secondary">
+                    {r.cuisine} · {r.owner.email}
+                  </p>
+                </div>
+              </div>
               <form action="/admin/restaurants/commission" method="post" className="mt-3 flex items-center gap-3">
                 <input type="hidden" name="id" value={r.id} />
                 <label className="sr-only" htmlFor={`c-${r.id}`}>

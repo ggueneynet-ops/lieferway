@@ -26,6 +26,7 @@ export default async function RestaurantMenuPage() {
       <MenuEditor
         restaurantId={restaurant.id}
         categories={JSON.parse(JSON.stringify(restaurant.categories))}
+        cuisine={restaurant.cuisine}
       />
     </PanelShell>
   );

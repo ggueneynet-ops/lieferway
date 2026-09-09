@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
+import { CUISINE_RESTAURANT_PHOTO, DEFAULT_RESTAURANT_PHOTO } from "@/lib/media";
 
 export function slugifyName(name: string) {
   const base = name
@@ -88,7 +89,7 @@ export async function createRestaurantRecord(
           cuisine,
           address: "Frankfurt am Main",
           postalCode: "60311",
-          imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80",
+          imageUrl: CUISINE_RESTAURANT_PHOTO[cuisine] ?? DEFAULT_RESTAURANT_PHOTO,
           commissionPercent,
           isActive: true,
           isOpen: true,
