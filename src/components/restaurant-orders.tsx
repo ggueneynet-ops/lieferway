@@ -288,6 +288,7 @@ export function RestaurantOrders({
                 noteLabel={t.note}
                 deliveryLabel={t.deliveryTo}
                 phoneLabel={t.phoneNumber}
+                nameLabel={t.fullName}
                 highlight={highlight.has(o.id)}
               >
                 <Button className="h-11 min-w-28 px-5 text-base" onClick={() => act(o.id, "accept")}>
@@ -313,6 +314,7 @@ export function RestaurantOrders({
               noteLabel={t.note}
               deliveryLabel={t.deliveryTo}
               phoneLabel={t.phoneNumber}
+              nameLabel={t.fullName}
             >
               {o.status === "ACCEPTED" && (
                 <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "preparing")}>
@@ -344,6 +346,7 @@ function OrderCard({
   noteLabel,
   deliveryLabel,
   phoneLabel,
+  nameLabel,
   highlight,
 }: {
   order: KitchenOrder;
@@ -352,6 +355,7 @@ function OrderCard({
   noteLabel: string;
   deliveryLabel: string;
   phoneLabel: string;
+  nameLabel: string;
   highlight?: boolean;
 }) {
   return (
@@ -366,6 +370,9 @@ function OrderCard({
           </p>
           <p className="text-xs text-muted-foreground">
             {order.paymentMethod} · {formatEUR(order.totalCents, locale)}
+          </p>
+          <p className="text-sm font-medium text-ink">
+            {nameLabel}: {order.customer.name}
           </p>
           <p className="text-sm font-medium text-ink">
             {phoneLabel}:{" "}

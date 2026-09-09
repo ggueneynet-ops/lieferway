@@ -44,6 +44,7 @@ const createSchema = z.object({
   items: z.array(z.object({ menuItemId: z.string(), quantity: z.number().int().min(1).max(20) })).min(1),
   paymentMethod: z.enum(PAYMENT_METHODS),
   paymentIntentId: z.string().optional(),
+  customerName: z.string().trim().min(2).max(80),
   street: z.string().min(3),
   city: z.string().min(2),
   postalCode: z.string().min(4),
@@ -120,6 +121,11 @@ export async function POST(req: Request) {
     if (paid && !parsed.data.paymentIntentId) {
       return fail("Zahlung nicht bestätigt.");
     }
+
+    await prisma.user.update({
+      where: { id: session.id },
+      data: { name: parsed.data.customerName },
+    });
 
     const order = await prisma.order.create({
       data: {

@@ -38,15 +38,19 @@ export function CheckoutClient() {
   const [busy, setBusy] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [phone, setPhone] = useState("");
+  const [fullName, setFullName] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then(async (r) => {
         setAuthed(r.ok);
         if (!r.ok) return;
-        const data = (await r.json()) as { user?: { phone?: string | null; role?: string } };
+        const data = (await r.json()) as {
+          user?: { phone?: string | null; role?: string; name?: string | null };
+        };
         const number = data.user?.phone ?? "";
         setPhone(number);
+        if (data.user?.name?.trim()) setFullName(data.user.name.trim());
         if (customerNeedsPhone(number, data.user?.role)) {
           router.replace("/account/phone?next=/checkout");
         }
@@ -102,6 +106,10 @@ export function CheckoutClient() {
       router.replace("/account/phone?next=/checkout");
       return;
     }
+    if (fullName.trim().length < 2) {
+      toast.error(t.nameRequired);
+      return;
+    }
     if (foodSubtotal < current.minOrderCents) {
       toast.error(t.minNotMet);
       return;
@@ -123,6 +131,7 @@ export function CheckoutClient() {
           items: current.items.map((i) => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
           paymentMethod: method,
           paymentIntentId: payData.intent.id,
+          customerName: fullName.trim(),
           street,
           city,
           postalCode,
@@ -160,6 +169,18 @@ export function CheckoutClient() {
             <section className="rounded-2xl border bg-white p-5">
               <h2 className="font-semibold">{t.address}</h2>
               <div className="mt-4 grid gap-3">
+                <div>
+                  <Label htmlFor="checkout-name">{t.fullName}</Label>
+                  <Input
+                    id="checkout-name"
+                    className="mt-1"
+                    autoComplete="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">{t.fullNameHint}</p>
+                </div>
                 <div>
                   <Label>{t.street}</Label>
                   <Input className="mt-1" value={street} onChange={(e) => setStreet(e.target.value)} />
@@ -286,7 +307,7 @@ export function CheckoutClient() {
             <Button
               className="mt-4 w-full"
               size="lg"
-              disabled={busy || customerNeedsPhone(phone, "CUSTOMER")}
+              disabled={busy || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
               onClick={pay}
             >
               {busy ? t.processing : t.payNow}

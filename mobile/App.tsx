@@ -48,6 +48,7 @@ export default function App() {
   const [cart, setCart] = React.useState<{ restaurant: Restaurant; items: CartLine[] } | null>(null);
   const [method, setMethod] = React.useState<"CARD" | "APPLE_PAY" | "GOOGLE_PAY" | "CASH">("CARD");
   const [street, setStreet] = React.useState("Berger Straße 142");
+  const [fullName, setFullName] = React.useState("");
   const [orderId, setOrderId] = React.useState<string | null>(null);
   const [order, setOrder] = React.useState<Record<string, unknown> | null>(null);
   const [orders, setOrders] = React.useState<Array<{ id: string; shortCode: string; status: string; totalCents: number; restaurant: { name: string } }>>([]);
@@ -66,6 +67,7 @@ export default function App() {
       setToken(data.token);
       setUser(data.user);
       setPhone(data.user.phone ?? "");
+      setFullName(data.user.name ?? "");
       const list = await api<{ restaurants: Restaurant[] }>("/api/restaurants");
       setRestaurants(list.restaurants);
       if (data.user.role === "CUSTOMER" && !data.user.phone) {
@@ -149,6 +151,7 @@ export default function App() {
           items: cart.items.map((i) => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
           paymentMethod: method,
           paymentIntentId: pay.intent.id,
+          customerName: (fullName.trim() || user?.name || "Gast").trim(),
           street,
           city: "Frankfurt am Main",
           postalCode: "60316",
@@ -296,6 +299,8 @@ export default function App() {
       {screen === "checkout" && (
         <ScrollView contentContainerStyle={styles.pad}>
           <Text style={styles.h1}>Kasse</Text>
+          <Text style={styles.muted}>Name</Text>
+          <TextInput style={styles.input} value={fullName} onChangeText={setFullName} placeholder="Vor- und Nachname" />
           <Text style={styles.muted}>Telefon: {phone || "—"}</Text>
           <TextInput style={styles.input} value={street} onChangeText={setStreet} />
           {(["CARD", "APPLE_PAY", "GOOGLE_PAY", "CASH"] as const).map((m) => (

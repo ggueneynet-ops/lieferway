@@ -121,7 +121,10 @@ function Card({ order, children }: { order: Order; children?: React.ReactNode })
         <div className="mt-2 h-24 rounded-lg bg-primary-soft" />
       </div>
       <p className="mt-2 text-sm font-medium">
-        {order.customer.name} ·{" "}
+        Name: {order.customer.name}
+      </p>
+      <p className="text-sm font-medium">
+        Telefon:{" "}
         {order.customer.phone ? (
           <a className="underline-offset-2 hover:underline" href={`tel:${order.customer.phone}`}>
             {order.customer.phone}
