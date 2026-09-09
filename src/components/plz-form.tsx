@@ -15,7 +15,7 @@ export function PlzForm({
   cuisine: string;
 }) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(!initialPlz);
+  const [open, setOpen] = useState(false);
   const [geoError, setGeoError] = useState("");
   const [busyGeo, setBusyGeo] = useState(false);
   const place = initialPlz ? lookupPlz(initialPlz) : undefined;
