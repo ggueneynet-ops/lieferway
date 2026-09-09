@@ -1,11 +1,24 @@
 import { prisma } from "@/lib/prisma";
-import { haversineKm, lookupPlz, normalizePlz } from "@/lib/plz";
+import { normalizePlz } from "@/lib/plz";
+import {
+  distanceFromOrigin,
+  restaurantCoversDistance,
+  type GeoOrigin,
+} from "@/lib/radius";
 
-export function marketplaceHref(opts: { plz?: string | null; q?: string; cuisine?: string }) {
+export function marketplaceHref(opts: {
+  plz?: string | null;
+  q?: string;
+  cuisine?: string;
+  km?: number | null;
+}) {
   const params = new URLSearchParams();
   if (opts.plz) params.set("plz", opts.plz);
   if (opts.q) params.set("q", opts.q);
   if (opts.cuisine) params.set("cuisine", opts.cuisine);
+  if (opts.plz && opts.km !== undefined) {
+    params.set("km", opts.km == null ? "all" : String(opts.km));
+  }
   const qs = params.toString();
   return qs ? `/?${qs}` : "/";
 }
@@ -28,6 +41,7 @@ export type MarketplaceRestaurant = {
   district: string | null;
   lat: number | null;
   lng: number | null;
+  maxDeliveryKm: number | null;
   distanceKm: number | null;
 };
 
@@ -35,25 +49,31 @@ export async function listMarketplaceRestaurants(opts: {
   q?: string;
   cuisine?: string;
   plz?: string | null;
+  km?: number | null;
+  origin?: GeoOrigin | null;
 }): Promise<MarketplaceRestaurant[]> {
   const plz = normalizePlz(opts.plz);
   const cuisine = opts.cuisine?.trim() ?? "";
   const query = (opts.q ?? "").trim().toLowerCase();
-  const origin = plz ? lookupPlz(plz) : undefined;
+  const origin = opts.origin ?? null;
+  const userKm = origin ? (opts.km ?? null) : null;
 
   const rows = await prisma.restaurant.findMany({
     where: {
       isActive: true,
       ...(cuisine ? { cuisine } : {}),
-      ...(plz ? { serviceAreas: { some: { postalCode: plz } } } : {}),
     },
+    include: { serviceAreas: { select: { postalCode: true } } },
   });
 
-  const mapped: MarketplaceRestaurant[] = rows.map((r) => {
-    const hasCoords = typeof r.lat === "number" && typeof r.lng === "number";
-    const distanceKm =
-      origin && hasCoords ? haversineKm(origin, { lat: r.lat!, lng: r.lng! }) : null;
-    return {
+  const mapped: MarketplaceRestaurant[] = [];
+  for (const r of rows) {
+    const distanceKm = distanceFromOrigin(origin, r.lat, r.lng);
+    const servesPlz = plz ? r.serviceAreas.some((a) => a.postalCode === plz) : false;
+    if (!restaurantCoversDistance(distanceKm, userKm, r.maxDeliveryKm, plz, servesPlz)) {
+      continue;
+    }
+    mapped.push({
       id: r.id,
       slug: r.slug,
       name: r.name,
@@ -71,9 +91,10 @@ export async function listMarketplaceRestaurants(opts: {
       district: r.district,
       lat: r.lat,
       lng: r.lng,
+      maxDeliveryKm: r.maxDeliveryKm,
       distanceKm,
-    };
-  });
+    });
+  }
 
   const searched = query
     ? mapped.filter(

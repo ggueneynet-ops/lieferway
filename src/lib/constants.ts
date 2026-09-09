@@ -2,7 +2,13 @@ export const DEFAULT_COMMISSION_PERCENT = 5;
 export const AUTH_COOKIE = "lw_session";
 export const LOCALE_COOKIE = "lw_locale";
 export const PLZ_COOKIE = "lw_plz";
+export const RADIUS_COOKIE = "lw_km";
+export const LAT_COOKIE = "lw_lat";
+export const LNG_COOKIE = "lw_lng";
 export const CITY = "Frankfurt am Main";
+export const RADIUS_PRESETS = [3, 5, 10] as const;
+export const DEFAULT_RADIUS_KM = 5;
+export const DEFAULT_RESTAURANT_RADIUS_KM = 8;
 
 export const ROLES = ["CUSTOMER", "RESTAURANT", "COURIER", "ADMIN"] as const;
 export type Role = (typeof ROLES)[number];

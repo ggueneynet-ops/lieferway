@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock, Star } from "lucide-react";
+import { Clock, MapPin, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
 
@@ -58,7 +58,12 @@ export function RestaurantCard({
           {districtLabel ? ` · ${districtLabel}` : null}
         </p>
         <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground">
-          {distanceLabel ? <span className="font-medium text-ink">{distanceLabel}</span> : null}
+          {distanceLabel ? (
+            <span className="inline-flex items-center gap-0.5 font-medium text-ink">
+              <MapPin className="size-3 text-primary" />
+              {distanceLabel}
+            </span>
+          ) : null}
           <span className="inline-flex items-center gap-0.5">
             <Clock className="size-3" />
             {r.etaMin}–{r.etaMax} Min.

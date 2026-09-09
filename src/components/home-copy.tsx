@@ -20,11 +20,13 @@ export function HomeSectionTitle({
   kind,
   count,
   plz,
+  km,
   nearby,
 }: {
   kind: "cuisines" | "restaurants" | "empty";
   count?: number;
   plz?: string | null;
+  km?: number | null;
   nearby?: boolean;
 }) {
   const { t } = useI18n();
@@ -34,9 +36,12 @@ export function HomeSectionTitle({
       <p className="rounded-2xl border border-border bg-surface p-8 text-center text-muted-foreground">{t.noResults}</p>
     );
   }
+  const n = String(count ?? 0);
   const title = plz
-    ? t.restaurantsInPlz.replace("{count}", String(count ?? 0)).replace("{plz}", plz)
-    : `${count} ${t.restaurants} · ${t.city}`;
+    ? km == null
+      ? t.restaurantsInCity.replace("{count}", n).replace("{plz}", plz)
+      : t.restaurantsInRadius.replace("{count}", n).replace("{plz}", plz).replace("{km}", String(km))
+    : `${n} ${t.restaurants} · ${t.city}`;
   return (
     <h2 className="mb-1 font-display text-[15px] font-semibold text-ink">
       {title}

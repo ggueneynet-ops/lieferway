@@ -1,14 +1,18 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MenuClient } from "@/components/menu-client";
-import { Bike, Clock, Star } from "lucide-react";
+import { Bike, Clock, MapPin, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
 import { RestaurantLogo } from "@/components/restaurant-logo";
 import { getCopy } from "@/lib/get-locale";
-import { cuisineName } from "@/lib/i18n";
+import { cuisineName, interpolate } from "@/lib/i18n";
+import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constants";
+import { formatDistanceKm, normalizePlz } from "@/lib/plz";
+import { distanceFromOrigin, parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 
 export default async function RestaurantPage({
   params,
@@ -17,6 +21,11 @@ export default async function RestaurantPage({
 }) {
   const { slug } = await params;
   const { t, locale } = await getCopy();
+  const jar = await cookies();
+  const plz = normalizePlz(jar.get(PLZ_COOKIE)?.value);
+  const km = resolveUserRadius(null, jar.get(RADIUS_COOKIE)?.value);
+  const gps = parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value);
+  const origin = resolveOrigin({ plz, lat: gps?.lat ?? null, lng: gps?.lng ?? null });
   const restaurant = await prisma.restaurant.findUnique({
     where: { slug },
     include: {
@@ -27,10 +36,11 @@ export default async function RestaurantPage({
     },
   });
   if (!restaurant || !restaurant.isActive) notFound();
+  const distanceKm = distanceFromOrigin(origin, restaurant.lat, restaurant.lng);
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader plz={plz} km={km} />
       <main className="flex-1">
         <div className="border-b border-border bg-surface">
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:py-4">
@@ -61,6 +71,15 @@ export default async function RestaurantPage({
                   <Bike className="size-3" />
                   {formatEUR(restaurant.deliveryFeeCents, locale)} {t.delivery}
                 </span>
+                {distanceKm != null ? (
+                  <span className="inline-flex items-center gap-1 font-medium text-ink">
+                    <MapPin className="size-3 text-primary" />
+                    {formatDistanceKm(distanceKm, locale)}
+                  </span>
+                ) : null}
+                {restaurant.maxDeliveryKm != null ? (
+                  <span>{interpolate(t.withinRadius, { km: String(restaurant.maxDeliveryKm) })}</span>
+                ) : null}
                 <span>{t.minOrder} {formatEUR(restaurant.minOrderCents, locale)}</span>
               </div>
               {!restaurant.isOpen && (

@@ -16,10 +16,29 @@ function persistPlz(plz: string) {
   document.cookie = `lw_plz=${plz};path=/;max-age=31536000;SameSite=Lax`;
 }
 
-function rememberPlz(plz: string, q: string, cuisine: string) {
+function persistCoords(coords?: { lat: number; lng: number } | null) {
+  const base = "path=/;max-age=31536000;SameSite=Lax";
+  if (coords) {
+    document.cookie = `lw_lat=${coords.lat};${base}`;
+    document.cookie = `lw_lng=${coords.lng};${base}`;
+  } else {
+    document.cookie = "lw_lat=;path=/;max-age=0;SameSite=Lax";
+    document.cookie = "lw_lng=;path=/;max-age=0;SameSite=Lax";
+  }
+}
+
+function rememberPlz(
+  plz: string,
+  q: string,
+  cuisine: string,
+  km: number | null,
+  coords?: { lat: number; lng: number } | null,
+) {
   persistPlz(plz);
+  persistCoords(coords ?? null);
   const params = new URLSearchParams();
   params.set("plz", plz);
+  params.set("km", km == null ? "all" : String(km));
   if (q) params.set("q", q);
   if (cuisine) params.set("cuisine", cuisine);
   window.location.assign(`/?${params.toString()}`);
@@ -40,11 +59,13 @@ export function PlzForm({
   initialPlz,
   q,
   cuisine,
+  km = 5,
   autoDetect = false,
 }: {
   initialPlz: string;
   q: string;
   cuisine: string;
+  km?: number | null;
   autoDetect?: boolean;
 }) {
   const { t } = useI18n();
@@ -56,12 +77,13 @@ export function PlzForm({
   const place = initialPlz ? lookupPlz(initialPlz) : undefined;
 
   const applyPlz = useCallback(
-    (plz: string) => {
+    (plz: string, coords?: { lat: number; lng: number } | null) => {
       const n = normalizePlz(plz);
-      if (!n || n === initialPlz) return;
-      rememberPlz(n, q, cuisine);
+      if (!n) return;
+      if (n === initialPlz && !coords) return;
+      rememberPlz(n, q, cuisine, km, coords);
     },
-    [cuisine, initialPlz, q],
+    [cuisine, initialPlz, km, q],
   );
 
   useEffect(() => {
@@ -101,7 +123,7 @@ export function PlzForm({
           const res = await fetch(`/api/geo/plz?lat=${coords.lat}&lng=${coords.lng}`);
           const data = (await res.json()) as { plz?: string | null };
           if (data.plz) {
-            applyPlz(data.plz);
+            applyPlz(data.plz, coords);
             return;
           }
         }
@@ -132,6 +154,7 @@ export function PlzForm({
       <>
         {q ? <input type="hidden" name="q" value={q} /> : null}
         {cuisine ? <input type="hidden" name="cuisine" value={cuisine} /> : null}
+        <input type="hidden" name="km" value={km == null ? "all" : String(km)} />
       </>
     );
   }
@@ -145,6 +168,7 @@ export function PlzForm({
       } catch {
         /* ignore */
       }
+      persistCoords(null);
       return;
     }
     const n = normalizePlz(String(data.get("plz") ?? ""));
@@ -165,7 +189,7 @@ export function PlzForm({
       }
       const res = await fetch(`/api/geo/plz?lat=${coords.lat}&lng=${coords.lng}`);
       const data = (await res.json()) as { plz?: string | null };
-      if (data.plz) applyPlz(data.plz);
+      if (data.plz) applyPlz(data.plz, coords);
       else setGeoError(t.geoFailed);
     } catch {
       setGeoError(t.geoFailed);

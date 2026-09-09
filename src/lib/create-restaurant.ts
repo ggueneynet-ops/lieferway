@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
-import { DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
+import { DEFAULT_COMMISSION_PERCENT, DEFAULT_RESTAURANT_RADIUS_KM } from "@/lib/constants";
 import { CUISINE_RESTAURANT_PHOTO, DEFAULT_RESTAURANT_PHOTO } from "@/lib/media";
 import { DEFAULT_NEW_RESTAURANT_PLZS, lookupPlz } from "@/lib/plz";
 
@@ -94,6 +94,7 @@ export async function createRestaurantRecord(
           district: place?.district ?? "Innenstadt",
           lat: place?.lat ?? 50.1109,
           lng: place?.lng ?? 8.6821,
+          maxDeliveryKm: DEFAULT_RESTAURANT_RADIUS_KM,
           imageUrl: CUISINE_RESTAURANT_PHOTO[cuisine] ?? DEFAULT_RESTAURANT_PHOTO,
           commissionPercent,
           isActive: true,

@@ -8,19 +8,21 @@ export function CuisineRow({
   plz,
   q,
   cuisine,
+  km,
   allLabel,
 }: {
   locale: Locale;
   plz?: string | null;
   q?: string;
   cuisine?: string;
+  km?: number | null;
   allLabel: string;
 }) {
   const items = [
-    { key: "all" as const, href: marketplaceHref({ plz, q }), label: allLabel, icon: CUISINE_ICONS.all, active: !cuisine },
+    { key: "all" as const, href: marketplaceHref({ plz, q, km }), label: allLabel, icon: CUISINE_ICONS.all, active: !cuisine },
     ...CUISINES.map((c) => ({
       key: c,
-      href: marketplaceHref({ plz, q, cuisine: c }),
+      href: marketplaceHref({ plz, q, cuisine: c, km }),
       label: cuisineName(locale, c),
       icon: CUISINE_ICONS[c],
       active: cuisine === c,

@@ -134,22 +134,37 @@ export default async function AdminRestaurantsPage({
                   </p>
                 </div>
               </div>
-              <form action="/admin/restaurants/commission" method="post" className="mt-3 flex items-center gap-3">
+              <form action="/admin/restaurants/commission" method="post" className="mt-3 space-y-2">
                 <input type="hidden" name="id" value={r.id} />
-                <label className="sr-only" htmlFor={`c-${r.id}`}>
-                  {t.commission} {r.name}
-                </label>
-                <input
-                  id={`c-${r.id}`}
-                  name="commissionPercent"
-                  defaultValue={String(r.commissionPercent)}
-                  inputMode="decimal"
-                  className="h-12 w-24 rounded-lg border border-border bg-background px-3 text-base"
-                />
-                <span className="text-sm text-text-secondary">%</span>
-                <button type="submit" className="h-12 flex-1 rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed">
-                  {t.save}
-                </button>
+                <div className="flex items-center gap-3">
+                  <label className="sr-only" htmlFor={`c-${r.id}`}>
+                    {t.commission} {r.name}
+                  </label>
+                  <input
+                    id={`c-${r.id}`}
+                    name="commissionPercent"
+                    defaultValue={String(r.commissionPercent)}
+                    inputMode="decimal"
+                    className="h-12 w-24 rounded-lg border border-border bg-background px-3 text-base"
+                  />
+                  <span className="text-sm text-text-secondary">%</span>
+                  <label className="sr-only" htmlFor={`r-${r.id}`}>
+                    {t.maxDeliveryRadius} {r.name}
+                  </label>
+                  <input
+                    id={`r-${r.id}`}
+                    name="maxDeliveryKm"
+                    inputMode="decimal"
+                    placeholder={t.unlimitedRadius}
+                    defaultValue={r.maxDeliveryKm != null ? String(r.maxDeliveryKm) : ""}
+                    className="h-12 w-24 rounded-lg border border-border bg-background px-3 text-base"
+                  />
+                  <span className="text-sm text-text-secondary">km</span>
+                  <button type="submit" className="h-12 flex-1 rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed">
+                    {t.save}
+                  </button>
+                </div>
+                <p className="text-xs text-text-secondary">{t.maxDeliveryRadiusHint}</p>
               </form>
             </div>
           ))}

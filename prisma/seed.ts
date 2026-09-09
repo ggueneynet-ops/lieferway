@@ -578,54 +578,62 @@ async function main() {
 
   const GEO: Record<
     string,
-    { district: string; lat: number; lng: number; plzs: string[] }
+    { district: string; lat: number; lng: number; plzs: string[]; maxDeliveryKm: number }
   > = {
     "anadolu-grill": {
       district: "Sachsenhausen",
       lat: 50.1075,
       lng: 8.69,
+      maxDeliveryKm: 8,
       plzs: ["60594", "60596", "60598", "60599", "60311", "60313", "60329", "60327", "60314"],
     },
     "pasta-e-basta": {
       district: "Westend",
       lat: 50.121,
       lng: 8.67,
+      maxDeliveryKm: 6,
       plzs: ["60322", "60323", "60325", "60320", "60313", "60311", "60486", "60487", "60318"],
     },
     "mainhattan-burger": {
       district: "Innenstadt",
       lat: 50.1148,
       lng: 8.6752,
+      maxDeliveryKm: 8,
       plzs: ["60311", "60313", "60329", "60322", "60323", "60314", "60316", "60327", "60318", "60325"],
     },
     "sakura-sushi": {
       district: "Bahnhofsviertel",
       lat: 50.1072,
       lng: 8.662,
+      maxDeliveryKm: 5,
       plzs: ["60326", "60329", "60327", "60311", "60313", "60486", "60487", "60325"],
     },
     "apfelwein-stubb": {
       district: "Sachsenhausen",
       lat: 50.1048,
       lng: 8.6865,
+      maxDeliveryKm: 7,
       plzs: ["60594", "60596", "60598", "60599", "60329", "60311", "60528"],
     },
     "pho-saigon": {
       district: "Bornheim",
-      lat: 50.1265,
-      lng: 8.7035,
+      lat: 50.1282,
+      lng: 8.722,
+      maxDeliveryKm: 6,
       plzs: ["60385", "60316", "60318", "60389", "60314", "60386"],
     },
     "green-bowl": {
       district: "Nordend",
       lat: 50.1182,
       lng: 8.693,
+      maxDeliveryKm: 6,
       plzs: ["60316", "60318", "60314", "60313", "60311", "60385", "60322"],
     },
     "pizza-vesuvio": {
       district: "Bockenheim",
-      lat: 50.122,
-      lng: 8.6445,
+      lat: 50.1235,
+      lng: 8.628,
+      maxDeliveryKm: 8,
       plzs: ["60487", "60486", "60488", "60326", "60325", "60322", "60431"],
     },
   };
@@ -663,6 +671,7 @@ async function main() {
         district: geo?.district,
         lat: geo?.lat,
         lng: geo?.lng,
+        maxDeliveryKm: geo?.maxDeliveryKm ?? 8,
         imageUrl: `/media/restaurants/${r.slug}.jpg`,
         rating: r.rating,
         reviewCount: r.reviewCount,
