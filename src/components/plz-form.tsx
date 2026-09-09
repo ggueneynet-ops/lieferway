@@ -2,6 +2,7 @@
 
 import { useI18n } from "@/components/locale-provider";
 import { GEO_ATTEMPTED_KEY, PLZ_STORAGE_KEY } from "@/lib/geo";
+import { waitForSplashIntro } from "@/lib/splash";
 import { DEMO_PLZ_CHIPS, lookupPlz, normalizePlz } from "@/lib/plz";
 import { ChevronDown, MapPin, Navigation } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
@@ -90,6 +91,7 @@ export function PlzForm({
     }
 
     async function run() {
+      await waitForSplashIntro();
       setBusyGeo(true);
       setGeoError("");
       setGeoHint(t.geoPermission);

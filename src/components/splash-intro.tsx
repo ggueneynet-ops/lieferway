@@ -3,10 +3,10 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { LogoMark } from "@/components/logo";
 import { useI18n } from "@/components/locale-provider";
+import { markSplashShown, notifySplashDone, splashAlreadyShown } from "@/lib/splash";
 
 const HOLD_MS = 1500;
 const FADE_MS = 350;
-const SESSION_KEY = "lw_splash_shown";
 
 function prefersReducedMotion() {
   if (typeof window === "undefined") return true;
@@ -20,26 +20,21 @@ export function SplashIntro() {
   const fadeTimer = useRef<number | null>(null);
 
   const dismiss = useCallback(() => {
-    try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-    } catch {
-      /* private mode */
-    }
+    markSplashShown();
+    notifySplashDone();
     setPhase("out");
   }, []);
 
   useLayoutEffect(() => {
     if (prefersReducedMotion()) {
+      notifySplashDone();
       setPhase("hidden");
       return;
     }
-    try {
-      if (sessionStorage.getItem(SESSION_KEY) === "1") {
-        setPhase("hidden");
-        return;
-      }
-    } catch {
-      /* show once this mount */
+    if (splashAlreadyShown()) {
+      notifySplashDone();
+      setPhase("hidden");
+      return;
     }
 
     holdTimer.current = window.setTimeout(dismiss, HOLD_MS);
