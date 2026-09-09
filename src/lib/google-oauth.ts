@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword, signToken, type SessionUser } from "@/lib/auth";
 import type { Role } from "@/lib/constants";
+import { isStaffArea } from "@/lib/paths";
 
 const STATE_COOKIE = "lw_google_oauth";
 
@@ -27,7 +28,7 @@ export function googleCallbackUrl(req: Request) {
 export function safeNext(raw?: string | null) {
   const next = (raw ?? "/").trim() || "/";
   if (!next.startsWith("/") || next.startsWith("//")) return "/";
-  if (next.startsWith("/restaurant") || next.startsWith("/admin") || next.startsWith("/courier")) {
+  if (isStaffArea(next)) {
     return "/";
   }
   return next;

@@ -11,14 +11,14 @@ import { LocaleToggle } from "@/components/locale-toggle";
 import { useI18n } from "@/components/locale-provider";
 import { GoogleSignIn } from "@/components/google-sign-in";
 import { loginAction } from "./actions";
+import { isStaffArea } from "@/lib/paths";
 
 function LoginForm() {
   const params = useSearchParams();
   const next = params.get("next") ?? "/";
   const error = params.get("error");
   const preset = params.get("email") ?? "kunde@lieferway.de";
-  const partner =
-    next.startsWith("/restaurant") || next.startsWith("/admin") || next.startsWith("/courier");
+  const partner = isStaffArea(next);
   const { t } = useI18n();
 
   return (

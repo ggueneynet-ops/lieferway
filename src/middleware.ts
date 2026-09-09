@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE, CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import { defaultDemoPlace, sanitizeDemoPlz } from "@/lib/plz";
+import { pathIs } from "@/lib/paths";
+
+/** Public marketplace — never treat `/restaurants/:slug` as the staff `/restaurant` panel. */
+const PUBLIC = ["/restaurants", "/cart", "/partner"];
 
 const PROTECTED = [
   { prefix: "/admin", roles: ["ADMIN"] },
@@ -8,6 +12,7 @@ const PROTECTED = [
   { prefix: "/courier", roles: ["COURIER", "ADMIN"] },
   { prefix: "/checkout", roles: ["CUSTOMER", "ADMIN"] },
   { prefix: "/orders", roles: ["CUSTOMER", "ADMIN", "RESTAURANT", "COURIER"] },
+  { prefix: "/account", roles: ["CUSTOMER", "ADMIN", "RESTAURANT", "COURIER"] },
 ];
 
 function withDemoPlz(req: NextRequest, res: NextResponse) {
@@ -44,7 +49,12 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
-  const rule = PROTECTED.find((p) => req.nextUrl.pathname.startsWith(p.prefix));
+  const pathname = req.nextUrl.pathname;
+  if (PUBLIC.some((p) => pathIs(pathname, p))) {
+    return withDemoPlz(req, NextResponse.next());
+  }
+
+  const rule = PROTECTED.find((p) => pathIs(pathname, p.prefix));
   if (rule) {
     const token = req.cookies.get(AUTH_COOKIE)?.value;
     if (!token) {
