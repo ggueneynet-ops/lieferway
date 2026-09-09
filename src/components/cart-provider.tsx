@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type CartLine = {
   menuItemId: string;
@@ -31,18 +31,33 @@ type Ctx = {
 const CartContext = createContext<Ctx | null>(null);
 const KEY = "lw_cart";
 
+function readStoredCart(): CartState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CartState;
+    if (!parsed?.restaurantId || !Array.isArray(parsed.items) || parsed.items.length === 0) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartState | null>(null);
-  const persist = useRef(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!persist.current) {
-      persist.current = true;
-      return;
-    }
+    setCart(readStoredCart());
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
     if (cart) window.localStorage.setItem(KEY, JSON.stringify(cart));
     else window.localStorage.removeItem(KEY);
-  }, [cart]);
+  }, [cart, ready]);
 
   const api = useMemo<Ctx>(() => {
     const foodSubtotal = cart?.items.reduce((s, i) => s + i.priceCents * i.quantity, 0) ?? 0;
