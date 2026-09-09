@@ -8,8 +8,8 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 **Scooter + cloche** — rider on a moped, cargo box with a food-cloche knockout, three speed lines.
 
-- Light UI (header, login, footer): compact pink mark (no speed lines) + italic **Lieferway** wordmark with a clear gap (`public/logo-mark-compact.svg`).
-- Brand / splash (pink field): white mark (`public/logo-mark-white.svg`) + white italic wordmark.
+- Header / login / footer: **one lockup image** (`public/logo-header.svg`, `logo-header-h64/96/128.png`) — icon + italic wordmark, no extra HTML text.
+- Brand / splash (pink field): white full mark (`public/logo-mark-white.svg`) + white italic wordmark.
 - Dark surfaces: white-on-ink lockup (`public/logo-white.svg`, `public/logo-white-on-ink.png`).
 - App icon / favicon: white mark on pink (`public/favicon.svg`, `public/apple-touch-icon.png`).
 - Wordmark: Plus Jakarta Sans Bold Italic.

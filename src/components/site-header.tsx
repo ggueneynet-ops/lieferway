@@ -39,7 +39,7 @@ export async function SiteHeader({
     <header className="sticky top-0 z-40 border-b border-border bg-white">
       <div className="mx-auto max-w-6xl">
         <div className="flex h-12 items-center justify-between gap-2 px-3 sm:h-14 sm:px-4">
-          <Logo size="sm" className="min-w-0" />
+          <Logo size="sm" className="shrink-0" />
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <LocaleToggle />
             <AccountMenu user={user} locale={locale} />
