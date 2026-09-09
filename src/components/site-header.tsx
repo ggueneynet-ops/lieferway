@@ -8,7 +8,7 @@ import { CartButton } from "@/components/cart-button";
 import { AccountMenu } from "@/components/account-menu";
 import { resolveUserRadius } from "@/lib/radius";
 import { sanitizeDemoPlz } from "@/lib/plz";
-import { PlzForm } from "@/components/plz-form";
+import PlzForm from "@/components/plz-form";
 import { HomeSearch } from "@/components/home-search";
 import { RadiusChips } from "@/components/radius-chips";
 

@@ -55,7 +55,7 @@ function goMarketplace(place: DeliveryPlace | null, q: string, cuisine: string, 
   window.location.assign(qs ? `/?${qs}` : "/");
 }
 
-export function PlzForm({
+export default function PlzForm({
   initialPlz,
   initialStreet = "",
   initialCity = "",
