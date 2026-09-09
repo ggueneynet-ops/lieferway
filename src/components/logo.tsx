@@ -13,8 +13,6 @@ export function LogoMark({
   className?: string;
 }) {
   return (
-    // Brand mark is a static SVG in /public — not a remote photo.
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={onBrand ? "/logo-mark-white.svg" : "/logo-mark.svg"}
       alt=""
