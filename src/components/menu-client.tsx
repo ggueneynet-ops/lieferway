@@ -39,13 +39,13 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
         {restaurant.categories.map((cat) => (
           <section key={cat.id} id={cat.id}>
             <h2 className="mb-4 font-display text-xl font-semibold text-ink">{cat.name}</h2>
-            <div className="space-y-2">
+            <div className="divide-y divide-border">
               {cat.items.map((item) => {
                 const photo = dishPhoto(item.imageUrl, restaurant.cuisine, item.name);
                 return (
                   <article
                     key={item.id}
-                    className="flex items-center gap-2.5 rounded-xl border border-border bg-surface px-3 py-2"
+                    className="flex items-center gap-3 py-3 first:pt-0"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -97,7 +97,7 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
           </section>
         ))}
       </div>
-      <aside className="lg:sticky lg:top-24 h-fit rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <aside className="hidden h-fit rounded-2xl border border-border bg-surface p-5 shadow-sm lg:sticky lg:top-24 lg:block">
         <h2 className="font-semibold">{t.cart}</h2>
         {!inThis || count === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">{t.emptyCart}</p>

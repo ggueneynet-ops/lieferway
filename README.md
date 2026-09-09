@@ -53,6 +53,10 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
+Marketplace layout follows common Turkish/German food-app patterns (location bar, cuisine rail, dense list, sticky cart) with Lieferway orange `#FF6A00` — not a third-party brand clone.
+
+Restaurant and dish photos stay compact left thumbnails.
+
 Restaurant cards and dishes use compact left thumbnails (not large hero photos).
 
 **PLZ / nearby:** On the homepage enter a Frankfurt postcode (e.g. `60311`). The list only shows restaurants that deliver there, sorted by distance. Choice is saved in a cookie. Demo chips: Innenstadt, Nordend, Bockenheim, Sachsenhausen, Bornheim, Höchst (no delivery).

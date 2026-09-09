@@ -2,43 +2,49 @@ import { cookies } from "next/headers";
 import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/auth";
 import { LOCALE_COOKIE, PLZ_COOKIE } from "@/lib/constants";
-import { parseLocale, t, type Locale } from "@/lib/i18n";
+import { parseLocale, type Locale } from "@/lib/i18n";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { CartButton } from "@/components/cart-button";
 import { AccountMenu } from "@/components/account-menu";
 import { normalizePlz } from "@/lib/plz";
-import { MapPin } from "lucide-react";
-import Link from "next/link";
+import { PlzForm } from "@/components/plz-form";
+import { HomeSearch } from "@/components/home-search";
 
-export async function SiteHeader({ plz }: { plz?: string | null } = {}) {
+export async function SiteHeader({
+  plz,
+  q,
+  cuisine,
+  showSearch = false,
+}: {
+  plz?: string | null;
+  q?: string;
+  cuisine?: string;
+  showSearch?: boolean;
+} = {}) {
   const user = await getSession();
   const cookieStore = await cookies();
   const locale: Locale = parseLocale(cookieStore.get(LOCALE_COOKIE)?.value);
-  const copy = t(locale);
   const activePlz = plz ?? normalizePlz(cookieStore.get(PLZ_COOKIE)?.value);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
-        <Logo />
-        <Link
-          href="/#lieferung"
-          className="hidden items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-sm text-ink hover:bg-primary/15 sm:flex"
-        >
-          <MapPin className="size-3.5 text-primary" />
-          {activePlz ?? copy.city}
-        </Link>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Link
-            href="/#lieferung"
-            className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2.5 py-1 text-xs font-medium text-ink sm:hidden"
-          >
-            <MapPin className="size-3 text-primary" />
-            {activePlz ?? "PLZ"}
-          </Link>
-          <LocaleToggle />
-          <AccountMenu user={user} locale={locale} />
-          <CartButton />
+    <header className="sticky top-0 z-40 border-b border-border bg-white">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex h-12 items-center justify-between gap-2 px-3 sm:h-14 sm:px-4">
+          <Logo size="sm" className="min-w-0" />
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+            <LocaleToggle />
+            <AccountMenu user={user} locale={locale} />
+            <span className="sm:hidden">
+              <CartButton compact />
+            </span>
+            <span className="hidden sm:inline-flex">
+              <CartButton />
+            </span>
+          </div>
+        </div>
+        <div className="space-y-2 px-3 pb-3 sm:px-4">
+          <PlzForm initialPlz={activePlz ?? ""} q={q ?? ""} cuisine={cuisine ?? ""} />
+          {showSearch ? <HomeSearch initialQ={q ?? ""} plz={activePlz} cuisine={cuisine} /> : null}
         </div>
       </div>
     </header>

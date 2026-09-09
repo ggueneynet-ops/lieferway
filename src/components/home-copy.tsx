@@ -38,9 +38,9 @@ export function HomeSectionTitle({
     ? t.restaurantsInPlz.replace("{count}", String(count ?? 0)).replace("{plz}", plz)
     : `${count} ${t.restaurants} · ${t.city}`;
   return (
-    <h2 className="mb-4 font-display text-lg font-semibold text-ink">
+    <h2 className="mb-1 font-display text-[15px] font-semibold text-ink">
       {title}
-      {nearby ? <span className="ml-2 text-sm font-normal text-muted-foreground">{t.sortedNearby}</span> : null}
+      {nearby ? <span className="ml-2 text-xs font-normal text-muted-foreground">{t.sortedNearby}</span> : null}
     </h2>
   );
 }

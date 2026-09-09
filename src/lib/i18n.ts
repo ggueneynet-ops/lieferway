@@ -186,6 +186,10 @@ export const dictionaries = {
     sortedNearby: "In deiner Nähe",
     restaurantsInPlz: "{count} Restaurants · {plz}",
     changePlz: "PLZ ändern",
+    deliverTo: "Lieferung nach",
+    enterPlz: "PLZ eingeben",
+    goToCart: "Zum Warenkorb",
+    itemCount: "{count} Artikel",
   },
   en: {
     brand: "Lieferway",
@@ -361,6 +365,10 @@ export const dictionaries = {
     sortedNearby: "Nearby",
     restaurantsInPlz: "{count} restaurants · {plz}",
     changePlz: "Change postcode",
+    deliverTo: "Delivering to",
+    enterPlz: "Enter postcode",
+    goToCart: "View cart",
+    itemCount: "{count} items",
   },
   tr: {
     brand: "Lieferway",
@@ -536,6 +544,10 @@ export const dictionaries = {
     sortedNearby: "Yakınında",
     restaurantsInPlz: "{count} restoran · {plz}",
     changePlz: "Posta kodunu değiştir",
+    deliverTo: "Teslimat adresi",
+    enterPlz: "Posta kodu gir",
+    goToCart: "Sepete git",
+    itemCount: "{count} ürün",
   },
 } as const;
 
