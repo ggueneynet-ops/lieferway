@@ -2,7 +2,15 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /** Placeholder mark: L + route arrow + shopping bag. Pink from brand tokens — not a third-party logo. */
-export function LogoMark({ size = 34 }: { size?: number }) {
+export function LogoMark({
+  size = 34,
+  onBrand = false,
+}: {
+  size?: number;
+  onBrand?: boolean;
+}) {
+  const tile = onBrand ? "#ffffff" : "var(--color-primary)";
+  const ink = onBrand ? "var(--color-primary)" : "var(--color-text-inverse)";
   return (
     <svg
       viewBox="0 0 40 40"
@@ -11,11 +19,11 @@ export function LogoMark({ size = 34 }: { size?: number }) {
       aria-hidden
       className="shrink-0"
     >
-      <rect width="40" height="40" rx="10" fill="var(--color-primary)" />
+      <rect width="40" height="40" rx="10" fill={tile} />
       <path
         d="M10 9.5v16.5h8"
         fill="none"
-        stroke="var(--color-text-inverse)"
+        stroke={ink}
         strokeWidth="3.1"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -23,22 +31,22 @@ export function LogoMark({ size = 34 }: { size?: number }) {
       <path
         d="M20 11.5c4.2 1.2 8 4.4 9.2 9"
         fill="none"
-        stroke="var(--color-text-inverse)"
+        stroke={ink}
         strokeWidth="2"
         strokeLinecap="round"
       />
-      <path d="M26.6 18.2 31.2 20.4l-4.8 2" fill="var(--color-text-inverse)" />
+      <path d="M26.6 18.2 31.2 20.4l-4.8 2" fill={ink} />
       <path
         d="M15.2 20.2h12.4l-1.05 10.2H16.25L15.2 20.2Z"
         fill="none"
-        stroke="var(--color-text-inverse)"
+        stroke={ink}
         strokeWidth="1.7"
         strokeLinejoin="round"
       />
       <path
         d="M18.2 20.2v-1.6c0-1.9 6.2-1.9 6.2 0v1.6"
         fill="none"
-        stroke="var(--color-text-inverse)"
+        stroke={ink}
         strokeWidth="1.7"
         strokeLinecap="round"
       />

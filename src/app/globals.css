@@ -166,3 +166,61 @@
 .dashboard-shell h2 {
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
+
+.lw-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: #e91e63;
+  color: #fff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  animation: lw-splash-fade-in 0.35s ease-out both;
+}
+
+.lw-splash-mark {
+  animation: lw-splash-pop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lw-splash-out {
+  animation: lw-splash-fade-out 0.35s ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes lw-splash-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lw-splash-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes lw-splash-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lw-splash {
+    display: none !important;
+  }
+}

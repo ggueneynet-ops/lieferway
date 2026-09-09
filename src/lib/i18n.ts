@@ -194,6 +194,7 @@ export const dictionaries = {
     geoPermission: "Bitte Standortzugriff erlauben – so erkennen wir deine PLZ.",
     geoFailed: "PLZ konnte nicht ermittelt werden. Bitte manuell eingeben.",
     geoIpFallback: "Ungefährer Standort (IP).",
+    tapToSkip: "Tippen zum Überspringen",
   },
   en: {
     brand: "Lieferway",
@@ -377,6 +378,7 @@ export const dictionaries = {
     geoPermission: "Allow location access so we can detect your postcode.",
     geoFailed: "Could not detect a postcode. Please enter it manually.",
     geoIpFallback: "Approximate location (IP).",
+    tapToSkip: "Tap to skip",
   },
   tr: {
     brand: "Lieferway",
@@ -560,6 +562,7 @@ export const dictionaries = {
     geoPermission: "Posta kodunu algılamak için konum izni ver.",
     geoFailed: "Posta kodu algılanamadı. Lütfen elle gir.",
     geoIpFallback: "Yaklaşık konum (IP).",
+    tapToSkip: "Atlamak için dokun",
   },
 } as const;
 

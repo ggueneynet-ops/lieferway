@@ -9,6 +9,7 @@ import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
 import { formatDistanceKm, normalizePlz } from "@/lib/plz";
 import { CuisineRow } from "@/components/cuisine-row";
+import { SplashIntro } from "@/components/splash-intro";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function Home({
 
   return (
     <>
+      <SplashIntro />
       <SiteHeader plz={plz} q={q} cuisine={cuisine} showSearch />
       <main className="flex-1 bg-white">
         <div className="border-b border-border">
