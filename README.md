@@ -49,7 +49,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 - Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell** (mute) and flash/badge. Admin creates venue + owner (`lieferway`) and shows credentials once.
 - Courier: claim READY jobs, out for delivery, delivered (map stub)
 - Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
-- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register`. Restaurants **apply** at `/partner` / `/partner/anmelden` (pending request only — no login, no panel). Admin approves under **Partneranfragen**, then owner credentials are created (`lieferway`) and shown once. Existing partners log in at `/login?next=/restaurant`. Couriers/admin are still created by admin.
+- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register` or **Mit Google anmelden**. Restaurants **apply** at `/partner` / `/partner/anmelden` (pending request only — no login, no panel). Admin approves under **Partneranfragen**, then owner credentials are created (`lieferway`) and shown once. Existing partners log in at `/login?next=/restaurant`. Couriers/admin are still created by admin.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
@@ -76,6 +76,28 @@ Partner onboarding is apply-then-review (not self-serve panel signup):
 4. Customers still register at `/register`. Admin **Restaurants** can still add a venue directly.
 
 Existing Partner-Login / Kurier / Admin links stay **login only**.
+
+## Google sign-in (customers)
+
+The **Mit Google anmelden** button is on `/login` and `/register` (not on partner login).
+
+Without credentials the button opens a **demo stub** (`/login/google`) that creates a customer from a `@gmail.com` address. Restaurant / courier / admin emails cannot be used.
+
+To enable real Google OAuth:
+
+1. Google Cloud Console → APIs & Services → Credentials → Create OAuth client (Web application).
+2. Authorized redirect URI: `{your origin}/api/auth/google/callback`  
+   Example locally: `http://127.0.0.1:43123/api/auth/google/callback`  
+   On a phone, also add the public HTTPS origin.
+3. Put values in `.env` and restart:
+
+```
+GOOGLE_CLIENT_ID=....apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=....
+NEXT_PUBLIC_APP_URL=https://your-origin.example
+```
+
+OAuth is wired into the existing JWT session (same cookie as email/password). We did not add a second auth library.
 
 ## Money rules
 

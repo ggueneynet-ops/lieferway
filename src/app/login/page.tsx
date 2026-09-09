@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { useI18n } from "@/components/locale-provider";
+import { GoogleSignIn } from "@/components/google-sign-in";
 import { loginAction } from "./actions";
 
 function LoginForm() {
@@ -30,7 +31,11 @@ function LoginForm() {
         {partner ? t.partnerLogin : t.login}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">{partner ? t.partnerHint : t.customerHint}</p>
-      {error ? (
+      {error === "google_partner" ? (
+        <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.googlePartnerBlocked}</p>
+      ) : error === "google" ? (
+        <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.googleFailed}</p>
+      ) : error ? (
         <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.loginFailed}</p>
       ) : null}
       <form action={loginAction} className="mt-6 space-y-4">
@@ -61,6 +66,7 @@ function LoginForm() {
           {t.continue}
         </Button>
       </form>
+      {!partner ? <GoogleSignIn next={next} /> : null}
       {!partner ? (
         <p className="mt-6 text-sm">
           {t.demoCustomer}: <span className="font-medium">kunde@lieferway.de</span>

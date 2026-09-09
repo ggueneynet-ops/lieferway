@@ -125,6 +125,15 @@ export const dictionaries = {
     registerCustomerOnly:
       "Nur Kundinnen und Kunden. Restaurants und Kuriere bekommen den Zugang vom Lieferway-Admin.",
     alreadyHaveAccount: "Bereits Kunde?",
+    continueWithGoogle: "Mit Google anmelden",
+    orContinueWith: "oder",
+    googleDemoTitle: "Google-Anmeldung (Demo)",
+    googleDemoHint:
+      "Echte Google-Anmeldung: in der Cloud Console eine Web-OAuth-Client-ID anlegen und GOOGLE_CLIENT_ID plus GOOGLE_CLIENT_SECRET setzen. Redirect-URI: {callback}",
+    googleDemoContinue: "Als Google-Kunde fortfahren",
+    googleFailed: "Google-Anmeldung fehlgeschlagen.",
+    googlePartnerBlocked: "Partnerkonten (Restaurant, Kurier, Admin) nur mit E-Mail und Passwort.",
+    googleGmailOnly: "Bitte eine @gmail.com-Adresse verwenden (Demo).",
     cartReplaced: "Warenkorb ersetzt",
     cartReplacedHint: "Nur ein Restaurant pro Bestellung – vorheriger Warenkorb geleert.",
     noOrders: "Noch keine Bestellungen.",
@@ -387,6 +396,15 @@ export const dictionaries = {
     registerCustomerOnly:
       "Customers only. Restaurants and couriers receive access from the Lieferway admin.",
     alreadyHaveAccount: "Already a customer?",
+    continueWithGoogle: "Continue with Google",
+    orContinueWith: "or",
+    googleDemoTitle: "Google sign-in (demo)",
+    googleDemoHint:
+      "Real Google sign-in: create a Web OAuth client ID and set GOOGLE_CLIENT_ID plus GOOGLE_CLIENT_SECRET. Redirect URI: {callback}",
+    googleDemoContinue: "Continue as Google customer",
+    googleFailed: "Google sign-in failed.",
+    googlePartnerBlocked: "Partner accounts (restaurant, courier, admin) use email and password only.",
+    googleGmailOnly: "Use a @gmail.com address in this demo.",
     cartReplaced: "Cart replaced",
     cartReplacedHint: "One restaurant per order — previous cart cleared.",
     noOrders: "No orders yet.",
@@ -649,6 +667,15 @@ export const dictionaries = {
     registerCustomerOnly:
       "Yalnızca müşteriler. Restoran ve kurye erişimini Lieferway admin verir.",
     alreadyHaveAccount: "Zaten müşteri misin?",
+    continueWithGoogle: "Google ile giriş yap",
+    orContinueWith: "veya",
+    googleDemoTitle: "Google girişi (demo)",
+    googleDemoHint:
+      "Gerçek Google: Web OAuth istemcisi oluşturun, GOOGLE_CLIENT_ID ve GOOGLE_CLIENT_SECRET ayarlayın. Redirect URI: {callback}",
+    googleDemoContinue: "Google müşteri olarak devam et",
+    googleFailed: "Google girişi başarısız.",
+    googlePartnerBlocked: "Partner hesapları (restoran, kurye, yönetim) yalnızca e-posta ve şifre.",
+    googleGmailOnly: "Demoda @gmail.com adresi kullan.",
     cartReplaced: "Sepet değişti",
     cartReplacedHint: "Sipariş başına bir restoran — önceki sepet silindi.",
     noOrders: "Henüz sipariş yok.",

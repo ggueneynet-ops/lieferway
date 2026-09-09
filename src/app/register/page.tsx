@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { useI18n } from "@/components/locale-provider";
+import { GoogleSignIn } from "@/components/google-sign-in";
 import { LOCALES, type Locale } from "@/lib/i18n";
 
 export default function RegisterPage() {
@@ -75,6 +76,7 @@ export default function RegisterPage() {
           {t.register}
         </Button>
       </form>
+      <GoogleSignIn next="/" />
       <p className="mt-6 text-sm">
         {t.alreadyHaveAccount}{" "}
         <Link href="/login" className="font-medium text-primary">
