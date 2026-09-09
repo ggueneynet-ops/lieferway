@@ -13,8 +13,11 @@ export async function SiteFooter() {
         </div>
         <nav className="flex flex-col gap-2 text-sm text-text-secondary">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t.partner}</p>
+          <Link href="/partner/anmelden" className="hover:text-ink">
+            {t.becomePartner}
+          </Link>
           <Link href="/login?next=/restaurant" className="hover:text-ink">
-            {t.forRestaurants}
+            {t.partnerLogin}
           </Link>
           <Link href="/login?next=/courier" className="hover:text-ink">
             {t.forCouriers}

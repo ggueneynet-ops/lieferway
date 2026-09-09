@@ -4,16 +4,18 @@ import { formatEUR } from "@/lib/money";
 import { DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
 import Link from "next/link";
 import { getCopy } from "@/lib/get-locale";
+import { interpolate } from "@/lib/i18n";
 
 export default async function AdminHome() {
   const { t, locale } = await getCopy();
-  const [restaurants, orders, delivered] = await Promise.all([
+  const [restaurants, orders, delivered, pendingApps] = await Promise.all([
     prisma.restaurant.count(),
     prisma.order.count(),
     prisma.order.aggregate({
       where: { status: "DELIVERED" },
       _sum: { commissionCents: true },
     }),
+    prisma.partnerApplication.count({ where: { status: "PENDING" } }),
   ]);
 
   return (
@@ -37,8 +39,15 @@ export default async function AdminHome() {
         </div>
         <div className="grid gap-3">
           <Link
-            href="/admin/restaurants"
+            href="/admin/applications"
             className="flex h-14 items-center justify-center rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed"
+          >
+            {t.partnerApplications}
+            {pendingApps > 0 ? ` · ${interpolate(t.pendingCount, { count: String(pendingApps) })}` : ""}
+          </Link>
+          <Link
+            href="/admin/restaurants"
+            className="flex h-14 items-center justify-center rounded-xl border border-border bg-surface text-base font-medium text-ink hover:bg-bg-muted"
           >
             {t.restaurantsCommission}
           </Link>

@@ -32,6 +32,7 @@ async function main() {
   await prisma.coupon.deleteMany();
   await prisma.address.deleteMany();
   await prisma.restaurantServiceArea.deleteMany();
+  await prisma.partnerApplication.deleteMany();
   await prisma.restaurant.deleteMany();
   await prisma.user.deleteMany();
 
@@ -925,11 +926,42 @@ async function main() {
   const { regeneratePayouts } = await import("../src/lib/payouts");
   await regeneratePayouts();
 
+  await prisma.partnerApplication.createMany({
+    data: [
+      {
+        businessName: "Café Mainblick",
+        cuisine: "Gesund",
+        street: "Mainkai 12",
+        postalCode: "60311",
+        city: "Frankfurt am Main",
+        contactName: "Mira Keller",
+        email: "mira@cafemainblick.example",
+        phone: "+49 69 24001100",
+        website: "https://cafemainblick.example",
+        message: "Frühstück und Bowls, Innenstadt. Lieferzeiten 8–16 Uhr.",
+        status: "PENDING",
+      },
+      {
+        cuisine: "Deutsch",
+        businessName: "Apfelwein Stube Höchst",
+        street: "Bolongarostraße 88",
+        postalCode: "65929",
+        city: "Frankfurt am Main",
+        contactName: "Karl Bender",
+        email: "karl@apfelweinstube.example",
+        phone: "+49 69 30002200",
+        message: "Klassische hessische Küche, abends geöffnet.",
+        status: "CONTACTED",
+      },
+    ],
+  });
+
   console.log("Lieferway seed ready.");
   console.log("  kunde@lieferway.de / lieferway");
   console.log("  restaurant@lieferway.de / lieferway   (Anadolu Grill)");
   console.log("  kurier@lieferway.de / lieferway");
   console.log("  admin@lieferway.de / lieferway");
+  console.log("  Partner applications: Café Mainblick (pending), Apfelwein Stube Höchst (contacted)");
   void admin;
 }
 

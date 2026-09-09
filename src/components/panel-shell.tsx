@@ -36,6 +36,7 @@ export async function PanelShell({
     COURIER: [{ href: "/courier", label: t.navTours }],
     ADMIN: [
       { href: "/admin", label: t.navStart },
+      { href: "/admin/applications", label: t.partnerApplications },
       { href: "/admin/restaurants", label: t.restaurants },
       { href: "/admin/orders", label: t.navOrders },
       { href: "/admin/payouts", label: t.navPayouts },

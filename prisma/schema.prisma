@@ -175,3 +175,26 @@ model Payout {
 
   @@unique([restaurantId, weekStart])
 }
+
+model PartnerApplication {
+  id           String    @id @default(cuid())
+  businessName String
+  cuisine      String
+  street       String
+  postalCode   String
+  city         String    @default("Frankfurt am Main")
+  contactName  String
+  email        String
+  phone        String
+  website      String?
+  message      String?
+  status       String    @default("PENDING")
+  adminNote    String?
+  restaurantId String?
+  reviewedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
+  @@index([email])
+}

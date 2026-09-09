@@ -73,7 +73,15 @@ function LoginForm() {
         </ul>
       )}
       {partner ? (
-        <p className="mt-6 text-sm text-muted-foreground">{t.partnerNoSignup}</p>
+        <div className="mt-6 space-y-2 text-sm text-muted-foreground">
+          <p>{t.partnerNoSignup}</p>
+          <p>
+            {t.notAPartnerYet}{" "}
+            <Link href="/partner/anmelden" className="font-medium text-primary">
+              {t.becomePartner}
+            </Link>
+          </p>
+        </div>
       ) : (
         <p className="mt-6 text-sm">
           {t.noAccountYet}{" "}

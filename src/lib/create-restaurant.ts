@@ -21,8 +21,12 @@ export type CreateRestaurantInput = {
   cuisine: string;
   ownerName?: string;
   ownerEmail?: string;
+  ownerPhone?: string;
   existingOwnerId?: string;
   commissionPercent?: number;
+  address?: string;
+  postalCode?: string;
+  city?: string;
 };
 
 export type CreateRestaurantResult =
@@ -77,6 +81,7 @@ export async function createRestaurantRecord(
           data: {
             email: ownerEmail,
             name: ownerName,
+            phone: input.ownerPhone?.trim() || null,
             passwordHash: await hashPassword(password),
             role: "RESTAURANT",
           },
@@ -84,16 +89,22 @@ export async function createRestaurantRecord(
         ownerId = owner.id;
       }
 
-      const place = lookupPlz("60311");
+      const postalCode = (input.postalCode ?? "").replace(/\D/g, "").slice(0, 5) || "60311";
+      const place = lookupPlz(postalCode) ?? lookupPlz("60311");
+      const address = (input.address ?? "").trim() || `${postalCode} Frankfurt am Main`;
+      const city = (input.city ?? "").trim() || "Frankfurt am Main";
+      const servicePlzs = Array.from(new Set([postalCode, ...DEFAULT_NEW_RESTAURANT_PLZS]));
+
       const restaurant = await tx.restaurant.create({
         data: {
           ownerId,
           name,
           slug: `${slugifyName(name)}-${ownerId.slice(-6)}`,
-          description: `${name} in Frankfurt am Main.`,
+          description: `${name} in ${city}.`,
           cuisine,
-          address: "Frankfurt am Main",
-          postalCode: "60311",
+          address,
+          city,
+          postalCode,
           district: place?.district ?? "Innenstadt",
           lat: place?.lat ?? 50.1109,
           lng: place?.lng ?? 8.6821,
@@ -103,7 +114,7 @@ export async function createRestaurantRecord(
           isActive: true,
           isOpen: true,
           serviceAreas: {
-            create: DEFAULT_NEW_RESTAURANT_PLZS.map((postalCode) => ({ postalCode })),
+            create: servicePlzs.map((code) => ({ postalCode: code })),
           },
         },
         include: { owner: { select: { email: true, name: true } } },

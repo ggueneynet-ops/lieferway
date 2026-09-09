@@ -49,7 +49,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 - Restaurant panel: menu CRUD, accept/reject, kitchen statuses
 - Courier: claim READY jobs, out for delivery, delivered (map stub)
 - Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
-- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register; restaurant/courier/admin accounts are created by admin (partners log in only).
+- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register`. Restaurants **apply** at `/partner` / `/partner/anmelden` (pending request only — no login, no panel). Admin approves under **Partneranfragen**, then owner credentials are created (`lieferway`) and shown once. Existing partners log in at `/login?next=/restaurant`. Couriers/admin are still created by admin.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
@@ -68,7 +68,14 @@ Restaurant cards and dishes use compact left thumbnails (not large hero photos).
 3. Switch to `60487` or `65929` to see the list change. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row.
 4. Pull to refresh if an old layout is cached.
 
-Admin **Restaurants** is the only place that creates a venue: a short HTML form (no client JS) that adds an **owner account** (`lieferway`) and lists the restaurant. Restaurants cannot self-register. Customers can create an account at `/register`. Partner links (Restaurant / Kurier / Admin) are **login only**.
+Partner onboarding is apply-then-review (not self-serve panel signup):
+
+1. Public form `/partner/anmelden` — business name, cuisine, street, PLZ, contact, email, phone, optional website.
+2. Creates a **PartnerApplication** with status `PENDING`. No session, no restaurant row, no owner login.
+3. Admin **Partneranfragen**: Approve (creates restaurant + owner, demo password `lieferway`, banner to pass on), mark contacted, or reject.
+4. Customers still register at `/register`. Admin **Restaurants** can still add a venue directly.
+
+Existing Partner-Login / Kurier / Admin links stay **login only**.
 
 ## Money rules
 
