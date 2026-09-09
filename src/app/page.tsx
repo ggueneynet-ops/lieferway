@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { CUISINES } from "@/lib/constants";
 import { HomeSearch } from "@/components/home-search";
+import { AllLabel, HomeHeroCopy, HomeSectionTitle } from "@/components/home-copy";
 import Link from "next/link";
 
 export default async function Home({
@@ -36,17 +37,7 @@ export default async function Home({
         <section className="relative overflow-hidden bg-gradient-to-b from-primary-soft to-background">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-2 md:items-center md:py-20">
             <div>
-              <p className="mb-3 text-sm font-medium uppercase tracking-[0.14em] text-primary">
-                Frankfurt am Main
-              </p>
-              <h1 className="font-display text-4xl font-semibold tracking-tight text-pretty text-ink sm:text-5xl">
-                Essen bestellen.
-                <span className="block text-primary">Dein Weg zum Tisch.</span>
-              </h1>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
-                Döner aus Sachsenhausen, Pizza aus Bockenheim, Pho aus dem Nordend.
-                Du zahlst an Lieferway – Restaurants erhalten montags Speisen minus 5&nbsp;% Provision.
-              </p>
+              <HomeHeroCopy />
               <HomeSearch initialQ={q ?? ""} />
             </div>
             <div className="relative hidden md:block">
@@ -67,14 +58,14 @@ export default async function Home({
 
         <section className="mx-auto max-w-6xl px-4 py-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold text-ink">Küchen</h2>
+            <HomeSectionTitle kind="cuisines" />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2">
             <Link
               href="/"
               className={`shrink-0 rounded-full border px-4 py-1.5 text-sm ${!cuisine ? "bg-primary text-primary-foreground border-primary" : "bg-white hover:bg-muted"}`}
             >
-              Alle
+              <AllLabel />
             </Link>
             {CUISINES.map((c) => (
               <Link
@@ -89,13 +80,9 @@ export default async function Home({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 pb-16">
-          <h2 className="mb-5 font-display text-lg font-semibold text-ink">
-            {filtered.length} Restaurants in Frankfurt
-          </h2>
+          <HomeSectionTitle kind="restaurants" count={filtered.length} />
           {filtered.length === 0 ? (
-            <p className="rounded-2xl border border-border bg-surface p-8 text-center text-muted-foreground">
-              Keine Restaurants gefunden. Anderen Suchbegriff versuchen.
-            </p>
+            <HomeSectionTitle kind="empty" />
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((r) => (

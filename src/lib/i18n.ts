@@ -73,6 +73,8 @@ export const dictionaries = {
     postal: "PLZ",
     cityField: "Stadt",
     popular: "Beliebt in Frankfurt",
+    search: "Suchen",
+    continue: "Weiter",
   },
   tr: {
     brand: "Lieferway",
@@ -146,6 +148,8 @@ export const dictionaries = {
     postal: "Posta kodu",
     cityField: "Şehir",
     popular: "Frankfurt’ta popüler",
+    search: "Ara",
+    continue: "Devam",
   },
 } as const;
 

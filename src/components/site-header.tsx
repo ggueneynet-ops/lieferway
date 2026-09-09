@@ -15,7 +15,7 @@ export function SiteHeader() {
   const { count } = useCart();
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
+  const [user, setUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -81,11 +81,11 @@ export function SiteHeader() {
                 <UserRound className="size-4" />
               </Button>
             </>
-          ) : user === null ? (
+          ) : (
             <Button variant="ghost" size="sm" asChild>
               <Link href="/login">{t.login}</Link>
             </Button>
-          ) : null}
+          )}
           <Button asChild className="relative">
             <Link href="/cart">
               <ShoppingBag className="size-4" />
