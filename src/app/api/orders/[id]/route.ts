@@ -107,6 +107,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       await regeneratePayouts();
     }
 
+    const { notifyRestaurantOrders } = await import("@/lib/order-events");
+    notifyRestaurantOrders(updated.restaurantId);
+
     return json({ order: updated });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";

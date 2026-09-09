@@ -140,6 +140,9 @@ export async function POST(req: Request) {
       },
     });
 
+    const { notifyRestaurantOrders } = await import("@/lib/order-events");
+    notifyRestaurantOrders(order.restaurantId);
+
     return json({ order }, 201);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";

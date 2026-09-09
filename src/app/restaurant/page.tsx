@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { RestaurantOrders } from "@/components/restaurant-orders";
 import { getCopy } from "@/lib/get-locale";
 import { interpolate } from "@/lib/i18n";
+import { serializeKitchenOrder } from "@/lib/restaurant-live";
 
 export const dynamic = "force-dynamic";
 
@@ -54,8 +55,8 @@ export default async function RestaurantHome({
       {q.ok === "radius" ? (
         <p className="mb-4 rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.radiusSaved}</p>
       ) : null}
-      <section className="mb-6 rounded-2xl border border-border bg-surface p-4">
-        <h2 className="text-base font-semibold text-ink">{t.deliverySettings}</h2>
+      <details className="mb-4 rounded-xl border border-border bg-surface px-4 py-3">
+        <summary className="cursor-pointer text-sm font-semibold text-ink">{t.deliverySettings}</summary>
         <p className="mt-1 text-sm text-text-secondary">{t.maxDeliveryRadiusHint}</p>
         <form action="/restaurant/radius" method="post" className="mt-3 flex flex-wrap items-end gap-3">
           <input type="hidden" name="id" value={r.id} />
@@ -69,12 +70,12 @@ export default async function RestaurantHome({
               inputMode="decimal"
               placeholder={t.unlimitedRadius}
               defaultValue={r.maxDeliveryKm != null ? String(r.maxDeliveryKm) : ""}
-              className="mt-1 h-12 w-32 rounded-lg border border-border bg-background px-3 text-base"
+              className="mt-1 h-11 w-32 rounded-lg border border-border bg-background px-3 text-base"
             />
           </div>
           <button
             type="submit"
-            className="h-12 rounded-xl bg-primary px-5 text-base font-medium text-primary-foreground hover:bg-primary-pressed"
+            className="h-11 rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary-pressed"
           >
             {t.save}
           </button>
@@ -86,10 +87,12 @@ export default async function RestaurantHome({
         ) : (
           <p className="mt-2 text-xs text-muted-foreground">{t.unlimitedRadius}</p>
         )}
-      </section>
+      </details>
       <RestaurantOrders
-        initial={JSON.parse(JSON.stringify(orders))}
+        initial={orders.map(serializeKitchenOrder)}
         isOpen={r.isOpen}
+        restaurantId={r.id}
+        restaurantName={r.name}
       />
     </PanelShell>
   );

@@ -46,7 +46,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 - Customer: browse seeded Frankfurt restaurants, menu, cart, checkout, live status
 - Payments: Stripe **mock** (card / Apple Pay / Google Pay UI) + cash. Structure in `src/lib/payments.ts` for a real Stripe swap later
-- Restaurant panel: menu CRUD, accept/reject, kitchen statuses
+- Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell** (mute) and flash/badge. Admin creates venue + owner (`lieferway`) and shows credentials once.
 - Courier: claim READY jobs, out for delivery, delivered (map stub)
 - Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
 - Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register`. Restaurants **apply** at `/partner` / `/partner/anmelden` (pending request only — no login, no panel). Admin approves under **Partneranfragen**, then owner credentials are created (`lieferway`) and shown once. Existing partners log in at `/login?next=/restaurant`. Couriers/admin are still created by admin.
