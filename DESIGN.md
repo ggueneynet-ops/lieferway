@@ -4,14 +4,15 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 **Do not copy** Yemeksepeti (or any third-party) logos, wordmarks, or illustrated icon sets. The product name stays **Lieferway**.
 
-## Logo placeholder
+## Logo
 
-**L + route arrow + shopping bag.**
+**Scooter + cloche** — rider on a moped, cargo box with a food-cloche knockout, three speed lines.
 
-- Icon: pink squircle `#E91E63`, bold **L**, delivery route arrow, shopping bag.
-- Wordmark: **Lieferway** in Plus Jakarta Sans, ink `#0F172A`.
-- Placeholder: `src/components/logo.tsx`, `public/logo-a.svg`, `public/favicon.svg`.
-- Swap the SVG when the final asset lands — keep the same 40×40 viewBox and header slot.
+- Light UI (header, login, footer): pink `#E91E63` mark + italic **Lieferway** wordmark (`public/logo-mark.svg`).
+- Brand / splash (pink field): white mark (`public/logo-mark-white.svg`) + white italic wordmark.
+- Dark surfaces: white-on-ink lockup (`public/logo-white.svg`, `public/logo-white-on-ink.png`).
+- App icon / favicon: white mark on pink (`public/favicon.svg`, `public/apple-touch-icon.png`).
+- Wordmark: Plus Jakarta Sans Bold Italic.
 
 Do not use a map-pin wordmark or any third-party mark.
 

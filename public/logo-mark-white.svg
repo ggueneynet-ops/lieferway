@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="8" fill="#E91E63"/>
-  <g transform="translate(4.48 7.6701538461538465) scale(0.08861538461538461)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 188" fill="none">
   <g fill="#FFFFFF">
     <!-- motion -->
     <rect x="8" y="40" width="66" height="14" rx="7"/>
@@ -33,6 +30,4 @@
     <path fill-rule="evenodd" d="M100 168a18 18 0 1 1 .04 0zm0-11a7 7 0 1 0 .04 0z"/>
     <path fill-rule="evenodd" d="M190 168a18 18 0 1 1 .04 0zm0-11a7 7 0 1 0 .04 0z"/>
   </g>
-
-</g>
 </svg>

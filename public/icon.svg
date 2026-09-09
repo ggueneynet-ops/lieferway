@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="8" fill="#E91E63"/>
-  <g transform="translate(4.48 7.6701538461538465) scale(0.08861538461538461)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" rx="224" fill="#E91E63"/>
+  <g transform="translate(143.36 245.4449230769231) scale(2.8356923076923075)">
   <g fill="#FFFFFF">
     <!-- motion -->
     <rect x="8" y="40" width="66" height="14" rx="7"/>

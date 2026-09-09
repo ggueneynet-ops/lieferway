@@ -1,56 +1,28 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** Placeholder mark: L + route arrow + shopping bag. Pink from brand tokens — not a third-party logo. */
+const MARK_RATIO = 260 / 188;
+
 export function LogoMark({
   size = 34,
   onBrand = false,
+  className,
 }: {
   size?: number;
   onBrand?: boolean;
+  className?: string;
 }) {
-  const tile = onBrand ? "#ffffff" : "var(--color-primary)";
-  const ink = onBrand ? "var(--color-primary)" : "var(--color-text-inverse)";
   return (
-    <svg
-      viewBox="0 0 40 40"
-      width={size}
+    // Brand mark is a static SVG in /public — not a remote photo.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={onBrand ? "/logo-mark-white.svg" : "/logo-mark.svg"}
+      alt=""
+      width={Math.round(size * MARK_RATIO)}
       height={size}
-      aria-hidden
-      className="shrink-0"
-    >
-      <rect width="40" height="40" rx="10" fill={tile} />
-      <path
-        d="M10 9.5v16.5h8"
-        fill="none"
-        stroke={ink}
-        strokeWidth="3.1"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M20 11.5c4.2 1.2 8 4.4 9.2 9"
-        fill="none"
-        stroke={ink}
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path d="M26.6 18.2 31.2 20.4l-4.8 2" fill={ink} />
-      <path
-        d="M15.2 20.2h12.4l-1.05 10.2H16.25L15.2 20.2Z"
-        fill="none"
-        stroke={ink}
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M18.2 20.2v-1.6c0-1.9 6.2-1.9 6.2 0v1.6"
-        fill="none"
-        stroke={ink}
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-    </svg>
+      draggable={false}
+      className={cn("shrink-0 object-contain object-left", className)}
+    />
   );
 }
 
@@ -58,19 +30,22 @@ export function Logo({
   className,
   size = "md",
   href = "/",
+  onDark = false,
 }: {
   className?: string;
   size?: "sm" | "md" | "lg";
-  href?: string;
+  href?: string | null;
+  onDark?: boolean;
 }) {
-  const px = size === "sm" ? 28 : size === "lg" ? 44 : 34;
+  const px = size === "sm" ? 26 : size === "lg" ? 42 : 32;
   const word = (
     <>
-      <LogoMark size={px} />
+      <LogoMark size={px} onBrand={onDark} />
       <span
         className={cn(
-          "font-display font-semibold tracking-tight text-ink",
-          size === "lg" ? "text-2xl" : size === "sm" ? "text-base" : "text-lg",
+          "font-display font-bold italic tracking-tight",
+          onDark ? "text-white" : "text-primary",
+          size === "lg" ? "text-2xl" : size === "sm" ? "text-[15px] sm:text-base" : "text-lg",
         )}
       >
         Lieferway
@@ -78,12 +53,14 @@ export function Logo({
     </>
   );
 
+  const classes = cn("inline-flex items-center gap-1.5 sm:gap-2", className);
+
   if (!href) {
-    return <span className={cn("inline-flex items-center gap-2", className)}>{word}</span>;
+    return <span className={classes}>{word}</span>;
   }
 
   return (
-    <Link href={href} className={cn("inline-flex items-center gap-2", className)} aria-label="Lieferway">
+    <Link href={href} className={classes} aria-label="Lieferway">
       {word}
     </Link>
   );

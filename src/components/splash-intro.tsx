@@ -64,10 +64,10 @@ export function SplashIntro() {
       }`}
     >
       <span className="lw-splash-mark">
-        <LogoMark size={72} onBrand />
+        <LogoMark size={88} onBrand />
       </span>
       <span className="text-center">
-        <span className="font-display block text-[2rem] font-bold tracking-tight text-white">
+        <span className="font-display block text-[2rem] font-bold italic tracking-tight text-white">
           Lieferway
         </span>
         <span className="mt-1 block text-[13px] font-medium text-white/85">
