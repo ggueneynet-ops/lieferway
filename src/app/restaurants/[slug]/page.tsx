@@ -6,6 +6,7 @@ import { MenuClient } from "@/components/menu-client";
 import { Bike, Clock, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
+import { RestaurantLogo } from "@/components/restaurant-logo";
 import { getCopy } from "@/lib/get-locale";
 import { cuisineName } from "@/lib/i18n";
 
@@ -31,40 +32,47 @@ export default async function RestaurantPage({
     <>
       <SiteHeader />
       <main className="flex-1">
-        <div className="relative h-32 w-full bg-muted sm:h-40">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={restaurantPhoto(restaurant.imageUrl, restaurant.cuisine, restaurant.slug)}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-3 left-0 right-0 mx-auto max-w-6xl px-4 text-white">
-            <p className="text-xs text-white/80 sm:text-sm">{cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}</p>
-            <h1 className="font-display text-2xl font-semibold sm:text-3xl">{restaurant.name}</h1>
+        <div className="border-b border-border bg-surface">
+          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:py-4">
+            <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-muted sm:h-[88px] sm:w-[88px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={restaurantPhoto(restaurant.imageUrl, restaurant.cuisine, restaurant.slug)}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+              <RestaurantLogo name={restaurant.name} size={20} className="absolute bottom-1 left-1 ring-1 ring-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-text-secondary">
+                {cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}
+              </p>
+              <h1 className="font-display text-xl font-semibold leading-tight sm:text-2xl">{restaurant.name}</h1>
+              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground sm:text-xs">
+                <span className="inline-flex items-center gap-1">
+                  <Star className="size-3 fill-primary text-primary" />
+                  {restaurant.rating.toFixed(1)} ({restaurant.reviewCount})
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="size-3" />
+                  {restaurant.etaMin}–{restaurant.etaMax} Min.
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Bike className="size-3" />
+                  {formatEUR(restaurant.deliveryFeeCents, locale)} {t.delivery}
+                </span>
+                <span>{t.minOrder} {formatEUR(restaurant.minOrderCents, locale)}</span>
+              </div>
+              {!restaurant.isOpen && (
+                <p className="mt-1 text-xs font-medium text-destructive">{t.closedNow}</p>
+              )}
+            </div>
           </div>
         </div>
-        <div className="mx-auto max-w-6xl px-4 py-6">
-          <div className="mb-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <Star className="size-4 fill-primary text-primary" />
-              {restaurant.rating.toFixed(1)} ({restaurant.reviewCount})
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Clock className="size-4" />
-              {restaurant.etaMin}–{restaurant.etaMax} Min.
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Bike className="size-4" />
-              {formatEUR(restaurant.deliveryFeeCents, locale)} {t.delivery}
-            </span>
-            <span>{t.minOrder} {formatEUR(restaurant.minOrderCents, locale)}</span>
-            <span>{restaurant.address}</span>
-            {!restaurant.isOpen && (
-              <span className="font-medium text-destructive">{t.closedNow}</span>
-            )}
-          </div>
-          <p className="mb-8 max-w-2xl text-muted-foreground">{restaurant.description}</p>
+        <div className="mx-auto max-w-6xl px-4 py-5">
+          <p className="mb-6 max-w-2xl text-sm text-muted-foreground">
+            {restaurant.address} · {restaurant.description}
+          </p>
           <MenuClient restaurant={restaurant} />
         </div>
       </main>
