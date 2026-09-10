@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { parsePrepMinutes } from "@/lib/prep";
 import { kitchenOrderInclude, serializeKitchenOrder, type KitchenOrder } from "@/lib/restaurant-live";
 import { notifyRestaurantOrders } from "@/lib/order-events";
+import { notifyCustomerOfOrderStatus } from "@/lib/notify-customer";
 
 export async function acceptKitchenOrder(opts: {
   orderId: string;
@@ -46,5 +47,6 @@ export async function acceptKitchenOrder(opts: {
   if (!updated) return { error: "Bestellung nicht gefunden.", status: 404 };
 
   notifyRestaurantOrders(updated.restaurantId);
+  await notifyCustomerOfOrderStatus(updated.id, updated.status);
   return { order: serializeKitchenOrder(updated) };
 }

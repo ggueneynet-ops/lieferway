@@ -10,6 +10,7 @@ import { useI18n } from "@/components/locale-provider";
 import { toast } from "sonner";
 import type { KitchenOrder } from "@/lib/restaurant-live";
 import { parsePrepMinutes, PREP_CHIPS } from "@/lib/prep";
+import { PrintBonButton } from "@/components/print-bon-button";
 
 const MUTE_KEY = "lw_kitchen_mute";
 
@@ -104,7 +105,6 @@ export function RestaurantOrders({
     } else {
       const fresh = next.filter((o) => o.status === "PLACED" && !seenRef.current!.has(o.id));
       if (fresh.length > 0) {
-        if (!mutedRef.current) playKitchenBell();
         setFlash(true);
         window.setTimeout(() => setFlash(false), 2800);
         setHighlight(new Set(fresh.map((o) => o.id)));
@@ -122,6 +122,16 @@ export function RestaurantOrders({
       document.title = baseTitle;
     };
   }, [orders, baseTitle]);
+
+  useEffect(() => {
+    const hasIncoming = orders.some((o) => o.status === "PLACED");
+    if (!hasIncoming || muted || !soundReady) return;
+    playKitchenBell();
+    const id = window.setInterval(() => {
+      if (!mutedRef.current) playKitchenBell();
+    }, 2600);
+    return () => window.clearInterval(id);
+  }, [orders, muted, soundReady]);
 
   useEffect(() => {
     let stopped = false;
@@ -355,8 +365,9 @@ export function RestaurantOrders({
                 phoneLabel={t.phoneNumber}
                 nameLabel={t.fullName}
                 highlight={highlight.has(o.id)}
-                kicker={t.rpNewOrder}
-              >
+              kicker={t.rpNewOrder}
+              restaurantName={restaurantName}
+            >
                 {picking === o.id ? (
                   <PrepTimePicker
                     id={`prep-${o.id}`}
@@ -416,6 +427,7 @@ export function RestaurantOrders({
                       ? t.rpOnTheWay
                       : t.accepted
               }
+              restaurantName={restaurantName}
             >
               {o.prepMinutes ? (
                 <p className="w-full text-sm text-[#6B7280]">{interpolate(t.prepEta, { min: String(o.prepMinutes) })}</p>
@@ -482,6 +494,7 @@ function OrderCard({
   nameLabel,
   highlight,
   kicker,
+  restaurantName,
 }: {
   order: KitchenOrder;
   children?: React.ReactNode;
@@ -492,6 +505,7 @@ function OrderCard({
   nameLabel: string;
   highlight?: boolean;
   kicker?: string;
+  restaurantName: string;
 }) {
   return (
     <article
@@ -540,7 +554,25 @@ function OrderCard({
           {noteLabel}: {order.notes}
         </p>
       ) : null}
-      <div className="mt-4 flex w-full flex-wrap gap-2">{children}</div>
+      <div className="mt-4 flex w-full flex-wrap gap-2">
+        {children}
+        <PrintBonButton
+          order={{
+            shortCode: order.shortCode,
+            restaurantName,
+            createdAt: order.createdAt,
+            paymentMethod: order.paymentMethod,
+            totalCents: order.totalCents,
+            foodSubtotalCents: order.foodSubtotalCents,
+            notes: order.notes,
+            street: order.street,
+            postalCode: order.postalCode,
+            city: order.city,
+            items: order.items,
+            customer: order.customer,
+          }}
+        />
+      </div>
     </article>
   );
 }

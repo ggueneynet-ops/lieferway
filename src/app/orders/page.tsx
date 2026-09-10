@@ -23,12 +23,35 @@ export default async function OrdersPage() {
     },
     orderBy: { createdAt: "desc" },
   });
+  const notices = await prisma.customerNotice.findMany({
+    where: { userId: session.id, readAt: null },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+  });
 
   return (
     <>
       <SiteHeader chrome="app" />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
         <h1 className="text-2xl font-semibold">{t.orders}</h1>
+        {notices.length > 0 ? (
+          <div className="mt-4">
+            <p className="mb-2 text-sm font-semibold text-ink">{t.yourUpdates}</p>
+            <ul className="space-y-2">
+            {notices.map((n) => (
+              <li key={n.id}>
+                <Link
+                  href={`/orders/${n.orderId}`}
+                  className="block rounded-2xl border border-primary/20 bg-primary-soft px-4 py-3"
+                >
+                  <p className="text-sm font-semibold text-ink">{n.title}</p>
+                  <p className="mt-0.5 text-sm text-[#6B7280]">{n.body}</p>
+                </Link>
+              </li>
+            ))}
+            </ul>
+          </div>
+        ) : null}
         {orders.length === 0 ? (
           <p className="mt-6 rounded-2xl border bg-white p-8 text-center text-muted-foreground">
             {t.noOrders}

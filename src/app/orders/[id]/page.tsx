@@ -9,6 +9,7 @@ import { formatEUR } from "@/lib/money";
 import { OrderPoller } from "@/components/order-poller";
 import { ReviewForm } from "@/components/review-form";
 import { getCopy } from "@/lib/get-locale";
+import { interpolate } from "@/lib/i18n";
 
 export default async function OrderDetailPage({
   params,
@@ -29,6 +30,15 @@ export default async function OrderDetailPage({
   });
   if (!order) notFound();
   if (session.role === "CUSTOMER" && order.customerId !== session.id) redirect("/orders");
+
+  await prisma.customerNotice.updateMany({
+    where: { orderId: order.id, userId: session.id, readAt: null },
+    data: { readAt: new Date() },
+  });
+  const latestNotice = await prisma.customerNotice.findFirst({
+    where: { orderId: order.id, userId: session.id },
+    orderBy: { createdAt: "desc" },
+  });
 
   const payLabel =
     order.paymentMethod === "CASH"
@@ -56,6 +66,17 @@ export default async function OrderDetailPage({
             <h1 className="font-display text-2xl font-semibold tracking-tight">{order.restaurant.name}</h1>
             <StatusBadge status={order.status} locale={locale} />
           </div>
+          {latestNotice ? (
+            <p className="mt-4 rounded-2xl border border-primary/20 bg-primary-soft px-4 py-3 text-sm text-ink">
+              <span className="font-semibold">{latestNotice.title}</span>
+              <span className="mt-1 block">{latestNotice.body}</span>
+              {latestNotice.emailSent ? (
+                <span className="mt-1 block text-[#6B7280]">
+                  {interpolate(t.orderNoticeEmailDemo, { email: latestNotice.emailTo })}
+                </span>
+              ) : null}
+            </p>
+          ) : null}
           <p className="mt-2 text-sm text-muted-foreground">
             {order.street}, {order.postalCode} {order.city}
           </p>
@@ -64,7 +85,13 @@ export default async function OrderDetailPage({
           </p>
           <div className="mt-6 rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
             <h2 className="mb-5 font-display font-semibold tracking-tight">{t.status}</h2>
-            <OrderTracker orderId={order.id} initialStatus={order.status} locale={locale} />
+            <OrderTracker
+              orderId={order.id}
+              initialStatus={order.status}
+              locale={locale}
+              shortCode={order.shortCode}
+              restaurantName={order.restaurant.name}
+            />
           </div>
           {order.status === "DELIVERED" && !order.review ? (
             <div className="mt-6">

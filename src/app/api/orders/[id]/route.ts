@@ -136,6 +136,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     const { notifyRestaurantOrders } = await import("@/lib/order-events");
     notifyRestaurantOrders(updated.restaurantId);
+    const { notifyCustomerOfOrderStatus } = await import("@/lib/notify-customer");
+    await notifyCustomerOfOrderStatus(updated.id, updated.status);
 
     return json({
       order: JSON.parse(

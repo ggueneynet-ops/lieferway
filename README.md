@@ -46,7 +46,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 - Customer: browse seeded Frankfurt restaurants, menu, cart, checkout, live status
 - Payments: Stripe **mock** (card / Apple Pay / Google Pay UI) + cash. Structure in `src/lib/payments.ts` for a real Stripe swap later
-- Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell**. Restaurant marks orders ready for **its own delivery**. **Lieferung**: editable Lieferzeit (min–max minutes on marketplace cards), Mindestbestellwert, Liefergebühr, radius.
+- Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell** (repeats until Annehmen). **Bon drucken** on tickets. **Bestellungen** date filter (Heute / Gestern / Datum). Restaurant marks orders ready for **its own delivery**. **Lieferung**: editable Lieferzeit (min–max minutes on marketplace cards), Mindestbestellwert, Liefergebühr, radius.
 - Admin: hidden URL `/admin` (not linked in the public footer). Restaurants, users, orders, Monday payout ledger.
 - Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register` (**phone required**) or **Mit Google anmelden**. Restaurants **apply** at `/partner` / `/partner/anmelden`. Existing partners log in at `/login?next=/restaurant`.
 

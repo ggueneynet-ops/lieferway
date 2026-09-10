@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { CUSTOMER_STATUS_FLOW, type OrderStatus } from "@/lib/constants";
 import { STATUS_LABEL, type Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/locale-provider";
+import { toast } from "sonner";
 
 function customerStep(status: string): OrderStatus {
   if (status === "READY") return "PREPARING";
@@ -78,12 +79,17 @@ export function OrderTracker({
   orderId,
   initialStatus,
   locale = "de",
+  shortCode,
+  restaurantName,
 }: {
   orderId: string;
   initialStatus: string;
   locale?: Locale;
+  shortCode?: string;
+  restaurantName?: string;
 }) {
   const [status, setStatus] = useState(initialStatus);
+  const [flash, setFlash] = useState<string | null>(null);
 
   useEffect(() => {
     setStatus(initialStatus);
@@ -91,12 +97,20 @@ export function OrderTracker({
 
   useEffect(() => {
     let stopped = false;
+    let last = initialStatus;
     const tick = async () => {
       const res = await fetch(`/api/orders/${orderId}`, { cache: "no-store" });
       if (!res.ok || stopped) return;
       const data = (await res.json()) as { order?: { status?: string } };
       const next = data.order?.status;
-      if (next) setStatus((s) => (next !== s ? next : s));
+      if (next && next !== last) {
+        last = next;
+        setStatus(next);
+        const label = STATUS_LABEL[locale][next] ?? next;
+        const msg = restaurantName ? `${restaurantName} · ${label}` : label;
+        setFlash(msg);
+        toast.success(shortCode ? `${shortCode} · ${label}` : msg);
+      }
     };
     void tick();
     const id = window.setInterval(() => {
@@ -106,7 +120,14 @@ export function OrderTracker({
       stopped = true;
       window.clearInterval(id);
     };
-  }, [orderId]);
+  }, [orderId, initialStatus, locale, shortCode, restaurantName]);
 
-  return <OrderTimeline status={status} locale={locale} />;
+  return (
+    <div>
+      {flash ? (
+        <p className="mb-4 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-medium text-ink">{flash}</p>
+      ) : null}
+      <OrderTimeline status={status} locale={locale} />
+    </div>
+  );
 }

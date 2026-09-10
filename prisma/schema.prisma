@@ -24,6 +24,7 @@ model User {
   courierOrders  Order[]    @relation("CourierOrders")
   addresses      Address[]
   reviews        Review[]
+  notices        CustomerNotice[]
 }
 
 model Address {
@@ -150,8 +151,27 @@ model Order {
   acceptedAt            DateTime?
   deliveredAt           DateTime?
 
-  items OrderItem[]
-  review Review?
+  items   OrderItem[]
+  review  Review?
+  notices CustomerNotice[]
+}
+
+model CustomerNotice {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId   String
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String
+  title     String
+  body      String
+  emailTo   String
+  emailSent Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@unique([orderId, status])
+  @@index([userId, createdAt])
 }
 
 model Review {
