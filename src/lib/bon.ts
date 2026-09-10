@@ -82,7 +82,6 @@ function sniffImageMime(buf: Buffer): string | null {
   if (head.startsWith("<svg") || head.startsWith("<?xml")) return "image/svg+xml";
   return null;
 }
-}
 
 export function buildBonOrder(
   restaurant: BonRestaurant,
