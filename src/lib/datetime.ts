@@ -21,3 +21,16 @@ export function formatBerlinDateTime(value: Date | string, locale: Locale = "de"
     timeZoneName: "short",
   }).format(new Date(value));
 }
+
+export function formatBerlinBonDate(value: Date | string, locale: Locale = "de") {
+  return new Intl.DateTimeFormat(dateLocale(locale), {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: BERLIN_TZ,
+    timeZoneName: "short",
+  }).format(new Date(value));
+}

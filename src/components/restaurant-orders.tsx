@@ -420,7 +420,6 @@ export function RestaurantOrders({
                 nameLabel={t.fullName}
                 highlight={highlight.has(o.id)}
               kicker={t.rpNewOrder}
-              restaurantName={restaurantName}
             >
                 {picking === o.id ? (
                   <PrepTimePicker
@@ -481,7 +480,6 @@ export function RestaurantOrders({
                       ? t.rpOnTheWay
                       : t.accepted
               }
-              restaurantName={restaurantName}
             >
               {o.prepMinutes ? (
                 <p className="w-full text-sm text-[#6B7280]">{interpolate(t.prepEta, { min: String(o.prepMinutes) })}</p>
@@ -555,7 +553,6 @@ function OrderCard({
   nameLabel,
   highlight,
   kicker,
-  restaurantName,
 }: {
   order: KitchenOrder;
   children?: React.ReactNode;
@@ -566,7 +563,6 @@ function OrderCard({
   nameLabel: string;
   highlight?: boolean;
   kicker?: string;
-  restaurantName: string;
 }) {
   return (
     <article
@@ -617,22 +613,7 @@ function OrderCard({
       ) : null}
       <div className="mt-4 flex w-full flex-wrap gap-2">
         {children}
-        <PrintBonButton
-          order={{
-            shortCode: order.shortCode,
-            restaurantName,
-            createdAt: order.createdAt,
-            paymentMethod: order.paymentMethod,
-            totalCents: order.totalCents,
-            foodSubtotalCents: order.foodSubtotalCents,
-            notes: order.notes,
-            street: order.street,
-            postalCode: order.postalCode,
-            city: order.city,
-            items: order.items,
-            customer: order.customer,
-          }}
-        />
+        <PrintBonButton orderId={order.id} />
       </div>
     </article>
   );

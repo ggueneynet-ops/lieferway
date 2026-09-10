@@ -1,11 +1,11 @@
 import { formatEUR } from "@/lib/money";
-import { formatBerlinDateTime } from "@/lib/datetime";
-import type { Locale } from "@/lib/i18n";
+import { formatBerlinBonDate } from "@/lib/datetime";
+import { interpolate, t as dict, type Dictionary, type Locale } from "@/lib/i18n";
 
 export type BonOrder = {
   shortCode: string;
   restaurantName: string;
-  createdAt: string;
+  createdAt: string | Date;
   paymentMethod: string;
   totalCents: number;
   foodSubtotalCents: number;
@@ -13,49 +13,124 @@ export type BonOrder = {
   street: string;
   postalCode: string;
   city: string;
+  prepMinutes?: number | null;
   items: { name: string; quantity: number }[];
   customer: { name: string; phone: string | null };
 };
 
+export function bonPayLabel(method: string, t: Dictionary) {
+  if (method === "CASH") return t.payCash;
+  if (method === "APPLE_PAY") return t.payApple;
+  if (method === "GOOGLE_PAY") return t.payGoogle;
+  return t.payCard;
+}
+
 export function bonHtml(order: BonOrder, locale: Locale = "de") {
-  const pay =
-    order.paymentMethod === "CASH"
-      ? "Bar"
-      : order.paymentMethod === "APPLE_PAY"
-        ? "Apple Pay"
-        : order.paymentMethod === "GOOGLE_PAY"
-          ? "Google Pay"
-          : "Karte";
+  const t = dict(locale);
+  const pay = bonPayLabel(order.paymentMethod, t);
+  const when = formatBerlinBonDate(order.createdAt, locale);
   const rows = order.items
-    .map((i) => `<tr><td>${i.quantity}×</td><td>${escapeHtml(i.name)}</td></tr>`)
+    .map(
+      (i) =>
+        `<tr><td class="qty">${i.quantity}×</td><td>${escapeHtml(i.name)}</td></tr>`,
+    )
     .join("");
+  const phone = order.customer.phone?.trim();
+  const prep =
+    order.prepMinutes != null
+      ? `<p class="line"><span class="k">${escapeHtml(t.bonPrepLabel)}</span><br/>${escapeHtml(interpolate(t.bonPrep, { min: String(order.prepMinutes) }))}</p>`
+      : "";
+  const notes = order.notes?.trim()
+    ? `<p class="line"><span class="k">${escapeHtml(t.bonNote)}</span><br/>${escapeHtml(order.notes.trim())}</p>`
+    : "";
+
   return `<!doctype html>
 <html lang="${locale}">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bon ${escapeHtml(order.shortCode)}</title>
   <style>
-    body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 16px; color: #111; }
-    h1 { font-size: 18px; margin: 0 0 4px; }
-    p, td { font-size: 13px; }
-    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-    td { padding: 3px 0; vertical-align: top; }
-    .muted { color: #555; }
-    .sum { font-weight: 700; font-size: 15px; margin-top: 8px; }
-    @media print { body { margin: 0; } }
+    @page { size: 80mm auto; margin: 3mm; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #000;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .ticket {
+      width: 74mm;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 2mm 0 8mm;
+      color: #000;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      line-height: 1.15;
+    }
+    .code {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin: 0 0 4px;
+      line-height: 1.1;
+    }
+    .when { font-size: 14px; margin: 0 0 10px; }
+    .k { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .line { font-size: 16px; line-height: 1.35; margin: 0 0 8px; }
+    table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+    td { font-size: 17px; font-weight: 700; padding: 3px 0; vertical-align: top; }
+    td.qty { width: 2.2em; }
+    .hr { border: 0; border-top: 2px dashed #000; margin: 8px 0; }
+    .sum {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .toolbar { margin: 12px 0 16px; }
+    .toolbar button {
+      font-size: 16px;
+      padding: 10px 16px;
+      background: #000;
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+    }
+    @media print {
+      .toolbar { display: none !important; }
+      html, body { background: #fff; }
+    }
   </style>
 </head>
 <body>
-  <h1>Lieferway · ${escapeHtml(order.restaurantName)}</h1>
-  <p><strong>${escapeHtml(order.shortCode)}</strong><br />
-  <span class="muted">${escapeHtml(formatBerlinDateTime(order.createdAt, locale))}</span></p>
-  <p>${escapeHtml(order.customer.name)}<br />
-  ${order.customer.phone ? escapeHtml(order.customer.phone) + "<br />" : ""}
-  ${escapeHtml(order.street)}, ${escapeHtml(order.postalCode)} ${escapeHtml(order.city)}</p>
-  <table>${rows}</table>
-  ${order.notes ? `<p>Hinweis: ${escapeHtml(order.notes)}</p>` : ""}
-  <p class="muted">${pay} · Speisen ${formatEUR(order.foodSubtotalCents, locale)}</p>
-  <p class="sum">${formatEUR(order.totalCents, locale)}</p>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">${escapeHtml(t.printBon)}</button>
+  </div>
+  <article class="ticket">
+    <h1>${escapeHtml(order.restaurantName)}</h1>
+    <p class="code">${escapeHtml(order.shortCode)}</p>
+    <p class="when">${escapeHtml(when)}</p>
+    <hr class="hr" />
+    <p class="line"><span class="k">${escapeHtml(t.bonCustomer)}</span><br/>${escapeHtml(order.customer.name)}</p>
+    ${phone ? `<p class="line"><span class="k">${escapeHtml(t.bonPhone)}</span><br/>${escapeHtml(phone)}</p>` : ""}
+    <p class="line"><span class="k">${escapeHtml(t.bonAddress)}</span><br/>${escapeHtml(order.street)}<br/>${escapeHtml(order.postalCode)} ${escapeHtml(order.city)}</p>
+    <hr class="hr" />
+    <p class="k">${escapeHtml(t.bonItems)}</p>
+    <table>${rows}</table>
+    ${notes}
+    <p class="line"><span class="k">${escapeHtml(t.bonPay)}</span><br/>${escapeHtml(pay)}</p>
+    ${prep}
+    <hr class="hr" />
+    <p class="sum"><span>${escapeHtml(t.bonTotal)}</span><span>${escapeHtml(formatEUR(order.totalCents, locale))}</span></p>
+  </article>
 </body>
 </html>`;
 }

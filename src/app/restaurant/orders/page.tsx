@@ -180,22 +180,7 @@ export default async function RestaurantOrdersHistoryPage({
               </ul>
               <p className="mt-1 text-sm font-medium">{formatEUR(o.foodSubtotalCents, locale)}</p>
               <div className="mt-3">
-                <PrintBonButton
-                  order={{
-                    shortCode: o.shortCode,
-                    restaurantName: restaurant.name,
-                    createdAt: o.createdAt.toISOString(),
-                    paymentMethod: o.paymentMethod,
-                    totalCents: o.totalCents,
-                    foodSubtotalCents: o.foodSubtotalCents,
-                    notes: o.notes,
-                    street: o.street,
-                    postalCode: o.postalCode,
-                    city: o.city,
-                    items: o.items,
-                    customer: o.customer,
-                  }}
-                />
+                <PrintBonButton orderId={o.id} />
               </div>
             </li>
           ))}
