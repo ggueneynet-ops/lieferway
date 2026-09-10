@@ -64,11 +64,24 @@ export function embedPublicFile(urlPath: string): string | null {
   try {
     const buf = fs.readFileSync(file);
     const ext = path.extname(file).toLowerCase();
-    const mime = MIME[ext] ?? "application/octet-stream";
+    const mime = sniffImageMime(buf) ?? MIME[ext] ?? "application/octet-stream";
     return `data:${mime};base64,${buf.toString("base64")}`;
   } catch {
     return null;
   }
+}
+
+function sniffImageMime(buf: Buffer): string | null {
+  if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "image/jpeg";
+  if (buf.length >= 8 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return "image/png";
+  if (buf.length >= 6 && buf.subarray(0, 3).toString("ascii") === "GIF") return "image/gif";
+  if (buf.length >= 12 && buf.subarray(0, 4).toString("ascii") === "RIFF" && buf.subarray(8, 12).toString("ascii") === "WEBP") {
+    return "image/webp";
+  }
+  const head = buf.subarray(0, 64).toString("utf8").trimStart().toLowerCase();
+  if (head.startsWith("<svg") || head.startsWith("<?xml")) return "image/svg+xml";
+  return null;
+}
 }
 
 export function buildBonOrder(

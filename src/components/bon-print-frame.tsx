@@ -20,10 +20,10 @@ export function BonPrintFrame({ html }: { html: string }) {
     };
 
     const onLoad = () => {
-      window.setTimeout(run, 200);
+      window.setTimeout(run, 400);
     };
     frame.addEventListener("load", onLoad);
-    const fallback = window.setTimeout(run, 600);
+    const fallback = window.setTimeout(run, 800);
     return () => {
       frame.removeEventListener("load", onLoad);
       window.clearTimeout(fallback);
