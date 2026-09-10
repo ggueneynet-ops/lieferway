@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PhoneCaptureForm } from "@/components/phone-capture-form";
+import { LogoutButton } from "@/components/logout-button";
 import { getCopy } from "@/lib/get-locale";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -37,6 +38,9 @@ export default async function AccountPage() {
             {t.phoneNumber}: {db.phone || "—"}
           </p>
         )}
+        <div className="mt-10">
+          <LogoutButton label={t.logout} />
+        </div>
       </main>
       <SiteFooter />
     </>

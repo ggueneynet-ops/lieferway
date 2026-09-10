@@ -744,7 +744,7 @@ export const dictionaries = {
     order: "Sipariş ver",
     login: "Giriş",
     register: "Hesap oluştur",
-    logout: "Çıkış",
+    logout: "Çıkış yap",
     email: "E-posta",
     password: "Şifre",
     name: "Ad",

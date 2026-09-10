@@ -45,7 +45,7 @@ export async function SiteHeader({
         />
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           <LocaleToggle />
-          <AccountMenu user={user} locale={locale} className="hidden sm:inline-flex" />
+          <AccountMenu user={user} locale={locale} />
           <CartButton compact />
         </div>
       </div>

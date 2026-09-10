@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { SessionUser } from "@/lib/auth";
 import { t, type Locale } from "@/lib/i18n";
+import { LogoutButton } from "@/components/logout-button";
 
 export function AccountMenu({
   user,
@@ -46,11 +47,14 @@ export function AccountMenu({
             {copy.restaurantPanel}
           </Link>
         ) : null}
-        <form action="/logout" method="post">
-          <button type="submit" className="block w-full px-3 py-2.5 text-left text-sm hover:bg-muted">
-            {copy.logout}
-          </button>
-        </form>
+        {user.role === "ADMIN" ? (
+          <Link href="/admin" className="block px-3 py-2.5 text-sm hover:bg-muted">
+            {copy.navStart}
+          </Link>
+        ) : null}
+        <div className="mt-1 border-t border-border pt-1">
+          <LogoutButton label={copy.logout} variant="menu" />
+        </div>
       </div>
     </details>
   );

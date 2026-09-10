@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { Role } from "@/lib/constants";
 import { getCopy } from "@/lib/get-locale";
 import { LocaleToggle } from "@/components/locale-toggle";
+import { LogoutButton } from "@/components/logout-button";
 
 export async function PanelShell({
   children,
@@ -71,12 +72,18 @@ export async function PanelShell({
           >
             {t.toMarketplace}
           </Link>
+          <div className="md:mt-2">
+            <LogoutButton label={t.logout} variant="sidebar" />
+          </div>
         </nav>
       </aside>
       <div className="flex-1">
         <header className="flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 md:px-6">
-          <h1 className="text-base font-semibold tracking-tight text-ink">{title}</h1>
-          <LocaleToggle />
+          <h1 className="min-w-0 truncate text-base font-semibold tracking-tight text-ink">{title}</h1>
+          <div className="flex shrink-0 items-center gap-2">
+            <LogoutButton label={t.logout} variant="header" />
+            <LocaleToggle />
+          </div>
         </header>
         <div className="p-3 md:p-5">{children}</div>
       </div>
