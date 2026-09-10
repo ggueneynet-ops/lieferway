@@ -52,7 +52,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout follows common food-app patterns (location bar, cuisine rail, dense list, sticky cart) with premium pink accent `#E91E63` on white (not Lieferando orange, not bordo). Logo is the locked **pin + fork** mark (pink pin, white fork, **Liefer** navy + **way** pink). Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Name stays **Lieferway**. Cache-bust logo assets with `?v=16`.
+Marketplace layout follows common food-app patterns (location bar, cuisine rail, dense list, sticky cart) with premium pink accent `#E91E63` on white (not Lieferando orange, not bordo). Logo is the locked **pin + fork** mark (pink pin, white fork, **Liefer** navy + **way** pink). Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Name stays **Lieferway**. Cache-bust logo assets with `?v=17`.
 
 Restaurant and dish photos stay compact left thumbnails.
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const ASSET = "v=16";
+const ASSET = "v=17";
 
 /** Single-piece lockup (icon + wordmark). Never add a second “Lieferway” label beside it. */
 export function Logo({
@@ -21,7 +21,7 @@ export function Logo({
       srcSet={
         onDark
           ? undefined
-          : `/Lieferway-header-h64.png?${ASSET} 316w, /Lieferway-header-h96.png?${ASSET} 474w, /Lieferway-header-h128.png?${ASSET} 631w`
+          : `/Lieferway-header-h64.png?${ASSET} 316w, /Lieferway-header-h96.png?${ASSET} 474w, /Lieferway-header-h128.png?${ASSET} 631w, /Lieferway-header-h256.png?${ASSET} 1262w`
       }
       sizes="(max-width: 640px) 148px, 176px"
       alt="Lieferway"

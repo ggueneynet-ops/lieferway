@@ -6,12 +6,12 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 ## Logo
 
-**Locked by owner/designer.** Premium pink map-pin with a white fork (`#E91E63`). Wordmark: **Liefer** navy `#1A2744` / ink `#0F172A` + **way** pink. No scooter, no cloche. **Not** Lieferando orange. **Not** bordo.
+**Locked by owner/designer.** Premium pink map-pin with a white fork (`#E91E63`). Wordmark: **Liefer** navy `#0F172A` / ink `#0F172A` + **way** pink. No scooter, no cloche. **Not** Lieferando orange. **Not** bordo.
 
-- Header / login / footer: `public/Lieferway-header-h64.png`, `Lieferway-header-h96.png`, `Lieferway-header-h128.png` (`Lieferway-header.svg`) — pin + wordmark, **no slogan**. Cache-bust `?v=16`.
-- Splash / marketing: `public/Lieferway-lockup.png` / `Lieferway-lockup.svg` — pin + wordmark + slogan **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.**
+- Header / login / footer: `public/Lieferway-header-h64.png`, `h96`, `h128`, `h256` (`Lieferway-header.svg`, `Lieferway-header-from-owner.png`) — pin + wordmark, **no slogan**. Cache-bust `?v=17`.
+- Splash: `public/Lieferway-splash-lockup.png` / `OWNER-LOCKUP-FINAL.png` / `Lieferway-lockup.png` — pin + wordmark + slogan **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.**
 - App icon / favicon: `public/icon-pin-fork.svg` (also `favicon.svg`), `favicon-32.png`, `favicon-64.png`, `app-icon-1024.png`.
-- Source: `lieferway/pink/pin-fork/exports/`. Scooter lockup is retired.
+- Source: `lieferway/brand-premium/logo/` (owner lock). Scooter lockup is retired. No serif, no bordo.
 
 ## Color tokens
 
