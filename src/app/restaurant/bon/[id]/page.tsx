@@ -28,7 +28,7 @@ export default async function RestaurantBonPage({
   if (!order || order.restaurantId !== restaurant.id) notFound();
 
   const html = bonHtml(
-    buildBonOrder(order.restaurant, {
+    await buildBonOrder(order.restaurant, {
       shortCode: order.shortCode,
       createdAt: order.createdAt,
       paymentMethod: order.paymentMethod,

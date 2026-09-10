@@ -32,7 +32,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     if (!order || order.restaurantId !== restaurant.id) return fail("Bestellung nicht gefunden.", 404);
 
     const html = bonHtml(
-      buildBonOrder(restaurant, {
+      await buildBonOrder(restaurant, {
         shortCode: order.shortCode,
         createdAt: order.createdAt,
         paymentMethod: order.paymentMethod,

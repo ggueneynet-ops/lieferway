@@ -39,7 +39,7 @@ export type BonOrder = {
   customer: { name: string; phone: string | null };
 };
 
-export function resolveBonBrand(restaurant: BonRestaurant): { logoSrc: string | null; initials: string } {
+export async function resolveBonBrand(restaurant: BonRestaurant): Promise<{ logoSrc: string | null; initials: string }> {
   const initials = restaurantInitials(restaurant.name);
   const src = restaurantLogo(restaurant.logoUrl, restaurant.slug ?? undefined);
   if (!src) return { logoSrc: null, initials };
@@ -47,14 +47,14 @@ export function resolveBonBrand(restaurant: BonRestaurant): { logoSrc: string | 
     return { logoSrc: src, initials };
   }
   if (src.startsWith("/")) {
-    const embedded = embedPublicFile(src);
+    const embedded = await embedPublicFile(src);
     return { logoSrc: embedded, initials };
   }
   return { logoSrc: null, initials };
 }
 
 /** Embed /public files as data URIs so Lieferbon print works in about:blank popups. */
-export function embedPublicFile(urlPath: string): string | null {
+export async function embedPublicFile(urlPath: string): Promise<string | null> {
   const clean = urlPath.split("?")[0].split("#")[0];
   if (!clean.startsWith("/") || clean.startsWith("//") || clean.includes("..")) return null;
   const publicRoot = path.resolve(process.cwd(), "public");
@@ -63,9 +63,29 @@ export function embedPublicFile(urlPath: string): string | null {
   if (rel.startsWith("..") || path.isAbsolute(rel)) return null;
   try {
     const buf = fs.readFileSync(file);
+    const print = await printFriendlyLogo(buf);
+    if (print) return print;
     const ext = path.extname(file).toLowerCase();
     const mime = sniffImageMime(buf) ?? MIME[ext] ?? "application/octet-stream";
     return `data:${mime};base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
+/** Lift dark restaurant marks so they stay readable on 80mm thermal paper. */
+async function printFriendlyLogo(buf: Buffer): Promise<string | null> {
+  try {
+    const sharp = (await import("sharp")).default;
+    const out = await sharp(buf)
+      .rotate()
+      .resize(720, 720, { fit: "inside", withoutEnlargement: false })
+      .modulate({ brightness: 1.95, saturation: 0.82 })
+      .linear(1.2, 22)
+      .sharpen()
+      .png({ compressionLevel: 8 })
+      .toBuffer();
+    return `data:image/png;base64,${out.toString("base64")}`;
   } catch {
     return null;
   }
@@ -83,11 +103,11 @@ function sniffImageMime(buf: Buffer): string | null {
   return null;
 }
 
-export function buildBonOrder(
+export async function buildBonOrder(
   restaurant: BonRestaurant,
   order: Omit<BonOrder, "restaurantName" | "logoSrc" | "initials">,
-): BonOrder {
-  const brand = resolveBonBrand(restaurant);
+): Promise<BonOrder> {
+  const brand = await resolveBonBrand(restaurant);
   return {
     ...order,
     restaurantName: restaurant.name,
@@ -149,25 +169,33 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
       text-align: center;
       margin: 0 0 8px;
     }
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 0 auto 5px;
+      padding: 1.5mm;
+      background: #fff;
+    }
     .logo {
       display: block;
-      margin: 0 auto 6px;
-      max-width: 42mm;
-      max-height: 28mm;
-      width: auto;
+      width: 62mm;
+      max-width: 62mm;
+      max-height: 52mm;
       height: auto;
       object-fit: contain;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     .initials {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 22mm;
-      height: 22mm;
+      width: 28mm;
+      height: 28mm;
       margin: 0 auto 6px;
       background: #000;
       color: #fff;
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 800;
       letter-spacing: 0.04em;
     }
@@ -230,7 +258,7 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
     <div class="brand">
       ${
         order.logoSrc
-          ? `<img class="logo" src="${escapeHtml(order.logoSrc)}" alt="" width="160" height="80" />`
+          ? `<div class="logo-wrap"><img class="logo" src="${escapeHtml(order.logoSrc)}" alt="" width="280" height="280" /></div>`
           : `<div class="initials">${escapeHtml(order.initials)}</div>`
       }
       <h1>${escapeHtml(order.restaurantName)}</h1>
