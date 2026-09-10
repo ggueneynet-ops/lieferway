@@ -56,80 +56,86 @@ export function stopKeepAlive() {
   keepAlive = null;
 }
 
-/** Loud, deep metallic gong (~1.2s). Safe to call from a timer if keep-alive is running. */
+/** Deep metallic gong (derin gong): ~90–110 Hz body, long sustain, no thin chime. */
 export function playKitchenBell() {
   const ctx = getAudioContext();
   if (!ctx) return;
   void ctx.resume();
   startKeepAlive();
   const now = ctx.currentTime;
-  const dur = 1.22;
+  const dur = 1.35;
+
+  const body = ctx.createBiquadFilter();
+  body.type = "lowpass";
+  body.frequency.value = 720;
+  body.Q.value = 0.55;
 
   const master = ctx.createGain();
-  master.gain.value = 4.2;
+  master.gain.value = 5.4;
   const limit = ctx.createDynamicsCompressor();
-  limit.threshold.value = -16;
-  limit.knee.value = 4;
-  limit.ratio.value = 2.2;
-  limit.attack.value = 0.001;
-  limit.release.value = 0.22;
+  limit.threshold.value = -14;
+  limit.knee.value = 6;
+  limit.ratio.value = 2;
+  limit.attack.value = 0.002;
+  limit.release.value = 0.28;
   const makeup = ctx.createGain();
-  makeup.gain.value = 1.85;
-  master.connect(limit);
+  makeup.gain.value = 2.1;
+  master.connect(body);
+  body.connect(limit);
   limit.connect(makeup);
   makeup.connect(ctx.destination);
 
-  const nLen = Math.floor(ctx.sampleRate * 0.12);
+  const nLen = Math.floor(ctx.sampleRate * 0.14);
   const noiseBuf = ctx.createBuffer(1, nLen, ctx.sampleRate);
   const data = noiseBuf.getChannelData(0);
   for (let i = 0; i < nLen; i++) {
-    data[i] = (Math.random() * 2 - 1) * (1 - i / nLen) ** 1.4;
+    data[i] = (Math.random() * 2 - 1) * (1 - i / nLen) ** 1.8;
   }
   const noise = ctx.createBufferSource();
   noise.buffer = noiseBuf;
-  const low = ctx.createBiquadFilter();
-  low.type = "lowpass";
-  low.frequency.value = 420;
-  low.Q.value = 0.7;
-  const bang = ctx.createBiquadFilter();
-  bang.type = "bandpass";
-  bang.frequency.value = 220;
-  bang.Q.value = 1.1;
+  const strikeLp = ctx.createBiquadFilter();
+  strikeLp.type = "lowpass";
+  strikeLp.frequency.value = 280;
+  strikeLp.Q.value = 0.8;
+  const strikeBp = ctx.createBiquadFilter();
+  strikeBp.type = "bandpass";
+  strikeBp.frequency.value = 110;
+  strikeBp.Q.value = 1.4;
   const ng = ctx.createGain();
   ng.gain.setValueAtTime(0.0001, now);
-  ng.gain.exponentialRampToValueAtTime(1.8, now + 0.004);
-  ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-  noise.connect(low);
-  low.connect(bang);
-  bang.connect(ng);
+  ng.gain.exponentialRampToValueAtTime(2.4, now + 0.005);
+  ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+  noise.connect(strikeLp);
+  strikeLp.connect(strikeBp);
+  strikeBp.connect(ng);
   ng.connect(master);
   noise.start(now);
-  noise.stop(now + 0.18);
+  noise.stop(now + 0.22);
 
-  const partials: [number, number, number, OscillatorType][] = [
-    [52, 1.35, dur, "sine"],
-    [78, 0.95, dur * 0.98, "sine"],
-    [104, 0.62, dur * 0.92, "triangle"],
-    [156, 0.42, 1.05, "sine"],
-    [208, 0.28, 0.92, "sine"],
-    [312, 0.18, 0.72, "sine"],
-    [416, 0.12, 0.55, "sine"],
-    [624, 0.07, 0.38, "sine"],
-    [832, 0.04, 0.26, "sine"],
+  // Inharmonic bowl: fundamental ~96 Hz + beating pair, no high bell partials.
+  const f0 = 96;
+  const partials: [number, number, number][] = [
+    [f0, 1.55, dur],
+    [f0 * 1.027, 1.15, dur],
+    [f0 * 1.52, 0.72, dur * 0.96],
+    [f0 * 2.01, 0.48, dur * 0.88],
+    [f0 * 2.46, 0.28, dur * 0.72],
+    [f0 * 2.92, 0.16, dur * 0.55],
+    [f0 * 3.38, 0.09, dur * 0.4],
   ];
-  for (const [freq, gain, d, type] of partials) {
+  for (const [freq, gain, d] of partials) {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.type = type;
+    o.type = "sine";
     o.frequency.setValueAtTime(freq, now);
-    o.frequency.exponentialRampToValueAtTime(Math.max(36, freq * 0.97), now + d);
+    o.frequency.exponentialRampToValueAtTime(Math.max(70, freq * 0.975), now + d);
     g.gain.setValueAtTime(0.0001, now);
-    g.gain.exponentialRampToValueAtTime(gain, now + 0.012);
-    g.gain.exponentialRampToValueAtTime(gain * 0.35, now + 0.22);
+    g.gain.exponentialRampToValueAtTime(gain, now + 0.018);
+    g.gain.exponentialRampToValueAtTime(gain * 0.42, now + 0.28);
     g.gain.exponentialRampToValueAtTime(0.0001, now + d);
     o.connect(g);
     g.connect(master);
     o.start(now);
-    o.stop(now + d + 0.05);
+    o.stop(now + d + 0.06);
   }
 }
