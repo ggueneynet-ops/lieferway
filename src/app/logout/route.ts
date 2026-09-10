@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { clearSessionCookie } from "@/lib/auth";
 
-async function signOut(req: Request) {
+async function signOut() {
   await clearSessionCookie();
-  return NextResponse.redirect(new URL("/", req.url), 303);
+  return new NextResponse(null, { status: 303, headers: { Location: "/" } });
 }
 
-export async function POST(req: Request) {
-  return signOut(req);
+export async function POST() {
+  return signOut();
 }
 
-export async function GET(req: Request) {
-  return signOut(req);
+export async function GET() {
+  return signOut();
 }
