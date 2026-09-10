@@ -34,3 +34,20 @@ export function formatBerlinBonDate(value: Date | string, locale: Locale = "de")
     timeZoneName: "short",
   }).format(new Date(value));
 }
+
+export function formatBerlinInvoiceDate(value: Date | string, locale: Locale = "de") {
+  return new Intl.DateTimeFormat(dateLocale(locale), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: BERLIN_TZ,
+  }).format(new Date(value));
+}
+
+export function formatBerlinMonth(value: Date | string, locale: Locale = "de") {
+  return new Intl.DateTimeFormat(dateLocale(locale), {
+    month: "long",
+    year: "numeric",
+    timeZone: BERLIN_TZ,
+  }).format(new Date(value));
+}

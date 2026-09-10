@@ -50,6 +50,9 @@ prisma/*.db
 /public/uploads/logos/*
 !/public/uploads/logos/.gitkeep
 
+# generated invoice PDFs
+/data/invoices/**/*.pdf
+
 # expo
 mobile/.expo
 mobile/dist

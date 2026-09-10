@@ -7,14 +7,22 @@ export type MailResult = { ok: boolean; mock: boolean; channel: string; error?: 
 
 const FROM = () => process.env.MAIL_FROM?.trim() || "Lieferway <noreply@lieferway.de>";
 
+export type MailAttachment = {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+};
+
 export async function sendCustomerEmail(opts: {
   to: string;
   subject: string;
   text: string;
   html?: string;
+  attachments?: MailAttachment[];
 }): Promise<MailResult> {
   const from = FROM();
   const html = opts.html ?? `<p>${escapeHtml(opts.text).replaceAll("\n", "<br/>")}</p>`;
+  const attachMeta = opts.attachments?.map((a) => ({ filename: a.filename, bytes: a.content.length }));
 
   const resendKey = process.env.RESEND_API_KEY?.trim();
   if (resendKey) {
@@ -31,6 +39,11 @@ export async function sendCustomerEmail(opts: {
           subject: opts.subject,
           text: opts.text,
           html,
+          attachments: opts.attachments?.map((a) => ({
+            filename: a.filename,
+            content: a.content.toString("base64"),
+            content_type: a.contentType ?? "application/pdf",
+          })),
         }),
       });
       if (!res.ok) {
@@ -69,6 +82,11 @@ export async function sendCustomerEmail(opts: {
         subject: opts.subject,
         text: opts.text,
         html,
+        attachments: opts.attachments?.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+          contentType: a.contentType ?? "application/pdf",
+        })),
       });
       console.info("[lieferway mail smtp]", { to: opts.to, subject: opts.subject, host: smtpHost });
       return { ok: true, mock: false, channel: "smtp" };
@@ -84,7 +102,14 @@ export async function sendCustomerEmail(opts: {
       const res = await fetch(webhook, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ from, to: opts.to, subject: opts.subject, text: opts.text, html }),
+        body: JSON.stringify({
+          from,
+          to: opts.to,
+          subject: opts.subject,
+          text: opts.text,
+          html,
+          attachments: attachMeta,
+        }),
       });
       if (!res.ok) {
         return { ok: false, mock: false, channel: "webhook", error: `HTTP ${res.status}` };
@@ -100,6 +125,7 @@ export async function sendCustomerEmail(opts: {
     to: opts.to,
     subject: opts.subject,
     text: opts.text,
+    attachments: attachMeta,
   });
   return { ok: true, mock: true, channel: "demo" };
 }

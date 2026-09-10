@@ -52,6 +52,10 @@ export default async function RestaurantSettingsPage({
           }}
         />
       </div>
+      <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-[#111827]">
+        {t.eInvoiceComing}
+        <span className="mt-1 block text-[#6B7280]">{t.eInvoiceComingHint}</span>
+      </p>
     </RestaurantAppShell>
   );
 }

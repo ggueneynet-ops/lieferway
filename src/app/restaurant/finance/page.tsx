@@ -5,6 +5,7 @@ import { interpolate, dateLocale } from "@/lib/i18n";
 import { formatEUR } from "@/lib/money";
 import { nextPayoutMonday } from "@/lib/hours";
 import { restaurantReportTotals, resolveReportRange, berlinYmd, addDaysYmd } from "@/lib/restaurant-reports";
+import { recentMonthKeys } from "@/lib/invoices";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,27 @@ export default async function RestaurantFinancePage() {
     <RestaurantAppShell title={t.rpFinance} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
       <h1 className="mb-1 text-lg font-semibold">{t.rpFinance}</h1>
       <p className="mb-4 text-sm text-[#6B7280]">{t.rpFinanceHint}</p>
+      <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-[#111827]">
+        {t.eInvoiceComing}
+        <span className="mt-1 block text-[#6B7280]">{t.eInvoiceComingHint}</span>
+      </p>
+      <section className="mb-4 rounded-2xl border border-[#E5E7EB] bg-white p-4">
+        <h2 className="text-sm font-semibold text-[#111827]">{t.commissionInvoiceDraft}</h2>
+        <p className="mt-1 text-sm text-[#6B7280]">{t.commissionInvoiceHint}</p>
+        <ul className="mt-3 space-y-2">
+          {recentMonthKeys(4).map((month) => (
+            <li key={month} className="flex items-center justify-between gap-3 text-sm">
+              <span className="font-medium text-[#111827]">{month}</span>
+              <a
+                href={`/api/invoices/commission?month=${month}`}
+                className="font-medium text-primary"
+              >
+                {t.downloadPdf}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
       <p className="mb-4 rounded-2xl bg-white px-4 py-3 text-sm">
         <span className="font-semibold text-[#111827]">{t.rpNextPayout}: </span>
         {next.isToday ? t.rpPayoutMonday : mondayLabel}

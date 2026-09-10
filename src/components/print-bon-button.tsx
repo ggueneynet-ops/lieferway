@@ -39,6 +39,7 @@ export function PrintBonButton({ orderId }: { orderId: string }) {
     <button
       type="button"
       onClick={() => void printTicket()}
+      title={t.lieferbonHint}
       className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 text-sm font-medium text-[#111827]"
     >
       <Printer className="size-4" strokeWidth={1.75} />

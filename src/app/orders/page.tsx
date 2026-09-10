@@ -79,6 +79,7 @@ export default async function OrdersPage() {
                       {o.shortCode} · {formatEUR(o.totalCents, locale)} ·{" "}
                       {formatBerlinDateTime(o.createdAt, locale)}
                     </p>
+                    <p className="mt-1 text-sm font-medium text-primary">{t.invoiceDoc}</p>
                     {o.status === "DELIVERED" && !o.review ? (
                       <p className="mt-1 text-sm font-medium text-primary">{t.leaveReview}</p>
                     ) : null}

@@ -42,6 +42,7 @@ export async function PanelShell({
       { href: "/admin/restaurants", label: t.restaurants },
       { href: "/admin/orders", label: t.navOrders },
       { href: "/admin/payouts", label: t.navPayouts },
+      { href: "/admin/invoices", label: t.navInvoices },
       { href: "/admin/coupons", label: t.adminCoupons },
       { href: "/admin/users", label: t.adminUsers },
       { href: "/admin/security", label: t.adminSecurity },

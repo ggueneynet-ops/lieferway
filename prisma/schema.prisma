@@ -73,6 +73,7 @@ model Restaurant {
   payouts      Payout[]
   serviceAreas RestaurantServiceArea[]
   reviews      Review[]
+  invoices     Invoice[]
 }
 
 model RestaurantServiceArea {
@@ -151,9 +152,10 @@ model Order {
   acceptedAt            DateTime?
   deliveredAt           DateTime?
 
-  items   OrderItem[]
-  review  Review?
-  notices CustomerNotice[]
+  items    OrderItem[]
+  review   Review?
+  notices  CustomerNotice[]
+  invoices Invoice[]
 }
 
 model CustomerNotice {
@@ -220,6 +222,28 @@ model Payout {
   createdAt              DateTime   @default(now())
 
   @@unique([restaurantId, weekStart])
+}
+
+model Invoice {
+  id           String    @id @default(cuid())
+  type         String
+  status       String    @default("ISSUED")
+  number       String    @unique
+  orderId      String?
+  order        Order?    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  restaurantId String?
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  customerId   String?
+  periodStart  DateTime?
+  periodEnd    DateTime?
+  pdfPath      String
+  totalCents   Int
+  locale       String    @default("de")
+  createdAt    DateTime  @default(now())
+
+  @@index([orderId])
+  @@index([restaurantId, type])
+  @@index([customerId])
 }
 
 model PartnerApplication {

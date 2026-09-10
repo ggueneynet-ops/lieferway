@@ -59,6 +59,7 @@ export async function notifyCustomerOfOrderStatus(orderId: string, status: strin
     if (!order) return;
 
     const locale = parseLocale(order.customer.locale);
+    const t = dict(locale);
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://127.0.0.1:43123").replace(/\/$/, "");
     const copy = noticeCopy(status, locale, {
       restaurant: order.restaurant.name,
@@ -68,11 +69,27 @@ export async function notifyCustomerOfOrderStatus(orderId: string, status: strin
     });
     const subject = `Lieferway · ${order.shortCode} · ${copy.title}`;
     const link = `${appUrl}/orders/${order.id}`;
+    let attachments: { filename: string; content: Buffer; contentType: string }[] | undefined;
+    let invoiceLine = "";
+    if (status === "PLACED") {
+      try {
+        const { ensureCustomerInvoice, readInvoicePdf } = await import("@/lib/invoices");
+        const invoice = await ensureCustomerInvoice(order.id);
+        const pdf = await readInvoicePdf(invoice);
+        attachments = [{ filename: `${invoice.number}.pdf`, content: pdf, contentType: "application/pdf" }];
+        invoiceLine = `\n${interpolate(t.invoiceEmailBody, { code: order.shortCode, restaurant: order.restaurant.name })}\n`;
+      } catch (invErr) {
+        console.error("customer invoice", invErr);
+      }
+    }
     const mailed = await sendCustomerEmail({
       to: order.customer.email,
       subject,
-      text: `${copy.title}\n\n${copy.body}\n\n${link}\n`,
-      html: `<p><strong>${escapeHtml(copy.title)}</strong></p><p>${escapeHtml(copy.body)}</p><p><a href="${link}">Bestellung ansehen</a></p>`,
+      text: `${copy.title}\n\n${copy.body}${invoiceLine}\n\n${link}\n`,
+      html: `<p><strong>${escapeHtml(copy.title)}</strong></p><p>${escapeHtml(copy.body)}</p>${
+        invoiceLine ? `<p>${escapeHtml(invoiceLine.trim())}</p>` : ""
+      }<p><a href="${link}">Bestellung ansehen</a></p>`,
+      attachments,
     });
 
     // Bound SQL: Prisma 6's long-lived Next worker can reject newer scalar

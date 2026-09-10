@@ -82,6 +82,13 @@ export default async function OrderDetailPage({
               ) : null}
             </p>
           ) : null}
+          <a
+            href={`/api/orders/${order.id}/invoice`}
+            className="mt-4 inline-flex h-12 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-white"
+          >
+            {t.invoiceDownload}
+          </a>
+          <p className="mt-2 text-xs text-[#6B7280]">{t.invoiceNotBon}</p>
           <p className="mt-2 text-sm text-muted-foreground">
             {order.street}, {order.postalCode} {order.city}
           </p>
