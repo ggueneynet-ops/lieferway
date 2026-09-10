@@ -20,13 +20,16 @@ export function AccountMenu({
   locale,
   className = "",
   iconOnly = false,
+  localeInMenu = "mobile",
 }: {
   user: SessionUser | null;
   locale: Locale;
   className?: string;
   iconOnly?: boolean;
+  localeInMenu?: "mobile" | "always";
 }) {
   const copy = t(locale);
+  const localeClass = localeInMenu === "always" ? "" : "sm:hidden";
 
   if (!user) {
     return (
@@ -68,7 +71,7 @@ export function AccountMenu({
       </summary>
       <div className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded-xl border border-border bg-surface py-1 shadow-lg">
         <p className="truncate px-3 py-2 text-xs text-text-secondary">{user.email}</p>
-        <div className="px-3 pb-2 pt-1 sm:hidden">
+        <div className={`px-3 pb-2 pt-1 ${localeClass}`}>
           <p className="pb-1.5 text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">{copy.language}</p>
           <LocaleToggle />
         </div>

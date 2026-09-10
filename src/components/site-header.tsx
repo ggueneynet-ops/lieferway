@@ -47,17 +47,13 @@ export async function SiteHeader({
           km={activeKm}
         />
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
-          <div className="hidden sm:block">
-            <LocaleToggle />
-          </div>
-          {app ? (
+          {app ? null : (
             <div className="hidden sm:block">
-              <CartButton compact />
+              <LocaleToggle />
             </div>
-          ) : (
-            <CartButton compact />
           )}
-          <AccountMenu user={user} locale={locale} iconOnly={app} />
+          {app ? null : <CartButton compact />}
+          <AccountMenu user={user} locale={locale} iconOnly={app} localeInMenu={app ? "always" : "mobile"} />
         </div>
       </div>
     </header>
