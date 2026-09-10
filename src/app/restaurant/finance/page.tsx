@@ -47,7 +47,7 @@ export default async function RestaurantFinancePage() {
   }) {
     const payout = food - commission;
     return (
-      <section className="rounded-2xl border border-[#E5E7EB] bg-white p-4">
+      <section className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-[0_6px_18px_rgba(17,24,39,0.04)]">
         <h2 className="text-sm font-semibold text-[#6B7280]">{title}</h2>
         <dl className="mt-3 space-y-2 text-[15px]">
           <div className="flex justify-between gap-3">
@@ -60,7 +60,7 @@ export default async function RestaurantFinancePage() {
           </div>
           <div className="flex items-baseline justify-between gap-3 border-t border-[#F3F4F6] pt-3">
             <dt className="text-base font-bold text-[#111827]">{t.rpPayoutToRestaurant}</dt>
-            <dd className="text-2xl font-bold tabular-nums text-[#E91E63]">{formatEUR(payout, locale)}</dd>
+            <dd className="text-[1.65rem] font-bold tabular-nums text-[#E91E63]">{formatEUR(payout, locale)}</dd>
           </div>
         </dl>
       </section>
@@ -69,7 +69,7 @@ export default async function RestaurantFinancePage() {
 
   return (
     <RestaurantAppShell title={t.rpFinance} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
-      <h1 className="mb-1 text-lg font-semibold">{t.rpFinance}</h1>
+      <h1 className="mb-1 font-display text-xl font-semibold tracking-tight">{t.rpFinance}</h1>
       <p className="mb-4 text-sm text-[#6B7280]">{t.rpFinanceHint}</p>
       <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-[#111827]">
         {t.eInvoiceComing}
@@ -89,7 +89,10 @@ export default async function RestaurantFinancePage() {
                     {open ? t.commissionInvoiceDraft : t.commissionInvoice}
                   </span>
                 </span>
-                <a href={`/api/invoices/commission?month=${key}`} className="shrink-0 font-medium text-primary">
+                <a
+                  href={`/api/invoices/commission?month=${key}`}
+                  className="inline-flex h-11 shrink-0 items-center rounded-xl bg-[#E91E63] px-4 text-sm font-semibold text-white hover:bg-[#C2185B]"
+                >
                   {t.downloadPdf}
                 </a>
               </li>
@@ -97,7 +100,7 @@ export default async function RestaurantFinancePage() {
           })}
         </ul>
       </section>
-      <p className="mb-4 rounded-2xl bg-white px-4 py-3 text-sm">
+      <p className="mb-4 rounded-2xl border border-[#F8BBD0] bg-[#FCE4EC]/70 px-4 py-3 text-sm">
         <span className="font-semibold text-[#111827]">{t.rpNextPayout}: </span>
         {next.isToday ? t.rpPayoutMonday : mondayLabel}
       </p>

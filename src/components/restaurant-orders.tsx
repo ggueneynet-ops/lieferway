@@ -337,17 +337,17 @@ export function RestaurantOrders({
         </div>
       </div>
 
-      <section className="mb-4">
-        <h2 className="mb-2 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-[#6B7280]">
+      <section className="mb-5">
+        <h2 className="mb-3 flex items-center gap-2 font-display text-[1.2rem] font-semibold tracking-tight text-[#111827]">
           {t.rpNewOrder}
           {incoming.length > 0 ? (
-            <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold normal-case text-white">
+            <span className="rounded-full bg-[#E91E63] px-2.5 py-0.5 text-[12px] font-bold text-white">
               {incoming.length}
             </span>
           ) : null}
         </h2>
         {incoming.length === 0 ? (
-          <p className="rounded-2xl border border-[#E5E7EB] bg-white p-4 text-[14px] text-[#6B7280]">
+          <p className="rounded-2xl border border-[#F8BBD0] bg-white p-4 text-[14px] text-[#6B7280] shadow-[0_6px_18px_rgba(233,30,99,0.06)]">
             {t.noIncoming}
             <span className="mt-1 block text-[13px]">{interpolate(t.kitchenVenueHint, { name: restaurantName })}</span>
           </p>
@@ -384,7 +384,7 @@ export function RestaurantOrders({
                       type="button"
                       disabled={pending.has(o.id)}
                       onClick={() => setPicking(o.id)}
-                      className="h-12 min-w-32 flex-1 touch-manipulation rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                      className="h-14 min-w-32 flex-1 touch-manipulation rounded-2xl bg-[#E91E63] px-6 text-base font-semibold text-white hover:bg-[#C2185B] disabled:opacity-50"
                     >
                       {t.accept}
                     </button>
@@ -392,7 +392,7 @@ export function RestaurantOrders({
                       type="button"
                       disabled={pending.has(o.id)}
                       onClick={() => act(o.id, "reject")}
-                      className="h-12 flex-1 rounded-xl border border-[#E5E7EB] bg-white px-6 text-base font-medium text-[#111827] disabled:opacity-50"
+                      className="h-14 flex-1 rounded-2xl border border-[#E5E7EB] bg-white px-6 text-base font-semibold text-[#111827] disabled:opacity-50"
                     >
                       {t.reject}
                     </button>
@@ -405,7 +405,7 @@ export function RestaurantOrders({
       </section>
 
       <section>
-        <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-[#6B7280]">{t.kitchen}</h2>
+        <h2 className="mb-3 font-display text-[1.05rem] font-semibold tracking-tight text-[#111827]">{t.kitchen}</h2>
         <div className="space-y-3">
           {active.map((o) => (
             <OrderCard
@@ -446,7 +446,7 @@ export function RestaurantOrders({
                   type="button"
                   disabled={pending.has(o.id)}
                   onClick={() => act(o.id, "ready")}
-                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                  className="h-14 w-full rounded-2xl bg-[#E91E63] px-6 text-base font-semibold text-white hover:bg-[#C2185B] disabled:opacity-50"
                 >
                   {isPickup(o.fulfillmentType) ? t.rpReadyPickup : t.rpReadyCta}
                 </button>
@@ -456,7 +456,7 @@ export function RestaurantOrders({
                   type="button"
                   disabled={pending.has(o.id)}
                   onClick={() => act(o.id, "deliver")}
-                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                  className="h-14 w-full rounded-2xl bg-[#E91E63] px-6 text-base font-semibold text-white hover:bg-[#C2185B] disabled:opacity-50"
                 >
                   {t.rpMarkPickedUp}
                 </button>
@@ -466,7 +466,7 @@ export function RestaurantOrders({
                   type="button"
                   disabled={pending.has(o.id)}
                   onClick={() => act(o.id, "out")}
-                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                  className="h-14 w-full rounded-2xl bg-[#E91E63] px-6 text-base font-semibold text-white hover:bg-[#C2185B] disabled:opacity-50"
                 >
                   {t.rpOnTheWay}
                 </button>
@@ -476,7 +476,7 @@ export function RestaurantOrders({
                   type="button"
                   disabled={pending.has(o.id)}
                   onClick={() => act(o.id, "deliver")}
-                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                  className="h-14 w-full rounded-2xl bg-[#E91E63] px-6 text-base font-semibold text-white hover:bg-[#C2185B] disabled:opacity-50"
                 >
                   {t.markDelivered}
                 </button>
@@ -490,6 +490,20 @@ export function RestaurantOrders({
           )}
         </div>
       </section>
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <Link
+          href="/restaurant/menu"
+          className="flex h-14 items-center justify-center rounded-2xl bg-[#E91E63] px-3 text-sm font-semibold text-white hover:bg-[#C2185B]"
+        >
+          {t.navMenu}
+        </Link>
+        <Link
+          href="/restaurant/finance"
+          className="flex h-14 items-center justify-center rounded-2xl border border-[#F8BBD0] bg-white px-3 text-sm font-semibold text-[#C2185B]"
+        >
+          {t.rpFinance}
+        </Link>
+      </div>
       <p className="mt-4 text-sm text-[#6B7280]">
         <Link href="/restaurant/orders" className="font-medium text-primary">
           {t.ordersCount}
@@ -530,7 +544,7 @@ function OrderCard({
       className={`rounded-2xl border bg-white p-4 ${highlight ? "lw-new-ticket shadow-[0_8px_24px_rgba(233,30,99,0.12)]" : "border-[#E5E7EB]"}`}
     >
       {kicker ? (
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">{kicker}</p>
+        <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#E91E63]">{kicker}</p>
       ) : null}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
@@ -637,7 +651,7 @@ function PrepTimePicker({
             type="button"
             disabled={disabled}
             onClick={() => onPick(min)}
-            className="h-12 min-w-[3.25rem] flex-1 touch-manipulation rounded-xl bg-primary px-2 text-sm font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+            className="h-12 min-w-[3.25rem] flex-1 touch-manipulation rounded-xl bg-[#E91E63] px-2 text-sm font-semibold text-white hover:bg-[#C2185B] disabled:opacity-50"
           >
             {min}
           </button>
@@ -670,7 +684,7 @@ function PrepTimePicker({
           type="button"
           disabled={disabled}
           onClick={submitCustom}
-          className="h-12 shrink-0 touch-manipulation rounded-xl bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
+          className="h-12 shrink-0 touch-manipulation rounded-xl bg-[#E91E63] px-4 text-sm font-semibold text-white disabled:opacity-50"
         >
           {t.accept}
         </button>

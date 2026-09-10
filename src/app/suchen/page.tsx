@@ -57,7 +57,7 @@ export default async function SearchPage({
         <p className="mt-6 text-sm text-text-secondary">
           {filtered.length} {t.restaurants}
         </p>
-        <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => (
             <RestaurantCard
               key={r.id}

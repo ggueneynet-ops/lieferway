@@ -19,7 +19,7 @@ export type RestaurantCardData = {
   etaMin: number;
   etaMax: number;
   isOpen: boolean;
-    pickupAllowed?: boolean;
+  pickupAllowed?: boolean;
   launchWeekFreeDelivery?: boolean;
 };
 
@@ -77,7 +77,7 @@ export function RestaurantCard({
   return (
     <Link
       href={`/${r.slug}`}
-      className="group block overflow-hidden rounded-[20px] border border-[#E5E7EB] bg-white shadow-[0_8px_24px_rgba(17,24,39,0.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(17,24,39,0.08)]"
+      className="group block overflow-hidden rounded-[18px] border border-[#E5E7EB] bg-white shadow-[0_6px_20px_rgba(17,24,39,0.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(17,24,39,0.09)]"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-[#F3F4F6]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -91,77 +91,62 @@ export function RestaurantCard({
             {closedLabel}
           </div>
         )}
-        <div className="absolute left-2.5 top-2.5 flex max-w-[82%] flex-wrap gap-1.5">
+        <div className="absolute left-2 top-2 flex max-w-[86%] flex-wrap gap-1">
           {popular && popularLabel ? (
-            <span className="rounded-full bg-[#E91E63] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-[#E91E63] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white shadow-[0_2px_8px_rgba(233,30,99,0.35)]">
               {popularLabel}
             </span>
           ) : null}
           {isNew && newLabel ? (
-            <span className="rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-[#111827] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
               {newLabel}
             </span>
           ) : null}
           {selfDeliveryLabel ? (
-            <span className="rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-[#C2185B] shadow-sm">
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#C2185B] shadow-[0_2px_8px_rgba(17,24,39,0.12)] ring-1 ring-[#F8BBD0]">
               {selfDeliveryLabel}
             </span>
           ) : null}
           {launchWeek && launchWeekLabel ? (
-            <span className="rounded-full bg-[#1A2744] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-[#1A2744] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
               {launchWeekLabel}
             </span>
           ) : null}
-          {free && freeDeliveryLabel ? (
-            <span className="rounded-full bg-[#111827]/80 px-2 py-0.5 text-[10px] font-semibold text-white">
-              {freeDeliveryLabel}
-            </span>
-          ) : null}
         </div>
-        <span className="absolute bottom-2.5 left-2.5 rounded-[12px] bg-white p-[3px] shadow-[0_2px_8px_rgba(17,24,39,0.12)]">
-          <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={36} />
+        <span className="absolute bottom-2 left-2 rounded-[11px] bg-white p-[2px] shadow-[0_2px_8px_rgba(17,24,39,0.14)]">
+          <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={34} />
         </span>
       </div>
-      <div className="px-4 pb-4 pt-3">
-        <div className="flex items-start justify-between gap-3">
+      <div className="px-3.5 pb-3.5 pt-2.5">
+        <div className="flex items-start justify-between gap-2">
           <h3 className="min-w-0 truncate font-display text-[16px] font-semibold leading-snug tracking-tight text-[#111827]">
             {r.name}
           </h3>
-          {isNew && newLabel && !popular ? (
-            <span className="mt-0.5 shrink-0 rounded-full bg-[#FCE4EC] px-2 py-0.5 text-[11px] font-semibold text-[#C2185B]">
-              {newLabel}
-            </span>
-          ) : (
-            <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-[13px] font-semibold text-[#111827]">
-              <Star className="size-3.5 fill-[#111827] text-[#111827]" />
-              {r.rating.toFixed(1)}
-              <span className="font-medium text-[#9CA3AF]">({r.reviewCount})</span>
-            </span>
-          )}
+          <span className="mt-0.5 inline-flex shrink-0 items-center gap-0.5 text-[13px] font-semibold text-[#111827]">
+            <Star className="size-3.5 fill-[#E91E63] text-[#E91E63]" />
+            {r.rating.toFixed(1)}
+            <span className="font-medium text-[#9CA3AF]">({r.reviewCount})</span>
+          </span>
         </div>
-        <p className="mt-1 truncate text-[13px] text-[#6B7280]">
-          {cuisineLabel ?? r.cuisine}
-          <span className="text-[#D1D5DB]"> · </span>
-          <span className="inline-flex items-baseline gap-1">
-            <Clock className="relative top-px inline size-3" strokeWidth={1.75} />
+        <p className="mt-0.5 truncate text-[13px] font-medium text-[#6B7280]">{cuisineLabel ?? r.cuisine}</p>
+        <div className="mt-2.5 grid grid-cols-3 gap-1 rounded-[12px] bg-[#FAFAFA] px-2 py-1.5 text-center text-[11px] font-medium text-[#4B5563]">
+          <span className="inline-flex items-center justify-center gap-1">
+            <Clock className="size-3 text-[#E91E63]" strokeWidth={2} />
             {r.etaMin}–{r.etaMax} Min.
           </span>
-        </p>
-        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[#6B7280]">
-          <span>
+          <span className="border-x border-[#EDEDED]">
             {minLabel} {formatEUR(r.minOrderCents)}
           </span>
-          <span className="text-[#D1D5DB]">·</span>
-          <span className={free || pickup ? "font-medium text-[#C2185B]" : ""}>
+          <span className={`truncate ${free || pickup ? "font-semibold text-[#C2185B]" : ""}`}>
             {pickup && pickupFeeLabel
               ? pickupFeeLabel
               : free && freeDeliveryLabel
                 ? freeDeliveryLabel
                 : `${formatEUR(r.deliveryFeeCents)}${feeLabel ? ` ${feeLabel}` : ""}`}
           </span>
-        </p>
+        </div>
         {r.pickupAllowed && pickupLabel ? (
-          <p className="mt-2 text-[11px] font-medium text-[#C2185B]">{pickupLabel}</p>
+          <p className="mt-1.5 text-[11px] font-medium text-[#C2185B]">{pickupLabel}</p>
         ) : null}
       </div>
     </Link>

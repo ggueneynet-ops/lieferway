@@ -23,9 +23,9 @@ export async function MenuEditor({
 }) {
   const { t, locale } = await getCopy();
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
-      <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-ink">{t.addItem}</h2>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <section className="rounded-2xl border border-[#F8BBD0]/70 bg-white p-5 shadow-[0_8px_24px_rgba(233,30,99,0.06)]">
+        <h2 className="font-display text-xl font-semibold text-[#111827]">{t.addItem}</h2>
         <p className="mt-1 text-sm text-text-secondary">{t.addItemHint}</p>
         <form action="/restaurant/menu/add" method="post" className="mt-5 space-y-4">
           <div>
@@ -89,14 +89,14 @@ export async function MenuEditor({
               placeholder={t.photoHint}
             />
           </div>
-          <button type="submit" className="h-14 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed">
+          <button type="submit" className="h-14 w-full rounded-2xl bg-[#E91E63] text-base font-semibold text-white hover:bg-[#C2185B]">
             {t.save}
           </button>
           </form>
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-ink">{t.menuTitle}</h2>
+          <h2 className="mb-3 font-display text-xl font-semibold text-[#111827]">{t.menuTitle}</h2>
         <div className="space-y-3">
           {categories.map((cat) => (
             <div key={cat.id} className="rounded-2xl border border-border bg-surface">
@@ -133,7 +133,7 @@ export async function MenuEditor({
                               defaultValue={(item.priceCents / 100).toFixed(2).replace(".", ",")}
                               className="h-11 w-[4.5rem] rounded-lg border border-border px-2 text-sm"
                             />
-                            <button type="submit" className="h-11 rounded-xl border border-border px-2 text-sm">
+                            <button type="submit" className="h-11 rounded-xl bg-[#E91E63] px-3 text-sm font-semibold text-white">
                               {t.save}
                             </button>
                           </form>

@@ -22,7 +22,7 @@ import { HeroSearch } from "@/components/hero-search";
 import { HeroCollage } from "@/components/hero-collage";
 import { HeroTrust } from "@/components/hero-trust";
 import { WhyLieferway } from "@/components/why-lieferway";
-import { PromoBand } from "@/components/promo-band";
+import { LaunchWeekBanner } from "@/components/launch-week-banner";
 import { RadiusChips } from "@/components/radius-chips";
 import { MarketFulfillmentSwitch } from "@/components/market-fulfillment";
 import { SPLASH_COOKIE } from "@/lib/splash";
@@ -64,7 +64,7 @@ export default async function Home({
       <main className="flex-1 bg-[#FAFAFA]">
         <section className="lw-hero">
           <div className="lw-hero-wash" aria-hidden />
-          <div className="lw-wrap relative py-10 sm:py-16">
+          <div className="lw-wrap relative py-8 sm:py-12">
             <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
               <div>
                 <p className="text-sm font-medium text-[#6B7280]">{copy.city}</p>
@@ -86,6 +86,7 @@ export default async function Home({
                     km={km}
                   />
                 </div>
+                <LaunchWeekBanner />
                 <HeroTrust
                   openCount={openCount}
                   openLabel={copy.heroTrustOpen}
@@ -101,20 +102,16 @@ export default async function Home({
         <WhyLieferway />
 
         <section className="bg-[#FCE4EC]/25">
-          <div className="lw-wrap pt-8 pb-6">
+          <div className="lw-wrap pt-6 pb-5">
             {plz ? <RadiusChips plz={plz} q={q} cuisine={cuisine} km={km} /> : null}
-            <div className="mt-7">
+            <div className="mt-4">
               <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
             </div>
           </div>
         </section>
 
-        <div className="pt-6">
-          <PromoBand />
-        </div>
-
-        <section id="restaurants" className="lw-wrap pt-8 pb-20">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <section id="restaurants" className="lw-wrap pt-6 pb-20">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <HomeSectionTitle count={filtered.length} plz={plz} km={plz ? km : undefined} />
             <DemoModeChip />
           </div>
@@ -130,7 +127,7 @@ export default async function Home({
               {plz ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((r) => (
                 <RestaurantCard
                   key={r.id}
