@@ -1,4 +1,3 @@
-import type { Prisma } from "@prisma/client";
 import { getSession, requireSession } from "@/lib/auth";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
@@ -112,23 +111,24 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return fail("Diese Statusänderung ist nicht erlaubt.");
     }
 
-    // Prisma 6 rejects scalar FKs (`courierId`) on OrderUpdateInput. Use the
-    // relation API, and skip courier entirely when it did not change (Annehmen).
-    const data: Prisma.OrderUpdateInput = {
+    // Prisma 6's update() validator in the long-lived Next worker rejects scalar
+    // FKs and sometimes newer columns (prepMinutes). Write via bound SQL, then read.
+    await prisma.$executeRawUnsafe(
+      `UPDATE "Order" SET "status" = ?, "prepMinutes" = ?, "acceptedAt" = ?, "deliveredAt" = ?, "courierId" = ?, "updatedAt" = ? WHERE "id" = ?`,
       status,
-      acceptedAt,
-      deliveredAt,
       prepMinutes,
-    };
-    if (courierId !== order.courierId) {
-      data.courier = courierId ? { connect: { id: courierId } } : { disconnect: true };
-    }
+      acceptedAt ? acceptedAt.toISOString() : null,
+      deliveredAt ? deliveredAt.toISOString() : null,
+      courierId,
+      new Date().toISOString(),
+      id,
+    );
 
-    const updated = await prisma.order.update({
+    const updated = await prisma.order.findUnique({
       where: { id },
-      data,
       include,
     });
+    if (!updated) return fail("Bestellung nicht gefunden.", 404);
 
     if (updated.status === "DELIVERED") {
       await regeneratePayouts();

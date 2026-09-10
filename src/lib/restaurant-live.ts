@@ -57,7 +57,7 @@ export function serializeKitchenOrder(o: {
 }
 
 export function kitchenSignature(orders: KitchenOrder[]) {
-  return orders.map((o) => `${o.id}:${o.status}:${o.createdAt}`).join("|");
+  return orders.map((o) => `${o.id}:${o.status}:${o.prepMinutes ?? ""}:${o.createdAt}`).join("|");
 }
 
 export async function resolveKitchenRestaurant(opts: {
