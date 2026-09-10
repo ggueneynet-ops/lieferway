@@ -52,7 +52,7 @@ export function SplashIntro() {
     >
       <span className="lw-splash-mark">
         <img
-          src="/logo-master-a.png?v=9"
+          src="/logo-master-a.png?v=10"
           alt="Lieferway"
           width={260}
           height={198}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const ASSET = "v=9";
+const ASSET = "v=10";
 
 /** Single-piece lockup (icon + wordmark). Never add a second “Lieferway” label beside it. */
 export function Logo({
