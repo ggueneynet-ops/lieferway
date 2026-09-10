@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart-provider";
 import { useI18n } from "@/components/locale-provider";
@@ -16,6 +15,7 @@ export function CartButton({ compact = false }: { compact?: boolean }) {
         onClick={openCart}
         className="relative inline-flex size-10 items-center justify-center rounded-xl text-ink hover:bg-muted"
         aria-label={t.cart}
+        data-cart-trigger="header"
       >
         <ShoppingBag className="size-5" />
         {count > 0 && (
@@ -31,6 +31,7 @@ export function CartButton({ compact = false }: { compact?: boolean }) {
     <button
       type="button"
       onClick={openCart}
+      data-cart-trigger="header"
       className="relative inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary-pressed sm:h-11"
     >
       <ShoppingBag className="size-4" />
@@ -41,14 +42,5 @@ export function CartButton({ compact = false }: { compact?: boolean }) {
         </span>
       )}
     </button>
-  );
-}
-
-export function CartPageLink() {
-  const { t } = useI18n();
-  return (
-    <Link href="/cart" className="sr-only">
-      {t.cart}
-    </Link>
   );
 }

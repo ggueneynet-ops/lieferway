@@ -24,6 +24,7 @@ export function StickyCartBar() {
         <button
           type="button"
           onClick={openCart}
+          data-cart-trigger="bar"
           className="flex h-12 w-full items-center justify-between rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(233,30,99,0.35)]"
         >
           <span className="inline-flex items-center gap-2">
