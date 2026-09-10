@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-/** Dedicated Bon tab: ticket document in an iframe, then window.print() on that document. */
+/** Dedicated Lieferbon tab: ticket document in an iframe, then window.print() on that document. */
 export function BonPrintFrame({ html }: { html: string }) {
   const ref = useRef<HTMLIFrameElement>(null);
 
@@ -33,7 +33,7 @@ export function BonPrintFrame({ html }: { html: string }) {
   return (
     <iframe
       ref={ref}
-      title="Bon"
+      title="Lieferbon"
       srcDoc={html}
       className="lw-bon-frame"
       style={{

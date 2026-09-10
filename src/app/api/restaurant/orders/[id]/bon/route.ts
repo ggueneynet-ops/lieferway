@@ -60,6 +60,6 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);
     if (msg === "FORBIDDEN") return fail("Keine Berechtigung.", 403);
-    return fail("Bon nicht verfügbar.", 500);
+    return fail("Lieferbon nicht verfügbar.", 500);
   }
 }

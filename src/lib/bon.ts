@@ -53,7 +53,7 @@ export function resolveBonBrand(restaurant: BonRestaurant): { logoSrc: string | 
   return { logoSrc: null, initials };
 }
 
-/** Embed /public files as data URIs so Drucken/Bon works in about:blank popups. */
+/** Embed /public files as data URIs so Lieferbon print works in about:blank popups. */
 export function embedPublicFile(urlPath: string): string | null {
   const clean = urlPath.split("?")[0].split("#")[0];
   if (!clean.startsWith("/") || clean.startsWith("//") || clean.includes("..")) return null;
@@ -127,7 +127,7 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bon ${escapeHtml(order.shortCode)}</title>
+  <title>Lieferbon ${escapeHtml(order.shortCode)}</title>
   <style>
     @page { size: 80mm auto; margin: 3mm; }
     * { box-sizing: border-box; }
@@ -174,9 +174,16 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
     h1 {
       font-size: 20px;
       font-weight: 700;
-      margin: 0 0 6px;
+      margin: 0 0 2px;
       line-height: 1.15;
       text-align: center;
+    }
+    .kind {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 8px;
     }
     .code {
       font-size: 28px;
@@ -227,6 +234,7 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
           : `<div class="initials">${escapeHtml(order.initials)}</div>`
       }
       <h1>${escapeHtml(order.restaurantName)}</h1>
+      <p class="kind">${escapeHtml(t.lieferbonTitle)}</p>
     </div>
     <p class="code">${escapeHtml(order.shortCode)}</p>
     <p class="when">${escapeHtml(when)}</p>
