@@ -30,7 +30,7 @@ export function CuisineRow({
   ];
 
   return (
-    <div className="no-scrollbar flex gap-3 overflow-x-auto px-4 py-3">
+    <div className="no-scrollbar flex gap-3 overflow-x-auto px-4 py-4">
       {items.map((item) => (
         <Link
           key={item.key}

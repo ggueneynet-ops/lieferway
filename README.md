@@ -1,6 +1,6 @@
 # Lieferway
 
-Germany-focused food delivery for Frankfurt am Main. Customers pay the **platform**. Restaurants keep food minus commission (default **5%**). Delivery fee stays with Lieferway. Weekly restaurant payouts on **Monday**.
+Germany-focused food delivery for Frankfurt am Main. Customers pay the **platform**. **The restaurant delivers the order itself** (no courier marketplace). Restaurants keep food minus commission (default **5%**). Delivery fee stays with Lieferway. Weekly restaurant payouts on **Monday**.
 
 Web: Next.js App Router · TypeScript · Tailwind · shadcn/ui  
 Mobile: Expo (React Native) against the same API  
@@ -10,13 +10,13 @@ Data: Prisma + SQLite
 
 Password for all accounts: `lieferway`
 
-| Role | E-Mail |
-| --- | --- |
-| Customer | `kunde@lieferway.de` |
-| Customer (TR locale) | `muster@lieferway.de` |
-| Restaurant (Anadolu Grill) | `restaurant@lieferway.de` |
-| Courier | `kurier@lieferway.de` |
-| Admin | `admin@lieferway.de` |
+| Role | E-Mail | Public? |
+| --- | --- | --- |
+| Customer | `kunde@lieferway.de` | Yes |
+| Customer (TR locale) | `muster@lieferway.de` | Yes |
+| Restaurant (Anadolu Grill) | `restaurant@lieferway.de` | Partner login in footer |
+| Admin | `admin@lieferway.de` | Hidden `/admin` only |
+| Courier (legacy) | `kurier@lieferway.de` | Hidden `/courier` — not a marketplace |
 
 Coupons: `WILLKOMMEN10`, `FRANKFURT`, `HOSGELDIN`.
 
@@ -46,10 +46,9 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 - Customer: browse seeded Frankfurt restaurants, menu, cart, checkout, live status
 - Payments: Stripe **mock** (card / Apple Pay / Google Pay UI) + cash. Structure in `src/lib/payments.ts` for a real Stripe swap later
-- Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell** (mute) and flash/badge. Admin creates venue + owner (`lieferway`) and shows credentials once.
-- Courier: claim READY jobs, out for delivery, delivered (map stub)
-- Admin: restaurants (per-venue commission override), users, orders, courier assign, coupon stub, Monday payout ledger
-- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register` (**phone required**) or **Mit Google anmelden** (then **Telefonnummer angeben** if none on file). Restaurants **apply** at `/partner` / `/partner/anmelden` (pending request only — no login, no panel). Admin approves under **Partneranfragen**, then owner credentials are created (`lieferway`) and shown once. Existing partners log in at `/login?next=/restaurant`. Couriers/admin are still created by admin.
+- Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell**. Restaurant marks orders ready for **its own delivery**.
+- Admin: hidden URL `/admin` (not linked in the public footer). Restaurants, users, orders, Monday payout ledger.
+- Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register` (**phone required**) or **Mit Google anmelden**. Restaurants **apply** at `/partner` / `/partner/anmelden`. Existing partners log in at `/login?next=/restaurant`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
@@ -75,7 +74,7 @@ Partner onboarding is apply-then-review (not self-serve panel signup):
 3. Admin **Partneranfragen**: Approve (creates restaurant + owner, demo password `lieferway`, banner to pass on), mark contacted, or reject.
 4. Customers still register at `/register`. Admin **Restaurants** can still add a venue directly.
 
-Existing Partner-Login / Kurier / Admin links stay **login only**.
+Existing **Partner-Anmeldung** stays in the footer. Admin is only `/admin` (unlisted). There is no public courier signup.
 
 ## Google sign-in (customers)
 

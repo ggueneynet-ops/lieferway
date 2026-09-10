@@ -43,14 +43,21 @@ export function HomeSectionTitle({
       : t.restaurantsInRadius.replace("{count}", n).replace("{plz}", plz).replace("{km}", String(km))
     : `${n} ${t.restaurants} · ${t.city}`;
   return (
-    <h2 className="mb-1 font-display text-[15px] font-semibold text-ink">
+    <h2 className="mb-3 font-display text-base font-semibold tracking-tight text-ink sm:text-[17px]">
       {title}
       {nearby ? <span className="ml-2 text-xs font-normal text-muted-foreground">{t.sortedNearby}</span> : null}
     </h2>
   );
 }
 
-export function AllLabel() {
+export function TrustStrip() {
   const { t } = useI18n();
-  return t.all;
+  return (
+    <section className="border-b border-primary/10 bg-primary-soft/70">
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:py-5">
+        <p className="font-display text-[13px] font-semibold tracking-tight text-ink sm:text-sm">{t.whyLieferway}</p>
+        <p className="mt-1 text-[13px] leading-relaxed text-text-secondary sm:text-sm">{t.trustStrip}</p>
+      </div>
+    </section>
+  );
 }

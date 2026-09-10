@@ -12,9 +12,9 @@ export function CartClient() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
-      <h1 className="text-2xl font-semibold">{t.cart}</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight">{t.cart}</h1>
       {!cart ? (
-        <div className="mt-8 rounded-2xl border bg-white p-8 text-center">
+        <div className="mt-8 rounded-2xl border border-border bg-white p-10 text-center shadow-sm">
           <p className="text-muted-foreground">{t.emptyCart}</p>
           <Button asChild className="mt-4">
             <Link href="/">{t.discoverRestaurants}</Link>
@@ -22,10 +22,13 @@ export function CartClient() {
         </div>
       ) : (
         <div className="mt-6 space-y-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             {cart.restaurantName} · {t.minOrder} {formatEUR(cart.minOrderCents, locale)}
           </p>
-          <ul className="divide-y rounded-2xl border bg-white">
+          <p className="rounded-2xl border border-primary/15 bg-primary-soft/50 px-4 py-3 text-sm leading-relaxed text-ink">
+            {t.restaurantDelivers} {t.restaurantDeliversHint}
+          </p>
+          <ul className="divide-y divide-border/80 overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
             {cart.items.map((item) => (
               <li key={item.menuItemId} className="flex items-center justify-between gap-3 p-4">
                 {item.imageUrl ? (
@@ -48,7 +51,7 @@ export function CartClient() {
               </li>
             ))}
           </ul>
-          <div className="rounded-2xl border bg-white p-4 text-sm">
+          <div className="rounded-2xl border border-border bg-white p-5 text-sm shadow-sm">
             <p className="flex justify-between">
               <span>{t.subtotal}</span>
               <span>{formatEUR(foodSubtotal, locale)}</span>

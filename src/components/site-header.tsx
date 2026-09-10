@@ -38,8 +38,8 @@ export async function SiteHeader({
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white">
       <div className="mx-auto max-w-6xl">
-        <div className="flex h-12 items-center justify-between gap-2 px-3 sm:h-14 sm:px-4">
-          <Logo size="sm" className="shrink-0" />
+        <div className="flex h-14 items-center justify-between gap-2 px-4 sm:h-16">
+          <Logo size="md" className="shrink-0" />
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <LocaleToggle />
             <AccountMenu user={user} locale={locale} />
@@ -51,7 +51,7 @@ export async function SiteHeader({
             </span>
           </div>
         </div>
-        <div className="space-y-2 px-3 pb-3 sm:px-4">
+        <div className="space-y-2.5 px-4 pb-4">
           <PlzForm
             initialPlz={activePlz ?? ""}
             initialStreet={cookieStore.get(STREET_COOKIE)?.value ?? ""}

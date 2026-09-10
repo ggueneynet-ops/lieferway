@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
-import { HomeSectionTitle } from "@/components/home-copy";
+import { HomeSectionTitle, TrustStrip } from "@/components/home-copy";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
@@ -40,6 +40,7 @@ export default async function Home({
       <SplashIntro />
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} showSearch />
       <main className="flex-1 bg-white">
+        <TrustStrip />
         <div className="border-b border-border">
           <div className="mx-auto max-w-6xl">
             <CuisineRow
@@ -53,7 +54,10 @@ export default async function Home({
           </div>
         </div>
 
-        <section className="mx-auto max-w-6xl px-4 pb-8 pt-4">
+        <section className="mx-auto max-w-6xl px-4 pb-12 pt-6">
+          <p className="mb-4 rounded-2xl border border-primary/15 bg-primary-soft/50 px-4 py-3 text-[13px] leading-relaxed text-ink">
+            {copy.demoMarketplaceNotice}
+          </p>
           <HomeSectionTitle
             kind="restaurants"
             count={filtered.length}
@@ -73,9 +77,9 @@ export default async function Home({
               {plz ? <p className="mt-2 text-sm text-muted-foreground">{copy.plzTryExamples}</p> : null}
             </div>
           ) : (
-            <div className="divide-y divide-border sm:grid sm:grid-cols-2 sm:gap-x-8 sm:divide-y-0 lg:grid-cols-2">
+            <div className="sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-2">
               {filtered.map((r) => (
-                <div key={r.id} className="sm:border-b sm:border-border">
+                <div key={r.id} className="border-b border-border/80">
                   <RestaurantCard
                     r={r}
                     closedLabel={copy.closed}
@@ -85,6 +89,7 @@ export default async function Home({
                     }
                     districtLabel={r.district ?? undefined}
                     minLabel={copy.minOrder}
+                    demoLabel={`${copy.demoBadge} / ${copy.demoExample}`}
                   />
                 </div>
               ))}

@@ -57,7 +57,14 @@ export default async function RestaurantPage({
               <p className="text-xs text-text-secondary">
                 {cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}
               </p>
-              <h1 className="font-display text-xl font-semibold leading-tight sm:text-2xl">{restaurant.name}</h1>
+              <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                <h1 className="font-display text-xl font-semibold leading-tight tracking-tight sm:text-2xl">
+                  {restaurant.name}
+                </h1>
+                <span className="inline-flex rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                  {t.demoBadge} / {t.demoExample}
+                </span>
+              </div>
               <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground sm:text-xs">
                 <span className="inline-flex items-center gap-1">
                   <Star className="size-3 fill-primary text-primary" />
@@ -89,8 +96,11 @@ export default async function RestaurantPage({
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-4 py-5">
-          <p className="mb-6 max-w-2xl text-sm text-muted-foreground">
+          <p className="mb-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {restaurant.address} · {restaurant.description}
+          </p>
+          <p className="mb-6 max-w-2xl rounded-2xl border border-primary/15 bg-primary-soft/50 px-4 py-3 text-sm leading-relaxed text-ink">
+            {t.restaurantDelivers} {t.restaurantDeliversHint}
           </p>
           <MenuClient restaurant={restaurant} />
         </div>

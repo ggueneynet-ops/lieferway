@@ -7,6 +7,7 @@ import { OrderTimeline } from "@/components/order-timeline";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { OrderPoller } from "@/components/order-poller";
+import { getCopy } from "@/lib/get-locale";
 
 export default async function OrderDetailPage({
   params,
@@ -16,16 +17,31 @@ export default async function OrderDetailPage({
   const session = await getSession();
   if (!session) redirect("/login");
   const { id } = await params;
+  const { t, locale } = await getCopy();
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
       items: true,
       restaurant: true,
-      courier: { select: { name: true, phone: true } },
     },
   });
   if (!order) notFound();
   if (session.role === "CUSTOMER" && order.customerId !== session.id) redirect("/orders");
+
+  const payLabel =
+    order.paymentMethod === "CASH"
+      ? t.payCash
+      : order.paymentMethod === "APPLE_PAY"
+        ? t.payApple
+        : order.paymentMethod === "GOOGLE_PAY"
+          ? t.payGoogle
+          : t.payCard;
+  const payStatus =
+    order.paymentStatus === "PAID"
+      ? t.paid
+      : order.paymentStatus === "CASH_ON_DELIVERY"
+        ? t.cashOnDelivery
+        : t.processing;
 
   return (
     <>
@@ -35,17 +51,20 @@ export default async function OrderDetailPage({
         <div>
           <p className="text-sm text-muted-foreground">{order.shortCode}</p>
           <div className="mt-1 flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-semibold">{order.restaurant.name}</h1>
-            <StatusBadge status={order.status} />
+            <h1 className="font-display text-2xl font-semibold tracking-tight">{order.restaurant.name}</h1>
+            <StatusBadge status={order.status} locale={locale} />
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
             {order.street}, {order.postalCode} {order.city}
           </p>
-          <div className="mt-8 rounded-2xl border bg-white p-6">
-            <h2 className="mb-4 font-semibold">Status</h2>
-            <OrderTimeline status={order.status} />
+          <p className="mt-4 rounded-2xl border border-primary/15 bg-primary-soft/50 px-4 py-3 text-sm leading-relaxed text-ink">
+            {t.restaurantDelivers} {t.restaurantDeliversHint}
+          </p>
+          <div className="mt-6 rounded-2xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="mb-4 font-display font-semibold tracking-tight">{t.status}</h2>
+            <OrderTimeline status={order.status} locale={locale} />
           </div>
-          <ul className="mt-6 divide-y rounded-2xl border bg-white">
+          <ul className="mt-6 divide-y divide-border/80 overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
             {order.items.map((item) => (
               <li key={item.id} className="flex justify-between p-4 text-sm">
                 <span>
@@ -56,45 +75,34 @@ export default async function OrderDetailPage({
             ))}
           </ul>
         </div>
-        <aside className="h-fit space-y-4 rounded-2xl border bg-white p-5 text-sm">
-          <h2 className="font-semibold">Zahlung</h2>
+        <aside className="h-fit space-y-4 rounded-2xl border border-border bg-white p-6 text-sm shadow-sm">
+          <h2 className="font-display font-semibold tracking-tight">{t.payToPlatform}</h2>
           <p>
-            {order.paymentMethod === "CASH"
-              ? "Bar bei Lieferung"
-              : order.paymentMethod === "APPLE_PAY"
-                ? "Apple Pay"
-                : order.paymentMethod === "GOOGLE_PAY"
-                  ? "Google Pay"
-                  : "Kreditkarte"}{" "}
-            · {order.paymentStatus === "PAID" ? "bezahlt" : order.paymentStatus === "CASH_ON_DELIVERY" ? "offen (Bar)" : "ausstehend"}
+            {payLabel} · {payStatus}
           </p>
           {order.stripePaymentIntentId && (
             <p className="break-all text-xs text-muted-foreground">{order.stripePaymentIntentId}</p>
           )}
           <p className="flex justify-between">
-            <span>Speisen</span>
+            <span>{t.subtotal}</span>
             <span>{formatEUR(order.foodSubtotalCents)}</span>
           </p>
           {order.discountCents > 0 && (
             <p className="flex justify-between text-emerald-700">
-              <span>Rabatt {order.couponCode}</span>
+              <span>
+                {t.discount} {order.couponCode}
+              </span>
               <span>−{formatEUR(order.discountCents)}</span>
             </p>
           )}
           <p className="flex justify-between text-muted-foreground">
-            <span>Lieferung</span>
+            <span>{t.fee}</span>
             <span>{formatEUR(order.deliveryFeeCents)}</span>
           </p>
           <p className="flex justify-between font-semibold">
-            <span>Gesamt</span>
+            <span>{t.total}</span>
             <span>{formatEUR(order.totalCents)}</span>
           </p>
-          {order.courier && (
-            <p className="border-t pt-3">
-              Kurier: {order.courier.name}
-              {order.courier.phone ? ` · ${order.courier.phone}` : ""}
-            </p>
-          )}
         </aside>
       </main>
       <SiteFooter />

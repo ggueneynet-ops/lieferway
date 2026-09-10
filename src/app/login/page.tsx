@@ -11,14 +11,15 @@ import { LocaleToggle } from "@/components/locale-toggle";
 import { useI18n } from "@/components/locale-provider";
 import { GoogleSignIn } from "@/components/google-sign-in";
 import { loginAction } from "./actions";
-import { isStaffArea } from "@/lib/paths";
+import { isStaffArea, pathIs } from "@/lib/paths";
 
 function LoginForm() {
   const params = useSearchParams();
   const next = params.get("next") ?? "/";
   const error = params.get("error");
-  const preset = params.get("email") ?? "kunde@lieferway.de";
+  const restaurantLogin = pathIs(next, "/restaurant");
   const partner = isStaffArea(next);
+  const preset = params.get("email") ?? (restaurantLogin ? "restaurant@lieferway.de" : "kunde@lieferway.de");
   const { t } = useI18n();
 
   return (
@@ -71,14 +72,12 @@ function LoginForm() {
         <p className="mt-6 text-sm">
           {t.demoCustomer}: <span className="font-medium">kunde@lieferway.de</span>
         </p>
-      ) : (
-        <ul className="mt-6 space-y-1 text-sm text-muted-foreground">
-          <li>{t.restaurantPanel} · restaurant@lieferway.de</li>
-          <li>{t.courierPanel} · kurier@lieferway.de</li>
-          <li>{t.adminPanel} · admin@lieferway.de</li>
-        </ul>
-      )}
-      {partner ? (
+      ) : restaurantLogin ? (
+        <p className="mt-6 text-sm text-muted-foreground">
+          {t.restaurantPanel} · restaurant@lieferway.de
+        </p>
+      ) : null}
+      {restaurantLogin ? (
         <div className="mt-6 space-y-2 text-sm text-muted-foreground">
           <p>{t.partnerNoSignup}</p>
           <p>
@@ -88,7 +87,7 @@ function LoginForm() {
             </Link>
           </p>
         </div>
-      ) : (
+      ) : partner ? null : (
         <p className="mt-6 text-sm">
           {t.noAccountYet}{" "}
           <Link href="/register" className="font-medium text-primary">

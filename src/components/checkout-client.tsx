@@ -153,7 +153,7 @@ export function CheckoutClient() {
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
-        <h1 className="text-2xl font-semibold">{t.checkoutTitle}</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">{t.checkoutTitle}</h1>
         <p className="text-sm text-muted-foreground">{cart.restaurantName}</p>
         {authed === false && (
           <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm">
@@ -166,8 +166,8 @@ export function CheckoutClient() {
         )}
         <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
           <div className="space-y-6">
-            <section className="rounded-2xl border bg-white p-5">
-              <h2 className="font-semibold">{t.address}</h2>
+            <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="font-display text-lg font-semibold tracking-tight">{t.address}</h2>
               <div className="mt-4 grid gap-3">
                 <div>
                   <Label htmlFor="checkout-name">
@@ -216,8 +216,12 @@ export function CheckoutClient() {
                 </div>
               </div>
             </section>
-            <section className="rounded-2xl border bg-white p-5">
-              <h2 className="font-semibold">{t.payToPlatform}</h2>
+            <section className="rounded-2xl border border-primary/20 bg-primary-soft/40 p-6 shadow-sm">
+              <h2 className="font-display text-lg font-semibold tracking-tight">{t.restaurantDelivers}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">{t.restaurantDeliversHint}</p>
+            </section>
+            <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="font-display text-lg font-semibold tracking-tight">{t.payToPlatform}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{t.payHint}</p>
               <div className="mt-4 grid gap-2">
                 {(
@@ -267,8 +271,8 @@ export function CheckoutClient() {
               )}
             </section>
           </div>
-          <aside className="h-fit rounded-2xl border bg-white p-5">
-            <h2 className="font-semibold">{t.summary}</h2>
+          <aside className="h-fit rounded-2xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="font-display text-lg font-semibold tracking-tight">{t.summary}</h2>
             <ul className="mt-3 space-y-1 text-sm">
               {cart.items.map((i) => (
                 <li key={i.menuItemId} className="flex justify-between gap-2">
