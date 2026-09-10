@@ -5,9 +5,10 @@ import { RestaurantLogo } from "@/components/restaurant-logo";
 import { StatusBadge } from "@/components/status-badge";
 import { prisma } from "@/lib/prisma";
 import { getCopy } from "@/lib/get-locale";
-import { cuisineName, dateLocale, type Locale } from "@/lib/i18n";
+import { cuisineName, type Locale } from "@/lib/i18n";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
+import { formatBerlinDateTime } from "@/lib/datetime";
 import {
   parseReportPreset,
   resolveReportRange,
@@ -18,11 +19,7 @@ import {
 export const dynamic = "force-dynamic";
 
 function formatWhen(date: Date, locale: Locale) {
-  return new Intl.DateTimeFormat(dateLocale(locale), {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Europe/Berlin",
-  }).format(date);
+  return formatBerlinDateTime(date, locale);
 }
 
 function Kpi({ label, value, hint }: { label: string; value: string; hint?: string }) {

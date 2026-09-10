@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { interpolate, type Locale } from "@/lib/i18n";
+import { formatBerlinDateTime } from "@/lib/datetime";
 import { useI18n } from "@/components/locale-provider";
 import { toast } from "sonner";
 import type { KitchenOrder } from "@/lib/restaurant-live";
@@ -59,8 +60,7 @@ function playKitchenBell() {
 }
 
 function orderTime(iso: string, locale: Locale) {
-  const tag = locale === "de" ? "de-DE" : locale === "tr" ? "tr-TR" : "en-GB";
-  return new Date(iso).toLocaleTimeString(tag, { hour: "2-digit", minute: "2-digit" });
+  return formatBerlinDateTime(iso, locale);
 }
 
 export function RestaurantOrders({
@@ -253,7 +253,9 @@ export function RestaurantOrders({
     if (!next) playKitchenBell();
   }
 
-  const incoming = orders.filter((o) => o.status === "PLACED");
+  const incoming = orders
+    .filter((o) => o.status === "PLACED")
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0));
   const active = orders.filter((o) => ["ACCEPTED", "PREPARING", "READY", "OUT_FOR_DELIVERY"].includes(o.status));
 
   return (

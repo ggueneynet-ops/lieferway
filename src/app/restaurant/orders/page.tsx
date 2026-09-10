@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCopy } from "@/lib/get-locale";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
-import { dateLocale } from "@/lib/i18n";
+import { formatBerlinDateTime } from "@/lib/datetime";
 
 export const dynamic = "force-dynamic";
 
@@ -24,11 +24,6 @@ export default async function RestaurantOrdersHistoryPage() {
     orderBy: { createdAt: "desc" },
     take: 80,
   });
-  const fmt = new Intl.DateTimeFormat(dateLocale(locale), {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Europe/Berlin",
-  });
 
   return (
     <RestaurantAppShell title={t.ordersCount} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
@@ -44,7 +39,7 @@ export default async function RestaurantOrdersHistoryPage() {
                 <StatusBadge status={o.status} locale={locale} />
               </div>
               <p className="mt-1 text-sm text-[#6B7280]">
-                {fmt.format(o.createdAt)} · {o.customer.name}
+                {formatBerlinDateTime(o.createdAt, locale)} · {o.customer.name}
               </p>
               <p className="mt-1 text-sm font-medium">{formatEUR(o.foodSubtotalCents, locale)}</p>
             </li>

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { getCopy } from "@/lib/get-locale";
-import { dateLocale } from "@/lib/i18n";
+import { formatBerlinDateTime } from "@/lib/datetime";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -21,11 +21,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
     },
   });
   if (!order) notFound();
-  const when = new Intl.DateTimeFormat(dateLocale(locale), {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Europe/Berlin",
-  }).format(order.createdAt);
+  const when = formatBerlinDateTime(order.createdAt, locale);
 
   return (
     <PanelShell roles={["ADMIN"]} title={`${t.orders} ${order.shortCode}`}>

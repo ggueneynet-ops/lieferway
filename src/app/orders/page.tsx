@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
 import { getCopy } from "@/lib/get-locale";
-import { dateLocale } from "@/lib/i18n";
+import { formatBerlinDateTime } from "@/lib/datetime";
 
 export default async function OrdersPage() {
   const session = await getSession();
@@ -51,7 +51,7 @@ export default async function OrdersPage() {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {o.shortCode} · {formatEUR(o.totalCents, locale)} ·{" "}
-                      {new Date(o.createdAt).toLocaleString(dateLocale(locale))}
+                      {formatBerlinDateTime(o.createdAt, locale)}
                     </p>
                   </div>
                 </Link>
