@@ -1,7 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/locale-provider";
 import { RADIUS_COOKIE, RADIUS_PRESETS } from "@/lib/constants";
+import { marketplaceHref } from "@/lib/marketplace";
 
 export function RadiusChips({
   plz,
@@ -15,6 +17,7 @@ export function RadiusChips({
   km: number | null;
 }) {
   const { t } = useI18n();
+  const router = useRouter();
   const options: { value: string; label: string; active: boolean }[] = [
     ...RADIUS_PRESETS.map((n) => ({
       value: String(n),
@@ -26,12 +29,8 @@ export function RadiusChips({
 
   function select(value: string) {
     document.cookie = `${RADIUS_COOKIE}=${encodeURIComponent(value)};path=/;max-age=31536000;SameSite=Lax`;
-    const params = new URLSearchParams();
-    params.set("plz", plz);
-    params.set("km", value);
-    if (q) params.set("q", q);
-    if (cuisine) params.set("cuisine", cuisine);
-    window.location.assign(`/?${params.toString()}`);
+    const nextKm = value === "all" ? null : Number(value);
+    router.replace(marketplaceHref({ plz, q, cuisine, km: nextKm }), { scroll: false });
   }
 
   return (

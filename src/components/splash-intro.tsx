@@ -14,7 +14,11 @@ function prefersReducedMotion() {
 
 export function SplashIntro() {
   const { t } = useI18n();
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    if (prefersReducedMotion() || splashAlreadyShown()) return false;
+    return true;
+  });
   const holdTimer = useRef<number | null>(null);
   const gone = useRef(false);
 
@@ -30,6 +34,7 @@ export function SplashIntro() {
   useLayoutEffect(() => {
     if (prefersReducedMotion() || splashAlreadyShown()) {
       gone.current = true;
+      markSplashShown();
       notifySplashDone();
       setVisible(false);
       return;

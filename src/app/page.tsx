@@ -13,6 +13,7 @@ import { SplashIntro } from "@/components/splash-intro";
 import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { HeroSearch } from "@/components/hero-search";
 import { RadiusChips } from "@/components/radius-chips";
+import { SPLASH_COOKIE } from "@/lib/splash";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export default async function Home({
   const gps = parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value);
   const plz = sanitizeDemoPlz(rawPlz, Boolean(street));
   const km = resolveUserRadius(kmParam, jar.get(RADIUS_COOKIE)?.value);
+  const splashDone = jar.get(SPLASH_COOKIE)?.value === "1";
   const useGps = Boolean(street && gps && rawPlz === plz);
   const origin = resolveOrigin({
     plz,
@@ -39,7 +41,7 @@ export default async function Home({
 
   return (
     <>
-      <SplashIntro />
+      {splashDone ? null : <SplashIntro />}
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-[#FAFAFA]">
         <section className="lw-hero">

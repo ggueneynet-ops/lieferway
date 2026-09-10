@@ -1,12 +1,21 @@
 export const SPLASH_SESSION_KEY = "lw_splash_shown";
+export const SPLASH_COOKIE = "lw_splash_shown";
 export const SPLASH_DONE_EVENT = "lw-splash-done";
 
 export function splashAlreadyShown() {
   try {
-    return sessionStorage.getItem(SPLASH_SESSION_KEY) === "1";
+    if (sessionStorage.getItem(SPLASH_SESSION_KEY) === "1") return true;
   } catch {
-    return false;
+    /* private mode */
   }
+  try {
+    if (typeof document !== "undefined" && document.cookie.split("; ").includes(`${SPLASH_COOKIE}=1`)) {
+      return true;
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
 }
 
 export function markSplashShown() {
@@ -14,6 +23,11 @@ export function markSplashShown() {
     sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
   } catch {
     /* private mode */
+  }
+  try {
+    document.cookie = `${SPLASH_COOKIE}=1;path=/;SameSite=Lax`;
+  } catch {
+    /* ignore */
   }
 }
 
