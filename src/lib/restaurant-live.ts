@@ -89,17 +89,25 @@ export async function loadKitchenSnapshot(restaurantId: string) {
     select: { id: true, name: true, isOpen: true },
   });
   if (!restaurant) return null;
-  const rows = await prisma.order.findMany({
-    where: { restaurantId },
-    include: kitchenOrderInclude,
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
-  const orders = rows.map(serializeKitchenOrder);
+  const [placed, rest] = await Promise.all([
+    prisma.order.findMany({
+      where: { restaurantId, status: "PLACED" },
+      include: kitchenOrderInclude,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.order.findMany({
+      where: { restaurantId, status: { not: "PLACED" } },
+      include: kitchenOrderInclude,
+      orderBy: { createdAt: "desc" },
+      take: 40,
+    }),
+  ]);
+  const seen = new Set(placed.map((o) => o.id));
+  const orders = [...placed, ...rest.filter((o) => !seen.has(o.id))].map(serializeKitchenOrder);
   return {
     restaurant,
     orders,
-    incoming: orders.filter((o) => o.status === "PLACED").length,
+    incoming: placed.length,
     signature: kitchenSignature(orders),
   };
 }

@@ -275,7 +275,7 @@ export function RestaurantOrders({
             </span>
           ) : null}
           <p className="min-w-0 flex-1 text-[13px] text-text-secondary">
-            {t.kitchenLiveHint}
+            {interpolate(t.kitchenVenueHint, { name: restaurantName })}
           </p>
           <Button variant="outline" size="sm" className="h-10" onClick={toggleOpen}>
             {open ? t.closeNow : t.openNow}
@@ -310,7 +310,10 @@ export function RestaurantOrders({
           ) : null}
         </h2>
         {incoming.length === 0 ? (
-          <p className="rounded-2xl border border-[#E5E7EB] bg-white p-4 text-[14px] text-[#6B7280]">{t.noIncoming}</p>
+          <p className="rounded-2xl border border-[#E5E7EB] bg-white p-4 text-[14px] text-[#6B7280]">
+            {t.noIncoming}
+            <span className="mt-1 block text-[13px]">{interpolate(t.kitchenVenueHint, { name: restaurantName })}</span>
+          </p>
         ) : (
           <div className="space-y-3">
             {incoming.map((o) => (
