@@ -238,6 +238,11 @@ export const dictionaries = {
     cancelledOrders: "Storniert / abgelehnt",
     recentOrders: "Letzte Bestellungen",
     noOrdersInPeriod: "Keine Bestellungen in diesem Zeitraum.",
+    ordersHistoryHint:
+      "Neue Bestellungen laufen unter Heute. Hier die Historie — inkl. angenommen und abgelehnt.",
+    filterAllStatuses: "Alle",
+    filterAccepted: "Angenommen",
+    filterRejected: "Abgelehnt",
     reportNote:
       "Umsatz, Giro und Provision ohne stornierte oder abgelehnte Bestellungen. Zeitzone: Europe/Berlin.",
     backToRestaurants: "Zur Restaurantliste",
@@ -728,6 +733,11 @@ export const dictionaries = {
     cancelledOrders: "Cancelled / rejected",
     recentOrders: "Recent orders",
     noOrdersInPeriod: "No orders in this period.",
+    ordersHistoryHint:
+      "New tickets stay on Today. This list is history — including accepted and declined.",
+    filterAllStatuses: "All",
+    filterAccepted: "Accepted",
+    filterRejected: "Declined",
     reportNote:
       "Revenue, GMV and commission exclude cancelled or rejected orders. Time zone: Europe/Berlin.",
     backToRestaurants: "Back to restaurants",
@@ -1218,6 +1228,11 @@ export const dictionaries = {
     cancelledOrders: "İptal / red",
     recentOrders: "Son siparişler",
     noOrdersInPeriod: "Bu dönemde sipariş yok.",
+    ordersHistoryHint:
+      "Yeni siparişler Bugün’de kalır. Burası geçmiş — kabul ve red dahil.",
+    filterAllStatuses: "Tümü",
+    filterAccepted: "Kabul",
+    filterRejected: "Red",
     reportNote:
       "Ciro, GMV ve komisyon iptal veya reddedilen siparişleri içermez. Saat dilimi: Europe/Berlin.",
     backToRestaurants: "Restoran listesine dön",

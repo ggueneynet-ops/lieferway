@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
@@ -533,6 +534,13 @@ export function RestaurantOrders({
           )}
         </div>
       </section>
+      <p className="mt-4 text-sm text-[#6B7280]">
+        <Link href="/restaurant/orders" className="font-medium text-primary">
+          {t.ordersCount}
+        </Link>
+        {" · "}
+        {t.ordersHistoryHint}
+      </p>
     </div>
   );
 }
