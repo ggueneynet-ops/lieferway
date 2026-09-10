@@ -97,12 +97,12 @@ export function RestaurantCard({
         )}
         <div className="absolute left-2.5 top-2.5 flex max-w-[88%] flex-wrap gap-1">
           {popular && popularLabel ? (
-            <span className="rounded-full bg-[#922A49] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-[#E91E63] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
               {popularLabel}
             </span>
           ) : null}
           {launchWeek && launchWeekLabel ? (
-            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#922A49] shadow-sm ring-1 ring-[#E8E8EC]">
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#E91E63] shadow-sm ring-1 ring-[#E8E8EC]">
               {launchWeekLabel}
             </span>
           ) : null}
@@ -115,12 +115,12 @@ export function RestaurantCard({
           </h3>
           {hasReviews ? (
             <span className="mt-0.5 inline-flex shrink-0 items-center gap-0.5 text-[13px] font-semibold text-[#0F172A]">
-              <Star className="size-3.5 fill-[#922A49] text-[#922A49]" />
+              <Star className="size-3.5 fill-[#E91E63] text-[#E91E63]" />
               {r.rating.toFixed(1)}
               <span className="font-medium text-[#94A3B8]">({r.reviewCount})</span>
             </span>
           ) : newLabel ? (
-            <span className="mt-0.5 shrink-0 rounded-full bg-[#FAF3EA] px-2 py-0.5 text-[11px] font-semibold text-[#922A49]">
+            <span className="mt-0.5 shrink-0 rounded-full bg-[#FCE4EC] px-2 py-0.5 text-[11px] font-semibold text-[#E91E63]">
               {newLabel}
             </span>
           ) : null}
@@ -128,13 +128,13 @@ export function RestaurantCard({
         <p className="mt-0.5 truncate text-[13px] font-medium text-[#64748B]">{cuisineLabel ?? r.cuisine}</p>
         <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#64748B]">
           <span className="inline-flex items-center gap-1">
-            <Clock className="size-3 text-[#922A49]" strokeWidth={2} />
+            <Clock className="size-3 text-[#E91E63]" strokeWidth={2} />
             {r.etaMin}–{r.etaMax} Min.
           </span>
           <span className="tabular-nums">
             {minLabel} {formatEUR(r.minOrderCents)}
           </span>
-          <span className={`tabular-nums ${free || pickup ? "font-semibold text-[#922A49]" : ""}`}>
+          <span className={`tabular-nums ${free || pickup ? "font-semibold text-[#E91E63]" : ""}`}>
             {feeText}
           </span>
         </div>

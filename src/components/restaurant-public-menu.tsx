@@ -106,19 +106,19 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
               </span>
             ) : null}
             {restaurant.reviewCount === 0 ? (
-              <span className="rounded-full bg-[#FAF3EA] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#7A2340]">
+              <span className="rounded-full bg-[#FCE4EC] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#C2185B]">
                 {t.badgeNew}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold text-[#111827] ring-1 ring-[#E5E7EB]">
-                <Star className="size-3 fill-[#922A49] text-[#922A49]" />
+                <Star className="size-3 fill-[#E91E63] text-[#E91E63]" />
                 {restaurant.rating.toFixed(1)}
                 <span className="font-medium text-[#9CA3AF]">({restaurant.reviewCount})</span>
               </span>
             )}
           </div>
           {restaurant.launchWeekFreeDelivery ? (
-            <p className="mt-2 text-sm font-medium text-[#7A2340]">{t.launchWeekFreeHint}</p>
+            <p className="mt-2 text-sm font-medium text-[#C2185B]">{t.launchWeekFreeHint}</p>
           ) : null}
           {!restaurant.isOpen && (
             <p className="mt-2 text-sm font-medium text-destructive">{t.closedNow}</p>

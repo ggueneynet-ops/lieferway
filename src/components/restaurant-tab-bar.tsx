@@ -55,7 +55,7 @@ export function RestaurantTabBar({
             <Link
               href={tab.href}
               className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold ${
-                tab.active ? "text-[#922A49]" : "text-[#6B7280] hover:text-[#111827]"
+                tab.active ? "text-[#E91E63]" : "text-[#6B7280] hover:text-[#111827]"
               }`}
             >
               <tab.icon className="size-5" strokeWidth={tab.active ? 2.2 : 1.75} />

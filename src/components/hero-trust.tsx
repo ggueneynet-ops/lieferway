@@ -21,7 +21,7 @@ export function HeroTrust({
           key={item.label}
           className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12px] font-medium text-[#0F172A] shadow-[0_1px_3px_rgba(17,24,39,0.06)] ring-1 ring-[#E8E2DC]"
         >
-          <item.icon className="size-3.5 text-[#922A49]" strokeWidth={2} />
+          <item.icon className="size-3.5 text-[#E91E63]" strokeWidth={2} />
           {item.label}
         </li>
       ))}

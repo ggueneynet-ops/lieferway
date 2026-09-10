@@ -59,7 +59,7 @@ export default async function Home({
     <>
       {splashDone ? null : <SplashIntro />}
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
-      <main className="flex-1 bg-[#FFF8F0]">
+      <main className="flex-1 bg-[#FFFFFF]">
         <section className="lw-wrap pt-3 pb-2">
           <MarketFulfillmentSwitch initial={fulfillment} compact />
           {hasAddress ? (

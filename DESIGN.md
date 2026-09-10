@@ -14,18 +14,18 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 ## Color tokens
 
-UI accent is **bordo `#922A49`**. Cream canvas `#FFF8F0`, soft `#FAF3EA`, white cards, ink text. Pink `#E91E63` is retired for UI. Logo rasters stay owner-locked — do not recreate.
+UI accent is **pink `#E91E63`**. White canvas, ink `#0F172A`. Soft pink `#FCE4EC` only for tiny accents. No bordo, no cream grounds. Logo rasters stay the locked pink pin+fork — do not recreate.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--color-primary` | `#922A49` | CTAs, selected pills, links, badges |
-| `--color-primary-pressed` | `#7A2340` | Button hover / press |
-| `--color-primary-soft` | `#FAF3EA` | Soft wash |
+| `--color-primary` | `#E91E63` | CTAs, selected pills, links, badges |
+| `--color-primary-pressed` | `#C2185B` | Button hover / press |
+| `--color-primary-soft` | `#FCE4EC` | Tiny washes only |
 | `--color-secondary` | `#0F172A` | Ink (headings, body) |
-| `--color-bg` | `#FFF8F0` | Customer canvas |
-| `--color-bg-muted` | `#FAF3EA` | Soft sections, chips |
+| `--color-bg` | `#FFFFFF` | Customer canvas |
+| `--color-bg-muted` | `#F7F7F8` | Dashboard canvas, chips |
 | `--color-surface` | `#FFFFFF` | Cards, header, sidebar |
-| `--color-border` | `#E8E2DC` | Hairlines |
+| `--color-border` | `#E8E8EC` | Hairlines |
 | `--color-text` | `#0F172A` | Body |
 | `--color-text-secondary` | `#64748B` | Meta, addresses, hints |
 | `--color-text-inverse` | `#FFFFFF` | On primary |
@@ -49,7 +49,7 @@ Customer cards **12–16px** (`rounded-xl` 12 / `rounded-2xl` 16). Soft shadows.
 ## Surfaces
 
 **Customer (marketplace)**  
-Cream canvas `#FFF8F0`, compact top, large food-photo cards (ETA, min order, delivery fee). Partner sales (5 % / Auszahlung) stay on `/partner/anmelden` only. Cache `?v=18`.
+White canvas, compact phone-screen home (location chip, Lieferung/Abholung, search, campaign, categories, Umkreis slider, large food cards). Partner sales stay on `/partner/anmelden` only. Cache `?v=20`.
 
 **Restaurant panel**  
 `--color-bg-muted` page, white table/cards, compact type. **Primary only on CTAs**. Nav, filters, and toggles stay outline / ghost / ink.

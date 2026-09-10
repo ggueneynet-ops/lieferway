@@ -68,7 +68,7 @@ export function AddressFirst({
 
   return (
     <div className="mx-auto max-w-md rounded-2xl border border-[#E8E8EC] bg-white px-5 py-8 text-center">
-      <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#FAF3EA] text-[#922A49]">
+      <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#FCE4EC] text-[#E91E63]">
         <MapPin className="size-5" strokeWidth={1.75} />
       </span>
       <h2 className="mt-4 font-display text-xl font-semibold tracking-tight text-[#0F172A]">{t.addressFirstTitle}</h2>
@@ -76,7 +76,7 @@ export function AddressFirst({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#922A49] px-5 text-sm font-semibold text-white hover:bg-[#7A2340]"
+        className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#E91E63] px-5 text-sm font-semibold text-white hover:bg-[#C2185B]"
       >
         {t.enterLocation}
       </button>
@@ -86,7 +86,7 @@ export function AddressFirst({
             key={chip.plz}
             type="button"
             onClick={() => pickChip(chip.plz)}
-            className="rounded-full border border-[#E8E8EC] bg-white px-3 py-1.5 text-[12px] font-medium text-[#0F172A] hover:border-[#922A49] hover:text-[#922A49]"
+            className="rounded-full border border-[#E8E8EC] bg-white px-3 py-1.5 text-[12px] font-medium text-[#0F172A] hover:border-[#E91E63] hover:text-[#E91E63]"
           >
             {chip.label}
           </button>

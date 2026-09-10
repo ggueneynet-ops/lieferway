@@ -50,7 +50,7 @@ export function RadiusFilter({
         <div className="absolute left-0 top-full z-20 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-[#E8E8EC] bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between text-[12px] font-semibold text-[#0F172A]">
             <span>{t.radiusLabel}</span>
-            <span className="tabular-nums text-[#922A49]">{draft} km</span>
+            <span className="tabular-nums text-[#E91E63]">{draft} km</span>
           </div>
           <input
             type="range"
@@ -59,7 +59,7 @@ export function RadiusFilter({
             step={1}
             value={draft}
             onChange={(e) => setDraft(Number(e.target.value))}
-            className="mt-3 w-full accent-[#922A49]"
+            className="mt-3 w-full accent-[#E91E63]"
           />
           <div className="mt-1 flex justify-between text-[10px] text-[#94A3B8]">
             <span>1 km</span>
@@ -68,7 +68,7 @@ export function RadiusFilter({
           <button
             type="button"
             onClick={() => apply(draft)}
-            className="mt-3 h-9 w-full rounded-xl bg-[#922A49] text-[13px] font-semibold text-white hover:bg-[#7A2340]"
+            className="mt-3 h-9 w-full rounded-xl bg-[#E91E63] text-[13px] font-semibold text-white hover:bg-[#C2185B]"
           >
             {draft} km
           </button>

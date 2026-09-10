@@ -17,7 +17,7 @@ export function StarRating({
         const filled = n <= value;
         const icon = (
           <Star
-            className={`size-6 ${filled ? "fill-[#922A49] text-[#922A49]" : "text-[#D1D5DB]"}`}
+            className={`size-6 ${filled ? "fill-[#E91E63] text-[#E91E63]" : "text-[#D1D5DB]"}`}
             strokeWidth={1.5}
           />
         );
