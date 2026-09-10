@@ -1,8 +1,27 @@
-import { STATUS_FLOW } from "@/lib/constants";
-import { STATUS_LABEL, type Locale } from "@/lib/i18n";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import { CUSTOMER_STATUS_FLOW, type OrderStatus } from "@/lib/constants";
+import { STATUS_LABEL, type Locale } from "@/lib/i18n";
+import { useI18n } from "@/components/locale-provider";
+
+function customerStep(status: string): OrderStatus {
+  if (status === "READY") return "PREPARING";
+  if ((CUSTOMER_STATUS_FLOW as string[]).includes(status)) return status as OrderStatus;
+  return "PLACED";
+}
+
+function hintFor(step: OrderStatus, t: ReturnType<typeof useI18n>["t"]) {
+  if (step === "PLACED") return t.stepPlacedHint;
+  if (step === "ACCEPTED") return t.stepAcceptedHint;
+  if (step === "PREPARING") return t.stepPreparingHint;
+  if (step === "OUT_FOR_DELIVERY") return t.stepOutHint;
+  return t.stepDeliveredHint;
+}
 
 export function OrderTimeline({ status, locale = "de" }: { status: string; locale?: Locale }) {
+  const { t } = useI18n();
   if (status === "REJECTED" || status === "CANCELLED") {
     return (
       <p className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -10,27 +29,84 @@ export function OrderTimeline({ status, locale = "de" }: { status: string; local
       </p>
     );
   }
-  const idx = STATUS_FLOW.indexOf(status as (typeof STATUS_FLOW)[number]);
+  const current = customerStep(status);
+  const idx = CUSTOMER_STATUS_FLOW.indexOf(current);
+  const delivered = status === "DELIVERED";
+
   return (
-    <ol className="space-y-3">
-      {STATUS_FLOW.map((step, i) => {
-        const done = idx >= i;
-        const current = idx === i;
+    <ol className="relative">
+      {CUSTOMER_STATUS_FLOW.map((step, i) => {
+        const complete = delivered || idx > i;
+        const isCurrent = !delivered && idx === i;
         return (
-          <li key={step} className="flex items-center gap-3">
+          <li key={step} className="relative flex gap-3 pb-6 last:pb-0">
+            {i < CUSTOMER_STATUS_FLOW.length - 1 ? (
+              <span
+                className={`absolute start-[11px] top-7 h-[calc(100%-8px)] w-0.5 ${
+                  complete ? "bg-[#E91E63]" : "bg-[#E5E7EB]"
+                }`}
+                aria-hidden
+              />
+            ) : null}
             <span
-              className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${
-                done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              } ${current ? "ring-4 ring-primary/20" : ""}`}
+              className={`relative z-[1] flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+                complete
+                  ? "bg-[#E91E63] text-white"
+                  : isCurrent
+                    ? "lw-step-current bg-[#E91E63] text-white"
+                    : "bg-[#F3F4F6] text-[#9CA3AF]"
+              }`}
             >
-              {done ? <Check className="size-3.5" /> : i + 1}
+              {complete ? <Check className="size-3.5" strokeWidth={2.5} /> : i + 1}
             </span>
-            <span className={done ? "font-medium" : "text-muted-foreground"}>
-              {STATUS_LABEL[locale][step]}
-            </span>
+            <div className="min-w-0 pt-0.5">
+              <p className={`text-[15px] leading-tight ${complete || isCurrent ? "font-semibold text-[#111827]" : "text-[#9CA3AF]"}`}>
+                {STATUS_LABEL[locale][step]}
+              </p>
+              {isCurrent || (delivered && i === CUSTOMER_STATUS_FLOW.length - 1) ? (
+                <p className="mt-0.5 text-[13px] text-[#6B7280]">{hintFor(step, t)}</p>
+              ) : null}
+            </div>
           </li>
         );
       })}
     </ol>
   );
+}
+
+export function OrderTracker({
+  orderId,
+  initialStatus,
+  locale = "de",
+}: {
+  orderId: string;
+  initialStatus: string;
+  locale?: Locale;
+}) {
+  const [status, setStatus] = useState(initialStatus);
+
+  useEffect(() => {
+    setStatus(initialStatus);
+  }, [initialStatus]);
+
+  useEffect(() => {
+    let stopped = false;
+    const tick = async () => {
+      const res = await fetch(`/api/orders/${orderId}`, { cache: "no-store" });
+      if (!res.ok || stopped) return;
+      const data = (await res.json()) as { order?: { status?: string } };
+      const next = data.order?.status;
+      if (next) setStatus((s) => (next !== s ? next : s));
+    };
+    void tick();
+    const id = window.setInterval(() => {
+      void tick();
+    }, 1500);
+    return () => {
+      stopped = true;
+      window.clearInterval(id);
+    };
+  }, [orderId]);
+
+  return <OrderTimeline status={status} locale={locale} />;
 }

@@ -3,6 +3,7 @@
 import { useCart } from "@/components/cart-provider";
 import { useI18n } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
+import { QtyStepper } from "@/components/cart-panel";
 import { formatEUR } from "@/lib/money";
 import { dishPhoto } from "@/lib/media";
 import { toast } from "sonner";
@@ -29,7 +30,7 @@ type Restaurant = {
 };
 
 export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
-  const { add, cart, foodSubtotal, count } = useCart();
+  const { add, cart, foodSubtotal, count, setQty, openCart } = useCart();
   const { t, locale } = useI18n();
   const inThis = cart?.restaurantId === restaurant.id;
 
@@ -103,33 +104,39 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
           <p className="mt-2 text-sm text-muted-foreground">{t.emptyCart}</p>
         ) : (
           <>
-            <ul className="mt-3 space-y-2 text-sm">
+            <ul className="mt-3 space-y-3 text-sm">
               {cart!.items.map((i) => (
-                <li key={i.menuItemId} className="flex items-center justify-between gap-2">
-                  <span className="flex min-w-0 items-center gap-2">
-                    {i.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={i.imageUrl} alt="" className="h-10 w-10 rounded-lg object-cover" />
-                    ) : null}
-                    <span className="truncate">
-                      {i.quantity}× {i.name}
-                    </span>
-                  </span>
-                  <span className="shrink-0">{formatEUR(i.priceCents * i.quantity, locale)}</span>
+                <li key={i.menuItemId} className="flex items-center gap-2">
+                  {i.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={i.imageUrl} alt="" className="h-11 w-11 rounded-lg object-cover" />
+                  ) : null}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{i.name}</p>
+                    <p className="tabular-nums text-muted-foreground">{formatEUR(i.priceCents * i.quantity, locale)}</p>
+                  </div>
+                  <QtyStepper value={i.quantity} onChange={(n) => setQty(i.menuItemId, n)} label={t.qty} />
                 </li>
               ))}
             </ul>
             <p className="mt-3 flex justify-between text-sm">
               <span>{t.subtotal}</span>
-              <span>{formatEUR(foodSubtotal, locale)}</span>
+              <span className="tabular-nums">{formatEUR(foodSubtotal, locale)}</span>
             </p>
             <p className="flex justify-between text-sm text-muted-foreground">
               <span>{t.fee}</span>
-              <span>{formatEUR(cart!.deliveryFeeCents, locale)}</span>
+              <span className="tabular-nums">{formatEUR(cart!.deliveryFeeCents, locale)}</span>
             </p>
-            <Button asChild className="mt-4 w-full">
+            <p className="mt-1 flex justify-between font-semibold">
+              <span>{t.total}</span>
+              <span className="tabular-nums">{formatEUR(foodSubtotal + cart!.deliveryFeeCents, locale)}</span>
+            </p>
+            <Button asChild className="mt-4 h-11 w-full">
               <Link href="/checkout">{t.checkout}</Link>
             </Button>
+            <button type="button" onClick={openCart} className="mt-2 w-full text-center text-sm font-medium text-primary">
+              {t.cart}
+            </button>
           </>
         )}
       </aside>

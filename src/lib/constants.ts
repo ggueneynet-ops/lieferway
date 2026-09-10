@@ -49,3 +49,12 @@ export const STATUS_FLOW: OrderStatus[] = [
   "OUT_FOR_DELIVERY",
   "DELIVERED",
 ];
+
+/** Customer-facing tracker — restaurant-own delivery, no courier “ready” step. */
+export const CUSTOMER_STATUS_FLOW: OrderStatus[] = [
+  "PLACED",
+  "ACCEPTED",
+  "PREPARING",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+];

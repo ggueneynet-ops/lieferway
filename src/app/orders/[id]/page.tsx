@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { OrderTimeline } from "@/components/order-timeline";
+import { OrderTracker } from "@/components/order-timeline";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { OrderPoller } from "@/components/order-poller";
@@ -60,9 +60,9 @@ export default async function OrderDetailPage({
           <p className="mt-4 rounded-2xl border border-primary/15 bg-primary-soft/50 px-4 py-3 text-sm leading-relaxed text-ink">
             {t.restaurantDelivers} {t.restaurantDeliversHint}
           </p>
-          <div className="mt-6 rounded-2xl border border-border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 font-display font-semibold tracking-tight">{t.status}</h2>
-            <OrderTimeline status={order.status} locale={locale} />
+          <div className="mt-6 rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
+            <h2 className="mb-5 font-display font-semibold tracking-tight">{t.status}</h2>
+            <OrderTracker orderId={order.id} initialStatus={order.status} locale={locale} />
           </div>
           <ul className="mt-6 divide-y divide-border/80 overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
             {order.items.map((item) => (

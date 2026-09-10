@@ -26,6 +26,9 @@ type Ctx = {
   clear: () => void;
   count: number;
   foodSubtotal: number;
+  sheetOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 };
 
 const CartContext = createContext<Ctx | null>(null);
@@ -47,6 +50,7 @@ function readStoredCart(): CartState | null {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartState | null>(null);
   const [ready, setReady] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     setCart(readStoredCart());
@@ -98,8 +102,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
       },
       clear: () => setCart(null),
+      sheetOpen,
+      openCart: () => setSheetOpen(true),
+      closeCart: () => setSheetOpen(false),
     };
-  }, [cart]);
+  }, [cart, sheetOpen]);
 
   return <CartContext.Provider value={api}>{children}</CartContext.Provider>;
 }

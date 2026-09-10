@@ -69,7 +69,7 @@ export default async function RestaurantPage({
   return (
     <>
       <SiteHeader plz={plz} km={km} />
-      <main className="flex-1 bg-[#FAFAFA]">
+      <main className="lw-page-enter flex-1 bg-[#FAFAFA]">
         <div className="h-[220px] w-full overflow-hidden bg-[#F3F4F6] sm:h-[300px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={photo} alt="" className="h-full w-full object-cover object-center" />

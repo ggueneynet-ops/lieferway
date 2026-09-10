@@ -4,13 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Receipt, UserRound } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
+import { useCart } from "@/components/cart-provider";
 import { isStaffArea } from "@/lib/paths";
 
 export function MobileTabBar() {
   const path = usePathname();
   const { t } = useI18n();
+  const { sheetOpen } = useCart();
 
   if (
+    sheetOpen ||
     isStaffArea(path) ||
     path.startsWith("/login") ||
     path.startsWith("/register") ||

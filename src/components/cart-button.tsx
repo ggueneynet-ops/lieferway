@@ -6,13 +6,14 @@ import { useCart } from "@/components/cart-provider";
 import { useI18n } from "@/components/locale-provider";
 
 export function CartButton({ compact = false }: { compact?: boolean }) {
-  const { count } = useCart();
+  const { count, openCart } = useCart();
   const { t } = useI18n();
 
   if (compact) {
     return (
-      <Link
-        href="/cart"
+      <button
+        type="button"
+        onClick={openCart}
         className="relative inline-flex size-10 items-center justify-center rounded-xl text-ink hover:bg-muted"
         aria-label={t.cart}
       >
@@ -22,13 +23,14 @@ export function CartButton({ compact = false }: { compact?: boolean }) {
             {count}
           </span>
         )}
-      </Link>
+      </button>
     );
   }
 
   return (
-    <Link
-      href="/cart"
+    <button
+      type="button"
+      onClick={openCart}
       className="relative inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary-pressed sm:h-11"
     >
       <ShoppingBag className="size-4" />
@@ -38,6 +40,15 @@ export function CartButton({ compact = false }: { compact?: boolean }) {
           {count}
         </span>
       )}
+    </button>
+  );
+}
+
+export function CartPageLink() {
+  const { t } = useI18n();
+  return (
+    <Link href="/cart" className="sr-only">
+      {t.cart}
     </Link>
   );
 }

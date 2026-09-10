@@ -15,6 +15,7 @@ import type { PaymentMethod } from "@/lib/constants";
 import { interpolate } from "@/lib/i18n";
 import { customerNeedsPhone } from "@/lib/phone";
 import { toast } from "sonner";
+import { PaymentPicker, payCtaLabel } from "@/components/payment-picker";
 
 export function CheckoutClient() {
   const { cart, foodSubtotal, clear } = useCart();
@@ -116,13 +117,17 @@ export function CheckoutClient() {
     }
     setBusy(true);
     try {
-      const payRes = await fetch("/api/payments/intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amountCents: totals.totalCents, method, confirm: true }),
-      });
-      const payData = await payRes.json();
-      if (!payRes.ok) throw new Error(payData.error);
+      let paymentIntentId: string | undefined;
+      if (method !== "CASH") {
+        const payRes = await fetch("/api/payments/intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amountCents: totals.totalCents, method, confirm: true }),
+        });
+        const payData = await payRes.json();
+        if (!payRes.ok) throw new Error(payData.error);
+        paymentIntentId = payData.intent.id;
+      }
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -130,7 +135,7 @@ export function CheckoutClient() {
           restaurantId: current.restaurantId,
           items: current.items.map((i) => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
           paymentMethod: method,
-          paymentIntentId: payData.intent.id,
+          paymentIntentId,
           customerName: fullName.trim(),
           street,
           city,
@@ -152,7 +157,7 @@ export function CheckoutClient() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-10">
         <h1 className="font-display text-2xl font-semibold tracking-tight">{t.checkoutTitle}</h1>
         <p className="text-sm text-muted-foreground">{cart.restaurantName}</p>
         {authed === false && (
@@ -164,10 +169,10 @@ export function CheckoutClient() {
             {t.loginToOrder}
           </p>
         )}
-        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-              <h2 className="font-display text-lg font-semibold tracking-tight">{t.address}</h2>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:gap-8">
+          <div className="space-y-5">
+            <section className="rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
+              <h2 className="font-display text-lg font-semibold tracking-tight">{t.contactSection}</h2>
               <div className="mt-4 grid gap-3">
                 <div>
                   <Label htmlFor="checkout-name">
@@ -175,7 +180,7 @@ export function CheckoutClient() {
                   </Label>
                   <Input
                     id="checkout-name"
-                    className="mt-1"
+                    className="mt-1 h-11"
                     autoComplete="name"
                     name="name"
                     placeholder={t.fullNameHint}
@@ -184,31 +189,30 @@ export function CheckoutClient() {
                     required
                     minLength={2}
                   />
-                  <p className="mt-1 text-xs text-muted-foreground">{t.fullNameHint}</p>
-                </div>
-                <div>
-                  <Label>{t.street}</Label>
-                  <Input className="mt-1" value={street} onChange={(e) => setStreet(e.target.value)} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label>{t.postal}</Label>
-                    <Input className="mt-1" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
-                  </div>
-                  <div>
-                    <Label>{t.cityField}</Label>
-                    <Input className="mt-1" value={city} onChange={(e) => setCity(e.target.value)} />
-                  </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <Label>{t.phoneNumber}</Label>
+                    <Label>{t.phoneNumber} <span className="text-primary">*</span></Label>
                     <Link href="/account/phone?next=/checkout" className="text-xs font-medium text-primary">
                       {t.changePhone}
                     </Link>
                   </div>
-                  <Input className="mt-1" type="tel" value={phone} readOnly />
+                  <Input className="mt-1 h-11" type="tel" value={phone} readOnly />
                   <p className="mt-1 text-xs text-muted-foreground">{t.phoneOnTicket}</p>
+                </div>
+                <div>
+                  <Label>{t.street}</Label>
+                  <Input className="mt-1 h-11" value={street} onChange={(e) => setStreet(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{t.postal}</Label>
+                    <Input className="mt-1 h-11" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label>{t.cityField}</Label>
+                    <Input className="mt-1 h-11" value={city} onChange={(e) => setCity(e.target.value)} />
+                  </div>
                 </div>
                 <div>
                   <Label>{t.notes}</Label>
@@ -216,62 +220,23 @@ export function CheckoutClient() {
                 </div>
               </div>
             </section>
-            <section className="rounded-2xl border border-primary/20 bg-primary-soft/40 p-6 shadow-sm">
-              <h2 className="font-display text-lg font-semibold tracking-tight">{t.restaurantDelivers}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary">{t.restaurantDeliversHint}</p>
+            <section className="rounded-[20px] border border-[#E91E63]/20 bg-[#FCE4EC] px-5 py-4 sm:px-6">
+              <h2 className="font-display text-base font-semibold tracking-tight text-[#111827]">{t.restaurantDelivers}</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-[#6B7280]">{t.restaurantDeliversHint}</p>
             </section>
-            <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-              <h2 className="font-display text-lg font-semibold tracking-tight">{t.payToPlatform}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{t.payHint}</p>
-              <div className="mt-4 grid gap-2">
-                {(
-                  [
-                    { id: "CARD" as const, label: t.payCard, hint: t.payCardHint },
-                    { id: "APPLE_PAY" as const, label: t.payApple, hint: t.payAppleHint },
-                    { id: "GOOGLE_PAY" as const, label: t.payGoogle, hint: t.payGoogleHint },
-                    { id: "CASH" as const, label: t.payCash, hint: t.payCashHint },
-                  ] satisfies { id: PaymentMethod; label: string; hint: string }[]
-                ).map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => setMethod(m.id)}
-                    className={`rounded-xl border px-4 py-3 text-left ${method === m.id ? "border-primary bg-accent" : "hover:bg-muted/50"}`}
-                  >
-                    <span className="block font-medium">{m.label}</span>
-                    <span className="text-xs text-muted-foreground">{m.hint}</span>
-                  </button>
-                ))}
-              </div>
-              {method === "CARD" && (
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <div className="sm:col-span-3">
-                    <Label>{t.cardNumber}</Label>
-                    <Input className="mt-1" value={card} onChange={(e) => setCard(e.target.value)} />
-                  </div>
-                  <div>
-                    <Label>{t.expiry}</Label>
-                    <Input className="mt-1" value={expiry} onChange={(e) => setExpiry(e.target.value)} />
-                  </div>
-                  <div>
-                    <Label>{t.cvc}</Label>
-                    <Input className="mt-1" value={cvc} onChange={(e) => setCvc(e.target.value)} />
-                  </div>
-                </div>
-              )}
-              {method === "APPLE_PAY" && (
-                <div className="mt-4 rounded-xl bg-black px-4 py-3 text-center text-sm font-medium text-white">
-                  Apple Pay · {formatEUR(totals.totalCents, locale)}
-                </div>
-              )}
-              {method === "GOOGLE_PAY" && (
-                <div className="mt-4 rounded-xl border-2 border-zinc-800 px-4 py-3 text-center text-sm font-medium">
-                  GPay · {formatEUR(totals.totalCents, locale)}
-                </div>
-              )}
-            </section>
+            <PaymentPicker
+              method={method}
+              onMethod={setMethod}
+              totalCents={totals.totalCents}
+              card={card}
+              expiry={expiry}
+              cvc={cvc}
+              onCard={setCard}
+              onExpiry={setExpiry}
+              onCvc={setCvc}
+            />
           </div>
-          <aside className="h-fit rounded-2xl border border-border bg-white p-6 shadow-sm">
+          <aside className="h-fit rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
             <h2 className="font-display text-lg font-semibold tracking-tight">{t.summary}</h2>
             <ul className="mt-3 space-y-1 text-sm">
               {cart.items.map((i) => (
@@ -279,7 +244,7 @@ export function CheckoutClient() {
                   <span>
                     {i.quantity}× {i.name}
                   </span>
-                  <span>{formatEUR(i.priceCents * i.quantity, locale)}</span>
+                  <span className="tabular-nums">{formatEUR(i.priceCents * i.quantity, locale)}</span>
                 </li>
               ))}
             </ul>
@@ -296,7 +261,7 @@ export function CheckoutClient() {
             <div className="mt-4 space-y-1 text-sm">
               <p className="flex justify-between">
                 <span>{t.subtotal}</span>
-                <span>{formatEUR(foodSubtotal, locale)}</span>
+                <span className="tabular-nums">{formatEUR(foodSubtotal, locale)}</span>
               </p>
               {discountCents > 0 && (
                 <p className="flex justify-between text-emerald-700">
@@ -306,21 +271,22 @@ export function CheckoutClient() {
               )}
               <p className="flex justify-between text-muted-foreground">
                 <span>{t.fee}</span>
-                <span>{formatEUR(cart.deliveryFeeCents, locale)}</span>
+                <span className="tabular-nums">{formatEUR(cart.deliveryFeeCents, locale)}</span>
               </p>
-              <p className="flex justify-between font-semibold">
+              <p className="flex justify-between text-base font-semibold">
                 <span>{t.total}</span>
-                <span>{formatEUR(totals.totalCents, locale)}</span>
+                <span className="tabular-nums">{formatEUR(totals.totalCents, locale)}</span>
               </p>
             </div>
             <Button
-              className="mt-4 w-full"
+              className="mt-4 h-12 w-full text-base"
               size="lg"
               disabled={busy || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
               onClick={pay}
             >
-              {busy ? t.processing : t.payNow}
+              {busy ? t.processing : payCtaLabel(method, t)}
             </Button>
+            <p className="mt-2 text-center text-[11px] text-[#9CA3AF]">{t.demoPaymentNote}</p>
           </aside>
         </div>
       </main>

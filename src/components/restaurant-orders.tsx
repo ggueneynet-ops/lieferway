@@ -81,6 +81,7 @@ export function RestaurantOrders({
   const [flash, setFlash] = useState(false);
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const [live, setLive] = useState(false);
+  const [pending, setPending] = useState<Set<string>>(new Set());
   const seenRef = useRef<Set<string> | null>(null);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
@@ -184,22 +185,49 @@ export function RestaurantOrders({
   }, [restaurantId, applySnapshot]);
 
   async function act(id: string, action: string) {
-    const res = await fetch(`/api/orders/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      toast.error(data.error);
-      return;
+    if (pending.has(id)) return;
+    const nextStatus: Record<string, KitchenOrder["status"]> = {
+      accept: "ACCEPTED",
+      reject: "REJECTED",
+      preparing: "PREPARING",
+      ready: "READY",
+      out: "OUT_FOR_DELIVERY",
+      deliver: "DELIVERED",
+    };
+    const optimistic = nextStatus[action];
+    const prev = orders;
+    if (optimistic) {
+      setOrders((list) => list.map((o) => (o.id === id ? { ...o, status: optimistic } : o)));
+      setHighlight((cur) => {
+        const n = new Set(cur);
+        n.delete(id);
+        return n;
+      });
     }
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: data.order.status } : o)));
-    setHighlight((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
+    setPending((cur) => new Set(cur).add(id));
+    try {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOrders(prev);
+        toast.error(data.error);
+        return;
+      }
+      setOrders((list) => list.map((o) => (o.id === id ? { ...o, status: data.order.status } : o)));
+    } catch {
+      setOrders(prev);
+      toast.error(t.error);
+    } finally {
+      setPending((cur) => {
+        const n = new Set(cur);
+        n.delete(id);
+        return n;
+      });
+    }
   }
 
   async function toggleOpen() {
@@ -291,10 +319,19 @@ export function RestaurantOrders({
                 nameLabel={t.fullName}
                 highlight={highlight.has(o.id)}
               >
-                <Button className="h-11 min-w-28 px-5 text-base" onClick={() => act(o.id, "accept")}>
+                <Button
+                  className="h-12 min-w-32 flex-1 px-6 text-base font-semibold"
+                  disabled={pending.has(o.id)}
+                  onClick={() => act(o.id, "accept")}
+                >
                   {t.accept}
                 </Button>
-                <Button className="h-11 px-5 text-base" variant="outline" onClick={() => act(o.id, "reject")}>
+                <Button
+                  className="h-12 flex-1 px-6 text-base"
+                  variant="outline"
+                  disabled={pending.has(o.id)}
+                  onClick={() => act(o.id, "reject")}
+                >
                   {t.reject}
                 </Button>
               </OrderCard>
@@ -317,22 +354,22 @@ export function RestaurantOrders({
               nameLabel={t.fullName}
             >
               {o.status === "ACCEPTED" && (
-                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "preparing")}>
+                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "preparing")}>
                   {t.startPrep}
                 </Button>
               )}
               {o.status === "PREPARING" && (
-                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "ready")}>
+                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "ready")}>
                   {t.readyForCourier}
                 </Button>
               )}
               {o.status === "READY" && (
-                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "out")}>
+                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "out")}>
                   {t.startDelivery}
                 </Button>
               )}
               {o.status === "OUT_FOR_DELIVERY" && (
-                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "deliver")}>
+                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "deliver")}>
                   {t.markDelivered}
                 </Button>
               )}
@@ -370,7 +407,7 @@ function OrderCard({
 }) {
   return (
     <article
-      className={`rounded-lg border bg-surface p-3 ${highlight ? "lw-new-ticket" : "border-border"}`}
+      className={`rounded-2xl border bg-white p-4 ${highlight ? "lw-new-ticket shadow-[0_8px_24px_rgba(233,30,99,0.12)]" : "border-[#E5E7EB]"}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
@@ -412,7 +449,7 @@ function OrderCard({
           {noteLabel}: {order.notes}
         </p>
       ) : null}
-      <div className="mt-3 flex flex-wrap gap-2">{children}</div>
+      <div className="mt-4 flex w-full flex-wrap gap-2">{children}</div>
     </article>
   );
 }
