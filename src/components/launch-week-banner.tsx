@@ -7,7 +7,7 @@ export async function LaunchWeekBanner() {
     <section className="mt-6 w-full max-w-xl">
       <Link
         href="#restaurants"
-        className="group relative block overflow-hidden rounded-[22px] bg-[#F7EBEF] shadow-[0_12px_32px_rgba(183,46,87,0.12)] ring-1 ring-[#E8C5D0] transition hover:shadow-[0_16px_40px_rgba(183,46,87,0.18)]"
+        className="group relative block overflow-hidden rounded-[22px] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.06)] ring-1 ring-[#E8E8EC] transition hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -20,12 +20,12 @@ export async function LaunchWeekBanner() {
           aria-hidden
         />
         <div className="relative max-w-[18.5rem] px-5 py-5 sm:max-w-[20rem] sm:px-6 sm:py-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#922546]">{t.launchWeekBadge}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C2185B]">{t.launchWeekBadge}</p>
           <h2 className="mt-1.5 font-display text-[1.15rem] font-semibold leading-snug tracking-tight text-[#111827] sm:text-[1.28rem]">
             {t.launchWeekBannerTitle}
           </h2>
           <p className="mt-1.5 text-[13px] leading-relaxed text-[#4B5563]">{t.launchWeekBannerSub}</p>
-          <span className="mt-3 inline-flex h-9 items-center rounded-full bg-[#B72E57] px-4 text-[12px] font-semibold text-white group-hover:bg-[#922546]">
+          <span className="mt-3 inline-flex h-9 items-center rounded-full bg-[#E91E63] px-4 text-[12px] font-semibold text-white group-hover:bg-[#C2185B]">
             {t.promoCta}
           </span>
         </div>

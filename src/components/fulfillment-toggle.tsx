@@ -41,10 +41,10 @@ export function FulfillmentToggle({
           className={
             compact
               ? `inline-flex h-8 items-center gap-1 rounded-full px-3 text-[12px] font-semibold whitespace-nowrap ${
-                  value === opt.id ? "bg-[#B72E57] text-white" : "text-[#6B7280] hover:text-[#111827]"
+                  value === opt.id ? "bg-[#E91E63] text-white" : "text-[#6B7280] hover:text-[#111827]"
                 }`
               : `inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-semibold ${
-                  value === opt.id ? "bg-[#B72E57] text-white" : "text-[#6B7280] hover:text-[#111827]"
+                  value === opt.id ? "bg-[#E91E63] text-white" : "text-[#6B7280] hover:text-[#111827]"
                 }`
           }
         >

@@ -47,20 +47,20 @@ export default async function RestaurantFinancePage() {
   }) {
     const payout = food - commission;
     return (
-      <section className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-[0_6px_18px_rgba(17,24,39,0.04)]">
-        <h2 className="text-sm font-semibold text-[#6B7280]">{title}</h2>
-        <dl className="mt-3 space-y-2 text-[15px]">
-          <div className="flex justify-between gap-3">
+      <section className="rounded-[20px] border border-[#E8E8EC] bg-white p-5 shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+        <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">{title}</h2>
+        <p className="mt-3 font-display text-[1.85rem] font-semibold tabular-nums tracking-tight text-[#E91E63]">
+          {formatEUR(payout, locale)}
+        </p>
+        <p className="mt-1 text-sm font-medium text-[#0F172A]">{t.rpPayoutToRestaurant}</p>
+        <dl className="mt-4 space-y-2 text-[14px]">
+          <div className="flex justify-between gap-3 text-[#64748B]">
             <dt>{t.revenueFood}</dt>
-            <dd className="font-semibold tabular-nums">{formatEUR(food, locale)}</dd>
+            <dd className="tabular-nums text-[#0F172A]">{formatEUR(food, locale)}</dd>
           </div>
-          <div className="flex justify-between gap-3 text-[#6B7280]">
+          <div className="flex justify-between gap-3 text-[#64748B]">
             <dt>{interpolate(t.rpLieferwayProvision, { percent: String(percent) })}</dt>
             <dd className="tabular-nums">−{formatEUR(commission, locale)}</dd>
-          </div>
-          <div className="flex items-baseline justify-between gap-3 border-t border-[#F3F4F6] pt-3">
-            <dt className="text-base font-bold text-[#111827]">{t.rpPayoutToRestaurant}</dt>
-            <dd className="text-[1.65rem] font-bold tabular-nums text-[#B72E57]">{formatEUR(payout, locale)}</dd>
           </div>
         </dl>
       </section>
@@ -91,7 +91,7 @@ export default async function RestaurantFinancePage() {
                 </span>
                 <a
                   href={`/api/invoices/commission?month=${key}`}
-                  className="inline-flex h-11 shrink-0 items-center rounded-xl bg-[#B72E57] px-4 text-sm font-semibold text-white hover:bg-[#922546]"
+                  className="inline-flex h-11 shrink-0 items-center rounded-xl bg-[#E91E63] px-4 text-sm font-semibold text-white hover:bg-[#C2185B]"
                 >
                   {t.downloadPdf}
                 </a>
@@ -100,11 +100,11 @@ export default async function RestaurantFinancePage() {
           })}
         </ul>
       </section>
-      <p className="mb-4 rounded-2xl border border-[#E8C5D0] bg-[#F7EBEF]/70 px-4 py-3 text-sm">
+      <p className="mb-4 rounded-2xl border border-[#F8BBD0] bg-[#FFF5F8]/70 px-4 py-3 text-sm">
         <span className="font-semibold text-[#111827]">{t.rpNextPayout}: </span>
         {next.isToday ? t.rpPayoutMonday : mondayLabel}
       </p>
-      <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Block title={t.rpThisWeek} food={week.foodCents} commission={week.commissionCents} />
         <Block title={t.rpThisMonth} food={month.foodCents} commission={month.commissionCents} />
         <Block title={t.rpAllTime} food={all.foodCents} commission={all.commissionCents} />

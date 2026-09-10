@@ -61,8 +61,8 @@ export function AccountMenu({
       <summary
         className={`flex cursor-pointer list-none items-center justify-center hover:bg-muted [&::-webkit-details-marker]:hidden ${
           iconOnly
-            ? "size-10 rounded-full bg-[#F7EBEF] text-[12px] font-semibold text-[#922546]"
-            : "size-10 rounded-full bg-[#F7EBEF] text-[12px] font-semibold text-[#922546] sm:h-11 sm:w-auto sm:gap-2 sm:rounded-xl sm:bg-transparent sm:px-3 sm:text-sm sm:font-medium sm:text-ink"
+            ? "size-10 rounded-full bg-[#FFF5F8] text-[12px] font-semibold text-[#C2185B]"
+            : "size-10 rounded-full bg-[#FFF5F8] text-[12px] font-semibold text-[#C2185B] sm:h-11 sm:w-auto sm:gap-2 sm:rounded-xl sm:bg-transparent sm:px-3 sm:text-sm sm:font-medium sm:text-ink"
         }`}
         aria-label={copy.account}
       >

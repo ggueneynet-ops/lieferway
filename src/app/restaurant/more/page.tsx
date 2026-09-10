@@ -29,22 +29,22 @@ export default async function RestaurantMorePage() {
       ) : null}
       <Link
         href="/restaurant/finance"
-        className="mb-3 flex items-center justify-between gap-3 rounded-2xl bg-[#B72E57] px-4 py-4 text-white shadow-[0_10px_24px_rgba(183,46,87,0.22)]"
+        className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-[#E8E8EC] bg-white px-4 py-4 text-[#0F172A] shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
       >
         <span className="flex items-center gap-3">
-          <Wallet className="size-6" strokeWidth={1.75} />
+          <Wallet className="size-6 text-[#E91E63]" strokeWidth={1.75} />
           <span>
             <span className="block text-[15px] font-semibold">{t.rpFinance}</span>
-            <span className="block text-[12px] text-white/85">{t.rpFinanceHint}</span>
+            <span className="block text-[12px] text-[#64748B]">{t.rpFinanceHint}</span>
           </span>
         </span>
         <span className="text-lg font-semibold">→</span>
       </Link>
-      <ul className="overflow-hidden rounded-2xl border border-[#E8C5D0]/60 bg-white shadow-[0_6px_18px_rgba(17,24,39,0.04)]">
+      <ul className="overflow-hidden rounded-2xl border border-[#E8E8EC] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
         {links.map((l) => (
           <li key={l.href} className="border-b border-[#F3F4F6] last:border-0">
             <Link href={l.href} className="flex items-center gap-3 px-4 py-4 text-[15px] font-medium text-[#111827]">
-              <l.icon className="size-5 text-[#B72E57]" strokeWidth={1.75} />
+              <l.icon className="size-5 text-[#E91E63]" strokeWidth={1.75} />
               {l.label}
             </Link>
           </li>

@@ -57,7 +57,7 @@ export function SplashIntro() {
     >
       <span className="lw-splash-mark">
         <img
-          src="/Lieferway-lockup.png?v=15"
+          src="/Lieferway-lockup.png?v=16"
           alt="Lieferway"
           width={835}
           height={200}

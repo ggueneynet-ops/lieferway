@@ -30,20 +30,30 @@ export function CuisineRow({
   ];
 
   return (
-    <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 py-0.5" data-category-row="pills">
+    <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 py-1" data-category-row="circles">
       {items.map((item) => (
         <Link
           key={item.key}
           href={item.href}
           scroll={false}
-          className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold transition ${
-            item.active
-              ? "bg-[#B72E57] text-white shadow-[0_8px_18px_rgba(183,46,87,0.28)]"
-              : "bg-white text-[#111827] ring-1 ring-[#E5E7EB] hover:ring-[#E8C5D0]"
-          }`}
+          className="flex w-[4.35rem] shrink-0 flex-col items-center gap-1.5"
         >
-          <CategoryIcon name={item.key} className="size-[18px]" />
-          {item.label}
+          <span
+            className={`flex size-14 items-center justify-center rounded-full transition ${
+              item.active
+                ? "bg-[#E91E63] text-white shadow-[0_8px_18px_rgba(233,30,99,0.22)]"
+                : "bg-[#F7F7F8] text-[#0F172A] ring-1 ring-[#E8E8EC]"
+            }`}
+          >
+            <CategoryIcon name={item.key} className="size-[22px]" />
+          </span>
+          <span
+            className={`w-full truncate text-center text-[11px] font-semibold ${
+              item.active ? "text-[#E91E63]" : "text-[#0F172A]"
+            }`}
+          >
+            {item.label}
+          </span>
         </Link>
       ))}
     </div>

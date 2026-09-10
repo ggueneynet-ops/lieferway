@@ -80,13 +80,13 @@ export function HeroSearch({
         onClick={() => setOpen(true)}
         className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-[16px] bg-[#FAFAFA] px-4 text-left text-[15px] text-[#111827] sm:h-[3.65rem] sm:px-5"
       >
-        <MapPin className="size-5 shrink-0 text-[#B72E57]" strokeWidth={1.75} />
+        <MapPin className="size-5 shrink-0 text-[#E91E63]" strokeWidth={1.75} />
         <span className={`truncate ${initialPlz ? "font-semibold" : "text-[#9CA3AF]"}`}>{label}</span>
       </button>
       <button
         type="button"
         onClick={find}
-        className="mt-2 h-14 w-full shrink-0 rounded-[16px] bg-[#B72E57] px-7 text-sm font-semibold text-white hover:bg-[#922546] sm:mt-0 sm:h-[3.65rem] sm:w-auto"
+        className="mt-2 h-14 w-full shrink-0 rounded-[16px] bg-[#E91E63] px-7 text-sm font-semibold text-white hover:bg-[#C2185B] sm:mt-0 sm:h-[3.65rem] sm:w-auto"
       >
         {t.findRestaurants}
       </button>

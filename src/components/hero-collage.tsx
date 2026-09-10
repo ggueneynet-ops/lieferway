@@ -7,8 +7,8 @@ const PHOTOS = [
 export function HeroCollage() {
   return (
     <div className="pointer-events-none relative mx-auto hidden h-[300px] w-[300px] lg:block" aria-hidden>
-      <span className="absolute -right-6 -top-8 size-40 rounded-full bg-[#F7EBEF]/90" />
-      <span className="absolute -bottom-10 left-4 size-28 rounded-full bg-[#E8C5D0]/40" />
+      <span className="absolute -right-6 -top-8 size-40 rounded-full bg-[#F7F7F8]" />
+      <span className="absolute -bottom-10 left-4 size-28 rounded-full bg-[#E8E8EC]/70" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={PHOTOS[0]}

@@ -61,14 +61,14 @@ export default async function Home({
     <>
       {splashDone ? null : <SplashIntro />}
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
-      <main className="flex-1 bg-[#FAFAFA]">
+      <main className="flex-1 bg-white">
         <section className="lw-hero">
           <div className="lw-hero-wash" aria-hidden />
           <div className="lw-wrap relative py-8 sm:py-12">
             <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
               <div>
                 <p className="text-sm font-medium text-[#6B7280]">{copy.city}</p>
-                <h1 className="mt-3 max-w-2xl text-balance font-display text-[2.15rem] font-semibold leading-[1.12] tracking-tight text-[#111827] sm:text-5xl">
+                <h1 className="mt-3 max-w-2xl text-balance font-display text-[2.15rem] font-semibold leading-[1.12] tracking-tight text-[#0F172A] sm:text-5xl">
                   {copy.heroHeadline}
                 </h1>
                 <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#6B7280] sm:text-base">
@@ -101,7 +101,7 @@ export default async function Home({
 
         <WhyLieferway />
 
-        <section className="bg-[#FAFAFA]">
+        <section className="bg-white">
           <div className="lw-wrap pt-6 pb-5">
             {plz ? <RadiusChips plz={plz} q={q} cuisine={cuisine} km={km} /> : null}
             <div className="mt-4">
@@ -115,7 +115,7 @@ export default async function Home({
             <HomeSectionTitle count={filtered.length} plz={plz} km={plz ? km : undefined} />
           </div>
           {filtered.length === 0 ? (
-            <div className="rounded-[20px] border border-[#E5E7EB] bg-white px-4 py-12 text-center shadow-[0_8px_24px_rgba(17,24,39,0.04)]">
+            <div className="rounded-[20px] border border-[#E8E8EC] bg-white px-4 py-12 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
               <p className="text-[#6B7280]">
                 {plz && km != null
                   ? interpolate(copy.noDeliveryInRadius, { plz, km: String(km) })
@@ -126,7 +126,7 @@ export default async function Home({
               {plz ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               {filtered.map((r) => (
                 <RestaurantCard
                   key={r.id}

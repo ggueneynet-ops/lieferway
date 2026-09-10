@@ -28,7 +28,7 @@ type CartLine = {
   quantity: number;
 };
 
-const PINK = "#B72E57";
+const PINK = "#E91E63";
 const BG = "#FFFFFF";
 
 function eur(cents: number) {
@@ -387,5 +387,5 @@ const styles = StyleSheet.create({
   link: { marginBottom: 14 },
   linkText: { color: PINK, fontWeight: "600" },
   pay: { padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#fff", marginBottom: 8 },
-  payOn: { borderColor: PINK, backgroundColor: "#F7EBEF" },
+  payOn: { borderColor: PINK, backgroundColor: "#FFF5F8" },
 });

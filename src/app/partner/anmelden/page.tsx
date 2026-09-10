@@ -47,14 +47,14 @@ export default async function PartnerApplyPage({
             {[t.partnerPitchCommission, t.partnerPitchNoContract, t.partnerPitchSelfDelivery].map((pitch) => (
               <p
                 key={pitch}
-                className="inline-flex rounded-full bg-[#F7EBEF] px-3 py-1 text-[12px] font-semibold text-[#922546]"
+                className="inline-flex rounded-full bg-[#FFF5F8] px-3 py-1 text-[12px] font-semibold text-[#C2185B]"
               >
                 {pitch}
               </p>
             ))}
           </div>
           <p className="mt-3 text-sm font-semibold text-ink">{t.partnerPitchLine}</p>
-          <p className="mt-4 rounded-2xl border border-[#E8C5D0] bg-[#F7EBEF] px-4 py-3 text-[15px] font-semibold leading-snug text-[#111827]">
+          <p className="mt-4 rounded-2xl border border-[#E8E8EC] bg-white px-4 py-3 text-[15px] font-semibold leading-snug text-[#0F172A]">
             {t.partnerPrinterBenefit}
           </p>
           <p className="mt-5 text-sm text-text-secondary">

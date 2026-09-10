@@ -35,7 +35,7 @@ export function StickyCartBar() {
             openCart();
           }}
           data-cart-trigger="bar"
-          className="pointer-events-auto flex h-12 w-full cursor-pointer touch-manipulation items-center justify-between rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(183,46,87,0.35)]"
+          className="pointer-events-auto flex h-12 w-full cursor-pointer touch-manipulation items-center justify-between rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(233,30,99,0.35)]"
         >
           <span className="inline-flex items-center gap-2">
             <ShoppingBag className="size-4" />

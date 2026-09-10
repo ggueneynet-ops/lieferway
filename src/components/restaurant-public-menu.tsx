@@ -16,6 +16,7 @@ import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constan
 import { formatDistanceKm, normalizePlz } from "@/lib/plz";
 import { distanceFromOrigin, parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
+import { RestaurantPublicTabs } from "@/components/restaurant-public-tabs";
 
 export async function RestaurantPublicMenu({ slug }: { slug: string }) {
   const { t, locale } = await getCopy();
@@ -78,7 +79,7 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
   return (
     <>
       <SiteHeader plz={plz} km={km} />
-      <main className="lw-page-enter flex-1 bg-[#FAFAFA]">
+      <main className="lw-page-enter flex-1 bg-white">
         <div className="h-[220px] w-full overflow-hidden bg-[#F3F4F6] sm:h-[300px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={photo} alt="" className="h-full w-full object-cover object-center" />
@@ -100,24 +101,24 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
               {restaurant.name}
             </h1>
             {restaurant.launchWeekFreeDelivery ? (
-              <span className="rounded-full bg-[#1A1A1A] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+              <span className="rounded-full bg-[#0F172A] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                 {t.launchWeekBadge}
               </span>
             ) : null}
             {restaurant.reviewCount === 0 ? (
-              <span className="rounded-full bg-[#F7EBEF] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#922546]">
+              <span className="rounded-full bg-[#FFF5F8] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#C2185B]">
                 {t.badgeNew}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold text-[#111827] ring-1 ring-[#E5E7EB]">
-                <Star className="size-3 fill-[#B72E57] text-[#B72E57]" />
+                <Star className="size-3 fill-[#E91E63] text-[#E91E63]" />
                 {restaurant.rating.toFixed(1)}
                 <span className="font-medium text-[#9CA3AF]">({restaurant.reviewCount})</span>
               </span>
             )}
           </div>
           {restaurant.launchWeekFreeDelivery ? (
-            <p className="mt-2 text-sm font-medium text-[#922546]">{t.launchWeekFreeHint}</p>
+            <p className="mt-2 text-sm font-medium text-[#C2185B]">{t.launchWeekFreeHint}</p>
           ) : null}
           {!restaurant.isOpen && (
             <p className="mt-2 text-sm font-medium text-destructive">{t.closedNow}</p>
@@ -146,23 +147,25 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
             launchWeekFreeDelivery={Boolean(restaurant.launchWeekFreeDelivery)}
           />
 
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
-            {restaurant.address} · {restaurant.description}
-          </p>
-
-          <div className="mt-8">
-            <h2 className="mb-3 font-display text-xl font-semibold text-[#111827]">{t.rpReviews}</h2>
-            <ReviewList
-              reviews={restaurant.reviews}
-              locale={locale}
-              empty={t.noReviewsYet}
-              replyLabel={t.restaurantReply}
-            />
-          </div>
-
-          <div className="mt-8">
-            <MenuClient restaurant={{ ...restaurant, deliveryFeeCents: feeCents }} />
-          </div>
+          <RestaurantPublicTabs
+            menu={<MenuClient restaurant={{ ...restaurant, deliveryFeeCents: feeCents }} />}
+            reviews={
+              <ReviewList
+                reviews={restaurant.reviews}
+                locale={locale}
+                empty={t.noReviewsYet}
+                replyLabel={t.restaurantReply}
+              />
+            }
+            info={
+              <div className="rounded-[20px] border border-[#E8E8EC] bg-white p-5">
+                <p className="text-sm leading-relaxed text-[#64748B]">
+                  {restaurant.address} · {restaurant.postalCode} {restaurant.city}
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-[#0F172A]">{restaurant.description}</p>
+              </div>
+            }
+          />
         </div>
       </main>
       <SiteFooter compact />

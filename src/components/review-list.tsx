@@ -45,8 +45,8 @@ export function ReviewList({
           </div>
           {r.comment ? <p className="mt-2 text-sm leading-relaxed text-[#111827]">{r.comment}</p> : null}
           {r.reply ? (
-            <div className="mt-3 rounded-xl bg-[#F7EBEF] px-3 py-2.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#922546]">{replyLabel}</p>
+            <div className="mt-3 rounded-xl bg-[#FFF5F8] px-3 py-2.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#C2185B]">{replyLabel}</p>
               <p className="mt-1 text-sm text-[#111827]">{r.reply}</p>
             </div>
           ) : null}

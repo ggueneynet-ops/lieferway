@@ -13,12 +13,12 @@ const markInner = fs
 function lockup(fill) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 172" width="700" height="172">
-  <g transform="translate(-48 -14)">${markInner.replace(/#B72E57/g, fill)}</g>
+  <g transform="translate(-48 -14)">${markInner.replace(/#E91E63/g, fill)}</g>
   <text x="318" y="108" font-family="Inter" font-weight="700" font-style="italic" font-size="54" fill="${fill}">Lieferway</text>
 </svg>`;
 }
 
-const pink = lockup("#B72E57");
+const pink = lockup("#E91E63");
 const white = lockup("#FFFFFF");
 fs.writeFileSync(path.join(PUBLIC, "logo-header.svg"), pink);
 fs.writeFileSync(path.join(PUBLIC, "logo-header-white.svg"), white);

@@ -285,7 +285,7 @@ export function CheckoutClient() {
                 </div>
               </div>
             </section>
-            <section className="rounded-[20px] border border-[#B72E57]/20 bg-[#F7EBEF] px-5 py-4 sm:px-6">
+            <section className="rounded-[20px] border border-[#E8E8EC] bg-white px-5 py-4 sm:px-6">
               <h2 className="font-display text-base font-semibold tracking-tight text-[#111827]">
                 {pickup ? t.pickupAtCounter : t.restaurantDelivers}
               </h2>
@@ -346,8 +346,8 @@ export function CheckoutClient() {
                   onClick={() => void applyCode(code)}
                   className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                     coupon?.code === code
-                      ? "bg-[#B72E57] text-white"
-                      : "bg-[#F7EBEF] text-[#922546]"
+                      ? "bg-[#E91E63] text-white"
+                      : "bg-[#FFF5F8] text-[#C2185B]"
                   }`}
                 >
                   {code}

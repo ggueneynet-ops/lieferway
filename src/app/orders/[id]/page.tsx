@@ -11,6 +11,8 @@ import { ReviewForm } from "@/components/review-form";
 import { getCopy } from "@/lib/get-locale";
 import { interpolate } from "@/lib/i18n";
 import { isPickup } from "@/lib/fulfillment";
+import { Check } from "lucide-react";
+import Link from "next/link";
 
 export default async function OrderDetailPage({
   params,
@@ -64,6 +66,21 @@ export default async function OrderDetailPage({
       <OrderPoller id={order.id} />
       <main className="lw-flow-enter mx-auto grid w-full max-w-5xl flex-1 gap-8 px-4 py-10 lg:grid-cols-[1fr_320px]">
         <div>
+          {order.status === "PLACED" || order.status === "PREPARING" ? (
+            <div className="mb-8 rounded-[24px] border border-[#E8E8EC] bg-white px-6 py-8 text-center shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+              <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#E91E63] text-white">
+                <Check className="size-8" strokeWidth={2.4} />
+              </span>
+              <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight text-[#0F172A]">
+                {t.orderConfirmedTitle}
+              </h1>
+              <p className="mt-2 text-sm text-[#64748B]">{t.orderConfirmedLead}</p>
+              <p className="mt-1 text-[13px] font-medium text-[#0F172A]">{order.shortCode}</p>
+              <Link href="/" className="mt-5 inline-flex text-sm font-semibold text-[#E91E63]">
+                {t.discoverRestaurants}
+              </Link>
+            </div>
+          ) : null}
           <p className="text-sm text-muted-foreground">{order.shortCode}</p>
           <div className="mt-1 flex flex-wrap items-center gap-3">
             <h1 className="font-display text-2xl font-semibold tracking-tight">{order.restaurant.name}</h1>

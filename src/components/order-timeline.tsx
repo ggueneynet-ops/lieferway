@@ -50,7 +50,7 @@ export function OrderTimeline({
             {i < flow.length - 1 ? (
               <span
                 className={`absolute start-[11px] top-7 h-[calc(100%-8px)] w-0.5 ${
-                  complete ? "bg-[#B72E57]" : "bg-[#E5E7EB]"
+                  complete ? "bg-[#E91E63]" : "bg-[#E5E7EB]"
                 }`}
                 aria-hidden
               />
@@ -58,9 +58,9 @@ export function OrderTimeline({
             <span
               className={`relative z-[1] flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
                 complete
-                  ? "bg-[#B72E57] text-white"
+                  ? "bg-[#E91E63] text-white"
                   : isCurrent
-                    ? "lw-step-current bg-[#B72E57] text-white"
+                    ? "lw-step-current bg-[#E91E63] text-white"
                     : "bg-[#F3F4F6] text-[#9CA3AF]"
               }`}
             >
