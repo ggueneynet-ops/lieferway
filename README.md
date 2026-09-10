@@ -44,7 +44,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 ## What is in v1
 
-- Customer: browse seeded Frankfurt restaurants, menu, cart, checkout, live status
+- Customer: browse seeded Frankfurt restaurants, menu, cart, checkout, live status. **In-app toasts** + order page polling when logged in. **Email** on placed / accepted (with prep ETA) / rejected / out for delivery / delivered — Resend, SMTP, or webhook; otherwise a clear demo log. Inbox on **Konto**.
 - Payments: Stripe **mock** (card / Apple Pay / Google Pay UI) + cash. Structure in `src/lib/payments.ts` for a real Stripe swap later
 - Restaurant panel: live kitchen board (SSE + poll), accept/reject, status, **new-order bell** (repeats until Annehmen). **Bon drucken** on tickets. **Bestellungen** date filter (Heute / Gestern / Datum). Restaurant marks orders ready for **its own delivery**. **Lieferung**: editable Lieferzeit (min–max minutes on marketplace cards), Mindestbestellwert, Liefergebühr, radius.
 - Admin: hidden URL `/admin` (not linked in the public footer). Restaurants, users, orders, Monday payout ledger.
@@ -97,6 +97,29 @@ NEXT_PUBLIC_APP_URL=https://your-origin.example
 ```
 
 OAuth is wired into the existing JWT session (same cookie as email/password). We did not add a second auth library.
+
+## Customer notifications
+
+The restaurant **Annehmen** / **Ablehnen** path (and later Unterwegs / Geliefert) writes a `CustomerNotice` and emails the customer’s account address.
+
+Copy is **German by default**, using `user.locale` when set (`de` / `en` / `tr`).
+
+Mail send order (first configured wins):
+
+```
+RESEND_API_KEY=re_...
+# or
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_SECURE=false
+# or
+MAIL_WEBHOOK_URL=https://example.com/mail-hook
+MAIL_FROM=Lieferway <noreply@lieferway.de>
+```
+
+Without those, the server logs `[lieferway mail demo] no RESEND_API_KEY/SMTP_HOST — not sent` and still stores the in-app notice.
 
 **Customer phone is mandatory.** Register requires a number (German format preferred, e.g. `+49 171 1234567`). After Google sign-in, if no phone is on file, Lieferway sends you to **Telefonnummer angeben** before you can order. Checkout (UI and `POST /api/orders`) refuses orders without a valid phone. Kitchen tickets and courier cards show the number for contact.
 

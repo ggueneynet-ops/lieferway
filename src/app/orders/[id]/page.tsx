@@ -72,7 +72,12 @@ export default async function OrderDetailPage({
               <span className="mt-1 block">{latestNotice.body}</span>
               {latestNotice.emailSent ? (
                 <span className="mt-1 block text-[#6B7280]">
-                  {interpolate(t.orderNoticeEmailDemo, { email: latestNotice.emailTo })}
+                  {interpolate(
+                    latestNotice.emailChannel && latestNotice.emailChannel !== "demo"
+                      ? t.orderNoticeEmailSent
+                      : t.orderNoticeEmailDemo,
+                    { email: latestNotice.emailTo },
+                  )}
                 </span>
               ) : null}
             </p>

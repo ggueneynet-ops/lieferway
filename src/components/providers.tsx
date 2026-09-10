@@ -5,6 +5,7 @@ import { LocaleProvider } from "@/components/locale-provider";
 import { StickyCartBar } from "@/components/sticky-cart-bar";
 import { CartSheet } from "@/components/cart-sheet";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
+import { CustomerNoticePoller } from "@/components/customer-notice-poller";
 import type { Locale } from "@/lib/i18n";
 
 export function Providers({
@@ -21,6 +22,7 @@ export function Providers({
         <MobileTabBar />
         <StickyCartBar />
         <CartSheet />
+        <CustomerNoticePoller />
       </CartProvider>
     </LocaleProvider>
   );

@@ -109,7 +109,9 @@ export function OrderTracker({
         const label = STATUS_LABEL[locale][next] ?? next;
         const msg = restaurantName ? `${restaurantName} · ${label}` : label;
         setFlash(msg);
-        toast.success(shortCode ? `${shortCode} · ${label}` : msg);
+        const line = shortCode ? `${shortCode} · ${label}` : msg;
+        if (next === "REJECTED" || next === "CANCELLED") toast.error(line);
+        else toast.success(line);
       }
     };
     void tick();

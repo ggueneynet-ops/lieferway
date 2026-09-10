@@ -159,6 +159,8 @@ export async function POST(req: Request) {
 
     const { notifyRestaurantOrders } = await import("@/lib/order-events");
     notifyRestaurantOrders(order.restaurantId);
+    const { notifyCustomerOfOrderStatus } = await import("@/lib/notify-customer");
+    await notifyCustomerOfOrderStatus(order.id, "PLACED");
 
     return json({ order }, 201);
   } catch (e) {
