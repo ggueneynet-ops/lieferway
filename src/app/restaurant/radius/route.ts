@@ -6,7 +6,7 @@ import { parseRestaurantRadius } from "@/lib/radius";
 
 function redirectTo(path: string) {
   revalidatePath("/");
-  revalidatePath("/restaurant");
+  revalidatePath("/restaurant/delivery");
   return new NextResponse(null, { status: 303, headers: { Location: path } });
 }
 
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       where: { id },
       data: { maxDeliveryKm },
     });
-    return redirectTo("/restaurant?ok=radius");
+    return redirectTo("/restaurant/delivery?ok=radius");
   } catch {
     return redirectTo("/login?next=/restaurant");
   }

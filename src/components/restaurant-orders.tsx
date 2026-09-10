@@ -82,6 +82,7 @@ export function RestaurantOrders({
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const [live, setLive] = useState(false);
   const [pending, setPending] = useState<Set<string>>(new Set());
+  const [picking, setPicking] = useState<string | null>(null);
   const seenRef = useRef<Set<string> | null>(null);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
@@ -184,10 +185,10 @@ export function RestaurantOrders({
     };
   }, [restaurantId, applySnapshot]);
 
-  async function act(id: string, action: string) {
+  async function act(id: string, action: string, prepMinutes?: number) {
     if (pending.has(id)) return;
     const nextStatus: Record<string, KitchenOrder["status"]> = {
-      accept: "ACCEPTED",
+      accept: prepMinutes ? "PREPARING" : "ACCEPTED",
       reject: "REJECTED",
       preparing: "PREPARING",
       ready: "READY",
@@ -197,7 +198,11 @@ export function RestaurantOrders({
     const optimistic = nextStatus[action];
     const prev = orders;
     if (optimistic) {
-      setOrders((list) => list.map((o) => (o.id === id ? { ...o, status: optimistic } : o)));
+      setOrders((list) =>
+        list.map((o) =>
+          o.id === id ? { ...o, status: optimistic, prepMinutes: prepMinutes ?? o.prepMinutes } : o,
+        ),
+      );
       setHighlight((cur) => {
         const n = new Set(cur);
         n.delete(id);
@@ -209,7 +214,7 @@ export function RestaurantOrders({
       const res = await fetch(`/api/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, prepMinutes }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -276,7 +281,7 @@ export function RestaurantOrders({
             {open ? t.closeNow : t.openNow}
             <span className="ml-1 font-normal text-text-secondary">· {open ? t.open : t.closed}</span>
           </Button>
-          <Button variant={muted ? "outline" : "default"} size="sm" className="h-10" onClick={toggleMute}>
+          <Button variant="outline" size="sm" className="h-10" onClick={toggleMute}>
             {muted ? t.soundOff : t.soundOn}
           </Button>
         </div>
@@ -296,18 +301,18 @@ export function RestaurantOrders({
       </div>
 
       <section className="mb-4">
-        <h2 className="mb-2 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">
-          {t.newIncoming}
+        <h2 className="mb-2 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-[#6B7280]">
+          {t.rpNewOrder}
           {incoming.length > 0 ? (
-            <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold normal-case text-primary-foreground">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold normal-case text-white">
               {incoming.length}
             </span>
           ) : null}
         </h2>
         {incoming.length === 0 ? (
-          <p className="rounded-lg border border-border bg-surface p-3 text-[13px] text-text-secondary">{t.noIncoming}</p>
+          <p className="rounded-2xl border border-[#E5E7EB] bg-white p-4 text-[14px] text-[#6B7280]">{t.noIncoming}</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {incoming.map((o) => (
               <OrderCard
                 key={o.id}
@@ -318,22 +323,52 @@ export function RestaurantOrders({
                 phoneLabel={t.phoneNumber}
                 nameLabel={t.fullName}
                 highlight={highlight.has(o.id)}
+                kicker={t.rpNewOrder}
               >
-                <Button
-                  className="h-12 min-w-32 flex-1 px-6 text-base font-semibold"
-                  disabled={pending.has(o.id)}
-                  onClick={() => act(o.id, "accept")}
-                >
-                  {t.accept}
-                </Button>
-                <Button
-                  className="h-12 flex-1 px-6 text-base"
-                  variant="outline"
-                  disabled={pending.has(o.id)}
-                  onClick={() => act(o.id, "reject")}
-                >
-                  {t.reject}
-                </Button>
+                {picking === o.id ? (
+                  <div className="w-full space-y-2">
+                    <p className="text-sm font-medium text-[#111827]">{t.rpPrepTime}</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[10, 20, 30, 45].map((min) => (
+                        <button
+                          key={min}
+                          type="button"
+                          disabled={pending.has(o.id)}
+                          onClick={() => act(o.id, "accept", min)}
+                          className="h-12 rounded-xl bg-primary text-sm font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                        >
+                          {min} {t.rpMin}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="text-sm text-[#6B7280]"
+                      onClick={() => setPicking(null)}
+                    >
+                      ←
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      disabled={pending.has(o.id)}
+                      onClick={() => setPicking(o.id)}
+                      className="h-12 min-w-32 flex-1 rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                    >
+                      {t.accept}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={pending.has(o.id)}
+                      onClick={() => act(o.id, "reject")}
+                      className="h-12 flex-1 rounded-xl border border-[#E5E7EB] bg-white px-6 text-base font-medium text-[#111827] disabled:opacity-50"
+                    >
+                      {t.reject}
+                    </button>
+                  </>
+                )}
               </OrderCard>
             ))}
           </div>
@@ -341,8 +376,8 @@ export function RestaurantOrders({
       </section>
 
       <section>
-        <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">{t.kitchen}</h2>
-        <div className="space-y-2">
+        <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-[#6B7280]">{t.kitchen}</h2>
+        <div className="space-y-3">
           {active.map((o) => (
             <OrderCard
               key={o.id}
@@ -352,31 +387,68 @@ export function RestaurantOrders({
               deliveryLabel={t.deliveryTo}
               phoneLabel={t.phoneNumber}
               nameLabel={t.fullName}
+              kicker={
+                o.status === "PREPARING"
+                  ? t.rpInPrep
+                  : o.status === "READY"
+                    ? t.rpReadyCta
+                    : o.status === "OUT_FOR_DELIVERY"
+                      ? t.rpOnTheWay
+                      : t.accepted
+              }
             >
+              {o.prepMinutes ? (
+                <p className="w-full text-sm text-[#6B7280]">{interpolate(t.prepEta, { min: String(o.prepMinutes) })}</p>
+              ) : null}
               {o.status === "ACCEPTED" && (
-                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "preparing")}>
-                  {t.startPrep}
-                </Button>
+                <div className="grid w-full grid-cols-4 gap-2">
+                      {[10, 20, 30, 45].map((min) => (
+                        <button
+                          key={min}
+                          type="button"
+                          disabled={pending.has(o.id)}
+                          onClick={() => act(o.id, "preparing", min)}
+                          className="h-12 rounded-xl bg-primary text-sm font-semibold text-white disabled:opacity-50"
+                        >
+                          {min}
+                        </button>
+                      ))}
+                </div>
               )}
               {o.status === "PREPARING" && (
-                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "ready")}>
-                  {t.readyForCourier}
-                </Button>
+                <button
+                  type="button"
+                  disabled={pending.has(o.id)}
+                  onClick={() => act(o.id, "ready")}
+                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                >
+                  {t.rpReadyCta}
+                </button>
               )}
               {o.status === "READY" && (
-                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "out")}>
-                  {t.startDelivery}
-                </Button>
+                <button
+                  type="button"
+                  disabled={pending.has(o.id)}
+                  onClick={() => act(o.id, "out")}
+                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                >
+                  {t.rpOnTheWay}
+                </button>
               )}
               {o.status === "OUT_FOR_DELIVERY" && (
-                <Button className="h-12 px-6 text-base" disabled={pending.has(o.id)} onClick={() => act(o.id, "deliver")}>
+                <button
+                  type="button"
+                  disabled={pending.has(o.id)}
+                  onClick={() => act(o.id, "deliver")}
+                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                >
                   {t.markDelivered}
-                </Button>
+                </button>
               )}
             </OrderCard>
           ))}
           {active.length === 0 && (
-            <p className="rounded-lg border border-border bg-surface p-3 text-[13px] text-text-secondary">
+            <p className="rounded-2xl border border-[#E5E7EB] bg-white p-4 text-[14px] text-[#6B7280]">
               {t.nothingCooking}
             </p>
           )}
@@ -395,6 +467,7 @@ function OrderCard({
   phoneLabel,
   nameLabel,
   highlight,
+  kicker,
 }: {
   order: KitchenOrder;
   children?: React.ReactNode;
@@ -404,11 +477,15 @@ function OrderCard({
   phoneLabel: string;
   nameLabel: string;
   highlight?: boolean;
+  kicker?: string;
 }) {
   return (
     <article
       className={`rounded-2xl border bg-white p-4 ${highlight ? "lw-new-ticket shadow-[0_8px_24px_rgba(233,30,99,0.12)]" : "border-[#E5E7EB]"}`}
     >
+      {kicker ? (
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">{kicker}</p>
+      ) : null}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="font-semibold text-ink">

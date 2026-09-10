@@ -13,6 +13,7 @@ export type KitchenOrder = {
   totalCents: number;
   foodSubtotalCents: number;
   notes: string | null;
+  prepMinutes: number | null;
   createdAt: string;
   street: string;
   city: string;
@@ -29,6 +30,7 @@ export function serializeKitchenOrder(o: {
   totalCents: number;
   foodSubtotalCents: number;
   notes: string | null;
+  prepMinutes?: number | null;
   createdAt: Date;
   street: string;
   city: string;
@@ -44,6 +46,7 @@ export function serializeKitchenOrder(o: {
     totalCents: o.totalCents,
     foodSubtotalCents: o.foodSubtotalCents,
     notes: o.notes,
+    prepMinutes: o.prepMinutes ?? null,
     createdAt: o.createdAt.toISOString(),
     street: o.street,
     city: o.city,

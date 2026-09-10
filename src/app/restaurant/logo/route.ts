@@ -6,7 +6,7 @@ import { parseLogoUrl, saveRestaurantLogoFile } from "@/lib/logo-upload";
 
 function redirectTo(path: string) {
   revalidatePath("/");
-  revalidatePath("/restaurant");
+  revalidatePath("/restaurant/settings");
   return new NextResponse(null, { status: 303, headers: { Location: path } });
 }
 
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         ? await prisma.restaurant.findUnique({ where: { id } })
         : await prisma.restaurant.findUnique({ where: { ownerId: session.id } });
     if (!restaurant) {
-      return redirectTo("/restaurant?error=" + encodeURIComponent("Restaurant nicht gefunden."));
+      return redirectTo("/restaurant/settings?error=" + encodeURIComponent("Restaurant nicht gefunden."));
     }
 
     const file = form.get("logoFile");
@@ -28,13 +28,13 @@ export async function POST(req: Request) {
     if (file instanceof File && file.size > 0) {
       const saved = await saveRestaurantLogoFile(file, restaurant.id);
       if (typeof saved !== "string") {
-        return redirectTo("/restaurant?error=" + encodeURIComponent("Logo-Datei prüfen (PNG/JPG/WebP, max. 2 MB)."));
+        return redirectTo("/restaurant/settings?error=" + encodeURIComponent("Logo-Datei prüfen (PNG/JPG/WebP, max. 2 MB)."));
       }
       logoUrl = saved;
     } else {
       const parsed = parseLogoUrl(String(form.get("logoUrl") ?? ""));
       if (parsed === "invalid") {
-        return redirectTo("/restaurant?error=" + encodeURIComponent("Logo-URL prüfen."));
+        return redirectTo("/restaurant/settings?error=" + encodeURIComponent("Logo-URL prüfen."));
       }
       logoUrl = parsed;
     }
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       where: { id: restaurant.id },
       data: { logoUrl },
     });
-    return redirectTo("/restaurant?ok=logo");
+    return redirectTo("/restaurant/settings?ok=logo");
   } catch {
     return redirectTo("/login?next=/restaurant");
   }

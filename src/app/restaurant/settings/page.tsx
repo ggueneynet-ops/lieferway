@@ -1,0 +1,46 @@
+import { RestaurantAppShell } from "@/components/restaurant-app-shell";
+import { RestaurantLogoForm } from "@/components/restaurant-logo-form";
+import { requireOwnedRestaurant } from "@/lib/restaurant-access";
+import { getCopy } from "@/lib/get-locale";
+
+export const dynamic = "force-dynamic";
+
+export default async function RestaurantSettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ok?: string; error?: string }>;
+}) {
+  const { restaurant } = await requireOwnedRestaurant();
+  const { t } = await getCopy();
+  const q = await searchParams;
+  if (!restaurant) {
+    return (
+      <RestaurantAppShell title={t.rpSettings}>
+        <p className="text-sm text-[#6B7280]">{t.noRestaurantYet}</p>
+      </RestaurantAppShell>
+    );
+  }
+
+  return (
+    <RestaurantAppShell title={t.rpSettings} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
+      <h1 className="mb-3 text-lg font-semibold">{t.rpSettings}</h1>
+      {q.ok === "logo" ? <p className="mb-3 rounded-xl bg-white px-3 py-2 text-sm">{t.logoSaved}</p> : null}
+      {q.error ? <p className="mb-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{q.error}</p> : null}
+      <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4">
+        <RestaurantLogoForm
+          restaurantId={restaurant.id}
+          name={restaurant.name}
+          slug={restaurant.slug}
+          logoUrl={restaurant.logoUrl}
+          action="/restaurant/logo"
+          labels={{
+            shopLogo: t.shopLogo,
+            shopLogoHint: t.shopLogoHint,
+            save: t.save,
+            photoOptional: t.logoUrlPlaceholder,
+          }}
+        />
+      </div>
+    </RestaurantAppShell>
+  );
+}

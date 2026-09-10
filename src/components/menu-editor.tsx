@@ -120,11 +120,28 @@ export async function MenuEditor({
                           </p>
                           <p className="text-sm text-text-secondary">{formatEUR(item.priceCents, locale)}</p>
                         </div>
-                        <div className="flex shrink-0 gap-2">
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <form action="/restaurant/menu/price" method="post" className="flex items-center gap-1">
+                            <input type="hidden" name="id" value={item.id} />
+                            <label className="sr-only" htmlFor={`p-${item.id}`}>
+                              {t.editPrice}
+                            </label>
+                            <input
+                              id={`p-${item.id}`}
+                              name="price"
+                              inputMode="decimal"
+                              defaultValue={(item.priceCents / 100).toFixed(2).replace(".", ",")}
+                              className="h-11 w-[4.5rem] rounded-lg border border-border px-2 text-sm"
+                            />
+                            <button type="submit" className="h-11 rounded-xl border border-border px-2 text-sm">
+                              {t.save}
+                            </button>
+                          </form>
+                          <div className="flex gap-2">
                           <form action="/restaurant/menu/toggle" method="post">
                             <input type="hidden" name="id" value={item.id} />
                             <button type="submit" className="h-11 rounded-xl border border-border px-3 text-sm">
-                              {item.isAvailable ? t.turnOff : t.turnOn}
+                              {item.isAvailable ? t.rpSoldOut : t.rpAvailable}
                             </button>
                           </form>
                           <form action="/restaurant/menu/delete" method="post">
@@ -133,6 +150,7 @@ export async function MenuEditor({
                               {t.delete}
                             </button>
                           </form>
+                          </div>
                         </div>
                       </li>
                     );

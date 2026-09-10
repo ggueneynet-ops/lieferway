@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PanelShell } from "@/components/panel-shell";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/status-badge";
@@ -30,7 +31,11 @@ export default async function AdminOrdersPage() {
           <tbody>
             {orders.map((o) => (
               <tr key={o.id} className="border-b border-border last:border-0">
-                <td className="px-4 py-4 font-medium">{o.shortCode}</td>
+                <td className="px-4 py-4 font-medium">
+                  <Link href={`/admin/orders/${o.id}`} className="hover:underline">
+                    {o.shortCode}
+                  </Link>
+                </td>
                 <td className="px-4 py-4">
                   {o.restaurant.name}
                   <span className="block text-sm text-text-secondary">{o.customer.name}</span>

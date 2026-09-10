@@ -72,7 +72,7 @@ export default async function AdminApplicationsPage({
                         type="submit"
                         className="h-11 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary-pressed"
                       >
-                        {t.approveApplication}
+                        {t.adminApproveAccess}
                       </button>
                     </form>
                     {app.status === "PENDING" ? (
@@ -80,7 +80,7 @@ export default async function AdminApplicationsPage({
                         <input type="hidden" name="id" value={app.id} />
                         <input type="hidden" name="status" value="CONTACTED" />
                         <button type="submit" className="h-11 rounded-xl border border-border bg-white px-4 text-sm font-medium hover:bg-bg-muted">
-                          {t.markContacted}
+                          {t.adminCheck}
                         </button>
                       </form>
                     ) : null}

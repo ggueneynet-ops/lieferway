@@ -63,7 +63,7 @@ export default async function AdminRestaurantReportPage({
   });
   if (!restaurant) notFound();
 
-  const [totals, today, week, month, recent] = await Promise.all([
+  const [totals, today, week, month, recent, betterRated] = await Promise.all([
     restaurantReportTotals(id, range),
     restaurantReportTotals(id, resolveReportRange("today")),
     restaurantReportTotals(id, resolveReportRange("7d")),
@@ -84,7 +84,9 @@ export default async function AdminRestaurantReportPage({
       orderBy: { createdAt: "desc" },
       take: 40,
     }),
+    prisma.restaurant.count({ where: { rating: { gt: restaurant.rating } } }),
   ]);
+  const rank = betterRated + 1;
 
   const periodHref = (next: ReportPreset) => {
     const sp = new URLSearchParams();
@@ -118,6 +120,37 @@ export default async function AdminRestaurantReportPage({
             <p className="text-sm text-text-secondary">
               {cuisineName(locale, restaurant.cuisine)} · {restaurant.owner.email}
             </p>
+            {!restaurant.isActive ? (
+              <p className="mt-1 text-sm font-medium text-danger">{t.adminFrozen}</p>
+            ) : (
+              <p className="mt-1 text-sm text-text-secondary">
+                {t.adminRanking} #{rank} · {restaurant.rating.toFixed(1)}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <form action="/admin/restaurants/freeze" method="post">
+            <input type="hidden" name="id" value={restaurant.id} />
+            <input type="hidden" name="freeze" value={restaurant.isActive ? "1" : "0"} />
+            <button
+              type="submit"
+              className="h-11 rounded-xl border border-border bg-white px-4 text-sm font-medium"
+            >
+              {restaurant.isActive ? t.adminFreeze : t.adminUnfreeze}
+            </button>
+          </form>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border bg-white p-4">
+            <h2 className="font-semibold">{t.adminRefunds}</h2>
+            <p className="mt-1 text-sm text-text-secondary">{t.adminRefundsStub}</p>
+          </div>
+          <div className="rounded-2xl border bg-white p-4">
+            <h2 className="font-semibold">{t.adminComplaints}</h2>
+            <p className="mt-1 text-sm text-text-secondary">{t.adminComplaintsStub}</p>
           </div>
         </div>
 

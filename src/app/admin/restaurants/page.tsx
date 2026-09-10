@@ -155,6 +155,7 @@ export default async function AdminRestaurantsPage({
                   </p>
                   <p className="text-sm text-text-secondary">
                     {cuisineName(locale, r.cuisine)} · {r.owner.email}
+                    {!r.isActive ? ` · ${t.adminFrozen}` : ""}
                   </p>
                 </div>
                 <Link
@@ -210,6 +211,7 @@ export default async function AdminRestaurantsPage({
                     className="h-12 w-24 rounded-lg border border-border bg-background px-3 text-base"
                   />
                   <span className="text-sm text-text-secondary">%</span>
+                  <span className="text-xs text-text-secondary">5 / 7 / …</span>
                   <label className="sr-only" htmlFor={`r-${r.id}`}>
                     {t.maxDeliveryRadius} {r.name}
                   </label>

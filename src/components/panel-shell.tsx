@@ -36,11 +36,15 @@ export async function PanelShell({
     ],
     COURIER: [{ href: "/courier", label: t.navTours }],
     ADMIN: [
-      { href: "/admin", label: t.navStart },
+      { href: "/admin", label: t.adminDashboard },
+      { href: "/admin/live", label: t.adminLive },
       { href: "/admin/applications", label: t.partnerApplications },
       { href: "/admin/restaurants", label: t.restaurants },
       { href: "/admin/orders", label: t.navOrders },
       { href: "/admin/payouts", label: t.navPayouts },
+      { href: "/admin/coupons", label: t.adminCoupons },
+      { href: "/admin/users", label: t.adminUsers },
+      { href: "/admin/security", label: t.adminSecurity },
     ],
   };
   const links = NAV[session.role === "ADMIN" && roles.includes("ADMIN") ? "ADMIN" : session.role] ?? NAV.ADMIN;

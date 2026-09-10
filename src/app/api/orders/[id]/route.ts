@@ -48,6 +48,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = (await req.json().catch(() => null)) as {
       action?: string;
       courierId?: string;
+      prepMinutes?: number;
     } | null;
     const action = body?.action;
     if (!action) return fail("Aktion fehlt.");
@@ -68,12 +69,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     let acceptedAt = order.acceptedAt;
     let deliveredAt = order.deliveredAt;
 
+    let prepMinutes = order.prepMinutes;
+
     if (action === "accept" && (isOwner || isAdmin) && order.status === "PLACED") {
-      status = "ACCEPTED";
+      const mins = Number(body?.prepMinutes);
+      prepMinutes = [10, 20, 30, 45].includes(mins) ? mins : prepMinutes;
+      status = prepMinutes ? "PREPARING" : "ACCEPTED";
       acceptedAt = new Date();
     } else if (action === "reject" && (isOwner || isAdmin) && order.status === "PLACED") {
       status = "REJECTED";
     } else if (action === "preparing" && (isOwner || isAdmin) && ["ACCEPTED", "PLACED"].includes(order.status)) {
+      const mins = Number(body?.prepMinutes);
+      if ([10, 20, 30, 45].includes(mins)) prepMinutes = mins;
       status = "PREPARING";
       acceptedAt = acceptedAt ?? new Date();
     } else if (action === "ready" && (isOwner || isAdmin) && ["PREPARING", "ACCEPTED"].includes(order.status)) {
@@ -99,7 +106,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     const updated = await prisma.order.update({
       where: { id },
-      data: { status, courierId, acceptedAt, deliveredAt },
+      data: { status, courierId, acceptedAt, deliveredAt, prepMinutes },
       include,
     });
 
