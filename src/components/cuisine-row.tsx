@@ -1,21 +1,8 @@
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
-import { CookingPot, Fish, Flame, Leaf, Pizza, Sandwich, Soup, UtensilsCrossed, Wheat } from "lucide-react";
 import { CUISINES } from "@/lib/constants";
 import { cuisineName, type Locale } from "@/lib/i18n";
 import { marketplaceHref } from "@/lib/marketplace";
-
-const ICONS: Record<string, LucideIcon> = {
-  all: UtensilsCrossed,
-  Türkisch: Flame,
-  Italienisch: CookingPot,
-  Burger: Sandwich,
-  Sushi: Fish,
-  Deutsch: Wheat,
-  Vietnamesisch: Soup,
-  Gesund: Leaf,
-  Pizza: Pizza,
-};
+import { CategoryIcon } from "@/components/category-icon";
 
 export function CuisineRow({
   locale,
@@ -43,28 +30,35 @@ export function CuisineRow({
   ];
 
   return (
-    <div className="no-scrollbar flex gap-5 overflow-x-auto py-2">
-      {items.map((item) => {
-        const Icon = ICONS[item.key] ?? UtensilsCrossed;
-        return (
-          <Link key={item.key} href={item.href} className="flex w-16 shrink-0 flex-col items-center gap-2">
-            <span
-              className={`flex size-11 items-center justify-center rounded-full border ${
-                item.active ? "border-primary text-primary" : "border-border text-ink"
-              }`}
-            >
-              <Icon className="size-[18px]" strokeWidth={1.75} />
-            </span>
-            <span
-              className={`text-center text-[11px] leading-tight ${
-                item.active ? "font-semibold text-primary" : "text-text-secondary"
-              }`}
-            >
-              {item.label}
-            </span>
-          </Link>
-        );
-      })}
+    <div className="no-scrollbar flex gap-4 overflow-x-auto py-1 sm:gap-5">
+      {items.map((item) => (
+        <LinkCategory key={item.key} item={item} />
+      ))}
     </div>
+  );
+}
+
+function LinkCategory({
+  item,
+}: {
+  item: { key: string; href: string; label: string; active: boolean };
+}) {
+  return (
+    <Link href={item.href} className="flex w-[4.25rem] shrink-0 flex-col items-center gap-2">
+      <span
+        className={`flex size-12 items-center justify-center rounded-2xl ${
+          item.active ? "bg-[#FCE4EC] text-[#E91E63]" : "bg-transparent text-[#0F172A]"
+        }`}
+      >
+        <CategoryIcon name={item.key} className="size-6" />
+      </span>
+      <span
+        className={`text-center text-[11px] leading-tight ${
+          item.active ? "font-semibold text-[#E91E63]" : "text-[#0F172A]/70"
+        }`}
+      >
+        {item.label}
+      </span>
+    </Link>
   );
 }
