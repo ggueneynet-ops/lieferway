@@ -3,14 +3,18 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
     "*.trycloudflare.com",
-    "provincial-lenses-delhi-cotton.trycloudflare.com",
+    "*.lhr.life",
+    "*.loca.lt",
     "127.0.0.1",
     "localhost",
   ],
+  devIndicators: false,
   experimental: {
     serverActions: {
       allowedOrigins: [
         "*.trycloudflare.com",
+        "*.lhr.life",
+        "*.loca.lt",
         "127.0.0.1:43123",
         "localhost:43123",
       ],
