@@ -23,7 +23,7 @@ export default async function OrdersPage() {
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader chrome="app" />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
         <h1 className="text-2xl font-semibold">{t.orders}</h1>
         {orders.length === 0 ? (
@@ -60,7 +60,7 @@ export default async function OrdersPage() {
           </ul>
         )}
       </main>
-      <SiteFooter />
+      <SiteFooter compact />
     </>
   );
 }

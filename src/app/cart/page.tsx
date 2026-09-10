@@ -5,7 +5,7 @@ import { CartClient } from "@/components/cart-client";
 export default function CartPage() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader chrome="app" />
       <CartClient />
     </>
   );

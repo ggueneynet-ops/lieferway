@@ -365,6 +365,9 @@ export const dictionaries = {
     demoHelpPassword: "Passwort: lieferway",
     fillDemo: "Demo-Konto eintragen",
     noContractLock: "Keine Vertragsbindung",
+    editProfile: "Profil bearbeiten",
+    saveProfile: "Speichern",
+    language: "Sprache",
   },
   en: {
     brand: "Lieferway",
@@ -719,6 +722,9 @@ export const dictionaries = {
     demoHelpPassword: "Password: lieferway",
     fillDemo: "Fill demo account",
     noContractLock: "No contract lock-in",
+    editProfile: "Edit profile",
+    saveProfile: "Save",
+    language: "Language",
   },
   tr: {
     brand: "Lieferway",
@@ -1073,6 +1079,9 @@ export const dictionaries = {
     demoHelpPassword: "Şifre: lieferway",
     fillDemo: "Demo hesabını doldur",
     noContractLock: "Sözleşme bağlayıcılığı yok",
+    editProfile: "Profili düzenle",
+    saveProfile: "Kaydet",
+    language: "Dil",
   },
 } as const;
 

@@ -15,11 +15,13 @@ export async function SiteHeader({
   q,
   cuisine,
   km,
+  chrome = "market",
 }: {
   plz?: string | null;
   q?: string;
   cuisine?: string;
   km?: number | null;
+  chrome?: "market" | "app";
 } = {}) {
   const user = await getSession();
   const cookieStore = await cookies();
@@ -28,10 +30,11 @@ export async function SiteHeader({
   const activePlz = sanitizeDemoPlz(plz ?? cookieStore.get(PLZ_COOKIE)?.value, hasStreet);
   const activeKm =
     km !== undefined ? km : resolveUserRadius(null, cookieStore.get(RADIUS_COOKIE)?.value);
+  const app = chrome === "app";
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur-sm">
-      <div className="lw-wrap flex h-14 items-center gap-2 sm:h-16 sm:gap-4">
+      <div className="lw-wrap flex h-14 items-center gap-1.5 sm:h-16 sm:gap-4">
         <Logo size="sm" className="shrink-0 sm:hidden" />
         <Logo size="md" className="hidden shrink-0 sm:inline-flex" />
         <PlzForm
@@ -44,9 +47,17 @@ export async function SiteHeader({
           km={activeKm}
         />
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
-          <LocaleToggle />
-          <AccountMenu user={user} locale={locale} />
-          <CartButton compact />
+          <div className="hidden sm:block">
+            <LocaleToggle />
+          </div>
+          {app ? (
+            <div className="hidden sm:block">
+              <CartButton compact />
+            </div>
+          ) : (
+            <CartButton compact />
+          )}
+          <AccountMenu user={user} locale={locale} iconOnly={app} />
         </div>
       </div>
     </header>

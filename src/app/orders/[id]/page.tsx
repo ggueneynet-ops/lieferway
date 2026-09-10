@@ -45,7 +45,7 @@ export default async function OrderDetailPage({
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader chrome="app" />
       <OrderPoller id={order.id} />
       <main className="lw-flow-enter mx-auto grid w-full max-w-5xl flex-1 gap-8 px-4 py-10 lg:grid-cols-[1fr_320px]">
         <div>
@@ -102,7 +102,7 @@ export default async function OrderDetailPage({
           </p>
         </aside>
       </main>
-      <SiteFooter />
+      <SiteFooter compact />
     </>
   );
 }

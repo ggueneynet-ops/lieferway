@@ -22,9 +22,9 @@ export default async function CheckoutPage() {
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader chrome="app" />
       <CheckoutClient />
-      <SiteFooter />
+      <SiteFooter compact />
     </>
   );
 }

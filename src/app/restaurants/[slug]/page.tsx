@@ -116,7 +116,7 @@ export default async function RestaurantPage({
           </div>
         </div>
       </main>
-      <SiteFooter />
+      <SiteFooter compact />
     </>
   );
 }

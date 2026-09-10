@@ -1,6 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PhoneCaptureForm } from "@/components/phone-capture-form";
+import { ProfileCard } from "@/components/profile-card";
 import { LogoutButton } from "@/components/logout-button";
 import { getCopy } from "@/lib/get-locale";
 import { getSession } from "@/lib/auth";
@@ -21,28 +21,19 @@ export default async function AccountPage() {
 
   return (
     <>
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10">
-        <h1 className="font-display text-2xl font-semibold text-ink">{t.profile}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{db.email}</p>
-        <p className="mt-4 text-sm text-ink">
-          {t.name}: <span className="font-medium">{db.name}</span>
-        </p>
-        {session.role === "CUSTOMER" ? (
-          <>
-            <p className="mt-6 text-sm text-muted-foreground">{t.addPhoneLead}</p>
-            <PhoneCaptureForm initialPhone={db.phone ?? ""} next="/account" submitLabel={t.save} />
-          </>
-        ) : (
-          <p className="mt-6 text-sm text-muted-foreground">
-            {t.phoneNumber}: {db.phone || "—"}
-          </p>
-        )}
-        <div className="mt-10 border-t border-[#E5E7EB] pt-6">
-          <LogoutButton label={t.logout} />
+      <SiteHeader chrome="app" />
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6 sm:py-10">
+        <ProfileCard
+          name={db.name}
+          email={db.email}
+          phone={db.phone ?? ""}
+          canEdit={session.role === "CUSTOMER" || session.role === "ADMIN"}
+        />
+        <div className="mt-auto flex justify-center pb-4 pt-10">
+          <LogoutButton label={t.logout} variant="quiet" />
         </div>
       </main>
-      <SiteFooter />
+      <SiteFooter compact />
     </>
   );
 }
