@@ -9,6 +9,7 @@ import { formatBerlinDateTime } from "@/lib/datetime";
 import { useI18n } from "@/components/locale-provider";
 import { toast } from "sonner";
 import type { KitchenOrder } from "@/lib/restaurant-live";
+import { parsePrepMinutes, PREP_CHIPS } from "@/lib/prep";
 
 const MUTE_KEY = "lw_kitchen_mute";
 
@@ -188,19 +189,39 @@ export function RestaurantOrders({
   async function act(id: string, action: string, prepMinutes?: number) {
     if (pending.has(id)) return;
     const nextStatus: Record<string, KitchenOrder["status"]> = {
-      accept: prepMinutes ? "PREPARING" : "ACCEPTED",
+      accept: "PREPARING",
       reject: "REJECTED",
       preparing: "PREPARING",
       ready: "READY",
       out: "OUT_FOR_DELIVERY",
       deliver: "DELIVERED",
     };
-    const optimistic = nextStatus[action];
-    const prev = orders;
-    if (optimistic) {
+    setPending((cur) => new Set(cur).add(id));
+    try {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ action, prepMinutes }),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | { error?: string; message?: string; order?: KitchenOrder }
+        | null;
+      if (!res.ok) {
+        toast.error(apiErrorMessage(res, data, t.error));
+        return;
+      }
+      const status = data?.order?.status ?? nextStatus[action];
+      setPicking(null);
       setOrders((list) =>
         list.map((o) =>
-          o.id === id ? { ...o, status: optimistic, prepMinutes: prepMinutes ?? o.prepMinutes } : o,
+          o.id === id
+            ? {
+                ...o,
+                status,
+                prepMinutes: data?.order?.prepMinutes ?? prepMinutes ?? o.prepMinutes,
+              }
+            : o,
         ),
       );
       setHighlight((cur) => {
@@ -208,24 +229,8 @@ export function RestaurantOrders({
         n.delete(id);
         return n;
       });
-    }
-    setPending((cur) => new Set(cur).add(id));
-    try {
-      const res = await fetch(`/api/orders/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, prepMinutes }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setOrders(prev);
-        toast.error(data.error);
-        return;
-      }
-      setOrders((list) => list.map((o) => (o.id === id ? { ...o, status: data.order.status } : o)));
-    } catch {
-      setOrders(prev);
-      toast.error(t.error);
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : t.error);
     } finally {
       setPending((cur) => {
         const n = new Set(cur);
@@ -331,36 +336,19 @@ export function RestaurantOrders({
                 kicker={t.rpNewOrder}
               >
                 {picking === o.id ? (
-                  <div className="w-full space-y-2">
-                    <p className="text-sm font-medium text-[#111827]">{t.rpPrepTime}</p>
-                    <div className="grid grid-cols-4 gap-2">
-                      {[10, 20, 30, 45].map((min) => (
-                        <button
-                          key={min}
-                          type="button"
-                          disabled={pending.has(o.id)}
-                          onClick={() => act(o.id, "accept", min)}
-                          className="h-12 rounded-xl bg-primary text-sm font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
-                        >
-                          {min} {t.rpMin}
-                        </button>
-                      ))}
-                    </div>
-                    <button
-                      type="button"
-                      className="text-sm text-[#6B7280]"
-                      onClick={() => setPicking(null)}
-                    >
-                      ←
-                    </button>
-                  </div>
+                  <PrepTimePicker
+                    disabled={pending.has(o.id)}
+                    onPick={(min) => act(o.id, "accept", min)}
+                    onBack={() => setPicking(null)}
+                    t={t}
+                  />
                 ) : (
                   <>
                     <button
                       type="button"
                       disabled={pending.has(o.id)}
                       onClick={() => setPicking(o.id)}
-                      className="h-12 min-w-32 flex-1 rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                      className="h-12 min-w-32 flex-1 touch-manipulation rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
                     >
                       {t.accept}
                     </button>
@@ -406,19 +394,11 @@ export function RestaurantOrders({
                 <p className="w-full text-sm text-[#6B7280]">{interpolate(t.prepEta, { min: String(o.prepMinutes) })}</p>
               ) : null}
               {o.status === "ACCEPTED" && (
-                <div className="grid w-full grid-cols-4 gap-2">
-                      {[10, 20, 30, 45].map((min) => (
-                        <button
-                          key={min}
-                          type="button"
-                          disabled={pending.has(o.id)}
-                          onClick={() => act(o.id, "preparing", min)}
-                          className="h-12 rounded-xl bg-primary text-sm font-semibold text-white disabled:opacity-50"
-                        >
-                          {min}
-                        </button>
-                      ))}
-                </div>
+                <PrepTimePicker
+                  disabled={pending.has(o.id)}
+                  onPick={(min) => act(o.id, "preparing", min)}
+                  t={t}
+                />
               )}
               {o.status === "PREPARING" && (
                 <button
@@ -533,5 +513,99 @@ function OrderCard({
       ) : null}
       <div className="mt-4 flex w-full flex-wrap gap-2">{children}</div>
     </article>
+  );
+}
+
+function apiErrorMessage(
+  res: Response,
+  data: { error?: string; message?: string } | null,
+  fallback: string,
+) {
+  const fromApi = data?.error?.trim() || data?.message?.trim();
+  if (fromApi) return fromApi;
+  if (res.status === 401) return "Bitte anmelden.";
+  if (res.status === 403) return "Keine Berechtigung.";
+  if (res.status >= 500) return `Serverfehler (HTTP ${res.status})`;
+  return `${fallback} (HTTP ${res.status})`;
+}
+
+function PrepTimePicker({
+  disabled,
+  onPick,
+  onBack,
+  t,
+}: {
+  disabled: boolean;
+  onPick: (mins: number) => void;
+  onBack?: () => void;
+  t: {
+    rpPrepTime: string;
+    rpCustomMin: string;
+    rpPrepPlaceholder: string;
+    accept: string;
+    prepMinutesInvalid: string;
+  };
+}) {
+  const [custom, setCustom] = useState("");
+
+  function submitCustom() {
+    const mins = parsePrepMinutes(custom);
+    if (mins == null) {
+      toast.error(t.prepMinutesInvalid);
+      return;
+    }
+    onPick(mins);
+  }
+
+  return (
+    <div className="w-full space-y-2">
+      <p className="text-sm font-medium text-[#111827]">{t.rpPrepTime}</p>
+      <div className="grid grid-cols-5 gap-2">
+        {PREP_CHIPS.map((min) => (
+          <button
+            key={min}
+            type="button"
+            disabled={disabled}
+            onClick={() => onPick(min)}
+            className="h-12 touch-manipulation rounded-xl bg-primary text-sm font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+          >
+            {min}
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="number"
+          inputMode="numeric"
+          min={5}
+          max={180}
+          step={1}
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submitCustom();
+            }
+          }}
+          placeholder={t.rpPrepPlaceholder}
+          aria-label={t.rpCustomMin}
+          className="h-12 min-w-0 flex-1 rounded-xl border border-[#E5E7EB] px-3 text-base tabular-nums"
+        />
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={submitCustom}
+          className="h-12 shrink-0 touch-manipulation rounded-xl bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          {t.accept}
+        </button>
+      </div>
+      {onBack ? (
+        <button type="button" className="text-sm text-[#6B7280]" onClick={onBack}>
+          ←
+        </button>
+      ) : null}
+    </div>
   );
 }

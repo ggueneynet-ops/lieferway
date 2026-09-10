@@ -1,8 +1,10 @@
+import type { Prisma } from "@prisma/client";
 import { getSession, requireSession } from "@/lib/auth";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { regeneratePayouts } from "@/lib/payouts";
 import type { OrderStatus, Role } from "@/lib/constants";
+import { parsePrepMinutes } from "@/lib/prep";
 
 export async function OPTIONS() {
   return options();
@@ -48,7 +50,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = (await req.json().catch(() => null)) as {
       action?: string;
       courierId?: string;
-      prepMinutes?: number;
+      prepMinutes?: number | string;
     } | null;
     const action = body?.action;
     if (!action) return fail("Aktion fehlt.");
@@ -72,15 +74,21 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     let prepMinutes = order.prepMinutes;
 
     if (action === "accept" && (isOwner || isAdmin) && order.status === "PLACED") {
-      const mins = Number(body?.prepMinutes);
-      prepMinutes = [10, 20, 30, 45].includes(mins) ? mins : prepMinutes;
-      status = prepMinutes ? "PREPARING" : "ACCEPTED";
+      const mins = parsePrepMinutes(body?.prepMinutes);
+      if (mins == null) {
+        return fail("Bitte Zubereitungszeit zwischen 5 und 180 Minuten angeben.");
+      }
+      prepMinutes = mins;
+      status = "PREPARING";
       acceptedAt = new Date();
     } else if (action === "reject" && (isOwner || isAdmin) && order.status === "PLACED") {
       status = "REJECTED";
     } else if (action === "preparing" && (isOwner || isAdmin) && ["ACCEPTED", "PLACED"].includes(order.status)) {
-      const mins = Number(body?.prepMinutes);
-      if ([10, 20, 30, 45].includes(mins)) prepMinutes = mins;
+      const mins = parsePrepMinutes(body?.prepMinutes);
+      if (mins == null) {
+        return fail("Bitte Zubereitungszeit zwischen 5 und 180 Minuten angeben.");
+      }
+      prepMinutes = mins;
       status = "PREPARING";
       acceptedAt = acceptedAt ?? new Date();
     } else if (action === "ready" && (isOwner || isAdmin) && ["PREPARING", "ACCEPTED"].includes(order.status)) {
@@ -104,9 +112,21 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return fail("Diese Statusänderung ist nicht erlaubt.");
     }
 
+    // Prisma 6 rejects scalar FKs (`courierId`) on OrderUpdateInput. Use the
+    // relation API, and skip courier entirely when it did not change (Annehmen).
+    const data: Prisma.OrderUpdateInput = {
+      status,
+      acceptedAt,
+      deliveredAt,
+      prepMinutes,
+    };
+    if (courierId !== order.courierId) {
+      data.courier = courierId ? { connect: { id: courierId } } : { disconnect: true };
+    }
+
     const updated = await prisma.order.update({
       where: { id },
-      data: { status, courierId, acceptedAt, deliveredAt, prepMinutes },
+      data,
       include,
     });
 
@@ -122,6 +142,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);
     if (msg === "FORBIDDEN") return fail("Keine Berechtigung.", 403);
-    throw e;
+    console.error("PATCH /api/orders/[id]", e);
+    return fail("Bestellung konnte nicht aktualisiert werden.", 500);
   }
 }
