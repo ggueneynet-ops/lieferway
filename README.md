@@ -52,7 +52,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout: short address bar, cuisine rail, **large food-photo cards**, sticky cart. UI accent is bordo `#922A49` on cream `#FFF8F0` / soft `#FAF3EA` (pink `#E91E63` retired for UI; logo rasters are owner-locked and left as-is). Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Name stays **Lieferway**.
+Marketplace layout: compact phone-app chrome (logo + address, Lieferung/Abholung, search, category circles, campaign, **large food-photo cards**). UI accent is pink `#E91E63` on white `#FFFFFF` (soft pink `#FCE4EC` only as a tiny wash). Logo rasters are the locked pink pin+fork. Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Cache `?v=19`.
 
 Customer home shows food photos, prices, Mindestbestellwert, Liefergebühr, and Lieferzeit. Partnership copy (5 % Provision, Auszahlung montags) is on `/partner/anmelden` only.
 

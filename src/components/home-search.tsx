@@ -24,12 +24,12 @@ export function HomeSearch({
       {cuisine ? <input type="hidden" name="cuisine" value={cuisine} /> : null}
       {plz ? <input type="hidden" name="km" value={km == null ? "all" : String(km)} /> : null}
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#94A3B8]" />
         <input
           name="q"
           defaultValue={initialQ}
           placeholder={t.searchPlaceholder}
-          className="h-12 w-full rounded-2xl border border-border bg-white pl-10 pr-3 text-sm outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-primary/25"
+          className="h-11 w-full rounded-full border border-[#E8E8EC] bg-[#F7F7F8] pl-10 pr-4 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#E91E63] focus:bg-white focus:ring-2 focus:ring-[#E91E63]/15"
         />
       </div>
     </form>

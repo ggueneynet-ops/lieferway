@@ -76,7 +76,7 @@ export function CartPanel({
         <p className="rounded-2xl border border-[#E8E8EC] bg-white px-3.5 py-2.5 text-[13px] leading-relaxed text-[#0F172A]">
           {cart.fulfillmentType === "PICKUP" ? t.pickupHint : `${t.restaurantDelivers} ${t.restaurantDeliversHint}`}
         </p>
-        <p className="rounded-2xl border border-dashed border-[#E8C4CE] bg-white px-3.5 py-2.5 text-[12px] leading-relaxed text-[#6B7280]">
+        <p className="rounded-2xl border border-dashed border-[#F8BBD0] bg-white px-3.5 py-2.5 text-[12px] leading-relaxed text-[#6B7280]">
           {t.bagCouponHint}
         </p>
         <ul className="divide-y divide-[#F3F4F6]">

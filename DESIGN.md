@@ -6,7 +6,7 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 ## Logo
 
-**Locked by owner/designer.** Pin + fork lockup. Do not recreate or recolor logo rasters in-app. Header has no slogan; splash uses **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.**
+**Locked by owner/designer.** Pink pin + fork. Do not recreate or recolor logo rasters. Header has no slogan; splash uses **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Cache-bust `?v=19`.
 
 - Header / login / footer: `public/Lieferway-header-h64.png`, `h96`, `h128`, `h256` (`Lieferway-header.svg`, `Lieferway-header-from-owner.png`) — pin + wordmark, **no slogan**.
 - Splash: `public/Lieferway-splash-lockup.png` / `OWNER-LOCKUP-FINAL.png` / `Lieferway-lockup.png`
@@ -14,18 +14,18 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 ## Color tokens
 
-UI accent is **bordo `#922A49`**. Pink `#E91E63` is retired for UI (logo files may still show the previous pin color until the designer pack is wired). Cream canvas, white cards, ink text. Accent only on CTAs, selected pills, badges, and small icons — no large accent slabs, no cold gray canvas, no Lieferando orange.
+UI accent is **pink `#E91E63`**. White canvas, ink text. Soft pink `#FCE4EC` only for tiny accents. No bordo, no cream grounds, no heavy colored shadows, no Lieferando orange.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--color-primary` | `#922A49` | CTAs, selected pills, links, badges, small icons |
-| `--color-primary-pressed` | `#7A2340` | Button hover / press |
-| `--color-primary-soft` | `#FAF3EA` | Soft wash, chips |
+| `--color-primary` | `#E91E63` | Logo accents, CTAs, selected pills, links, badges |
+| `--color-primary-pressed` | `#C2185B` | Button hover / press |
+| `--color-primary-soft` | `#FCE4EC` | Tiny washes only |
 | `--color-secondary` | `#0F172A` | Ink (headings, body) |
-| `--color-bg` | `#FFF8F0` | Customer canvas |
-| `--color-bg-muted` | `#FAF3EA` | Soft sections, chips |
+| `--color-bg` | `#FFFFFF` | Customer canvas |
+| `--color-bg-muted` | `#F7F7F8` | Dashboard canvas, chips |
 | `--color-surface` | `#FFFFFF` | Cards, header, sidebar |
-| `--color-border` | `#E8E2DC` | Hairlines |
+| `--color-border` | `#E8E8EC` | Hairlines |
 | `--color-text` | `#0F172A` | Body |
 | `--color-text-secondary` | `#64748B` | Meta, addresses, hints |
 | `--color-text-inverse` | `#FFFFFF` | On primary |
@@ -49,7 +49,7 @@ Customer cards **12–16px** (`rounded-xl` 12 / `rounded-2xl` 16). Soft shadows.
 ## Surfaces
 
 **Customer (marketplace)**  
-Cream canvas `#FFF8F0`, white cards, short top so restaurant photos appear quickly. Large food-photo cards with ETA, min order, and delivery fee. Partner sales (5 % / Auszahlung) stay on `/partner/anmelden` only.
+White canvas, compact top (logo + address, Lieferung/Abholung, search, category circles). Large food-photo cards with ETA, min order, and delivery fee. Partner sales (5 % / Auszahlung) stay on `/partner/anmelden` only.
 
 **Restaurant panel**  
 `--color-bg-muted` page, white table/cards, compact type. **Primary only on CTAs**. Nav, filters, and toggles stay outline / ghost / ink.

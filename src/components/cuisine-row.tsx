@@ -3,6 +3,7 @@ import { CUISINES } from "@/lib/constants";
 import { cuisineName, type Locale } from "@/lib/i18n";
 import { marketplaceHref } from "@/lib/marketplace";
 import { CategoryIcon } from "@/components/category-icon";
+import { CUISINE_DISH_PHOTO } from "@/lib/media";
 
 export function CuisineRow({
   locale,
@@ -20,12 +21,13 @@ export function CuisineRow({
   allLabel: string;
 }) {
   const items = [
-    { key: "all" as const, href: marketplaceHref({ plz, q, km }), label: allLabel, active: !cuisine },
+    { key: "all" as const, href: marketplaceHref({ plz, q, km }), label: allLabel, active: !cuisine, photo: null },
     ...CUISINES.map((c) => ({
       key: c,
       href: marketplaceHref({ plz, q, cuisine: c, km }),
       label: cuisineName(locale, c),
       active: cuisine === c,
+      photo: CUISINE_DISH_PHOTO[c] ?? null,
     })),
   ];
 
@@ -39,17 +41,26 @@ export function CuisineRow({
           className="flex w-[4.35rem] shrink-0 flex-col items-center gap-1.5"
         >
           <span
-            className={`flex size-14 items-center justify-center rounded-full transition ${
-              item.active
-                ? "bg-[#922A49] text-white shadow-[0_8px_18px_rgba(146,42,73,0.22)]"
-                : "bg-[#F7F7F8] text-[#0F172A] ring-1 ring-[#E8E8EC]"
+            className={`relative flex size-[3.35rem] items-center justify-center overflow-hidden rounded-full ${
+              item.active ? "ring-2 ring-[#E91E63] ring-offset-2" : "ring-1 ring-[#E8E8EC]"
             }`}
           >
-            <CategoryIcon name={item.key} className="size-[22px]" />
+            {item.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.photo} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span
+                className={`flex size-full items-center justify-center ${
+                  item.active ? "bg-[#E91E63] text-white" : "bg-[#F7F7F8] text-[#0F172A]"
+                }`}
+              >
+                <CategoryIcon name={item.key} className="size-[22px]" />
+              </span>
+            )}
           </span>
           <span
             className={`w-full truncate text-center text-[11px] font-semibold ${
-              item.active ? "text-[#922A49]" : "text-[#0F172A]"
+              item.active ? "text-[#E91E63]" : "text-[#0F172A]"
             }`}
           >
             {item.label}

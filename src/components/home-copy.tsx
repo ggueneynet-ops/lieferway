@@ -22,10 +22,10 @@ export function HomeSectionTitle({
 
   return (
     <div>
-      <h2 className="font-display text-[1.45rem] font-semibold tracking-tight text-[#111827] sm:text-[1.75rem]">
+      <h2 className="font-display text-[1.15rem] font-semibold tracking-tight text-[#0F172A] sm:text-[1.25rem]">
         {t.nearbyTitle}
       </h2>
-      <p className="mt-1 text-sm text-[#6B7280]">{sub}</p>
+      <p className="mt-0.5 text-[12px] text-[#6B7280]">{sub}</p>
     </div>
   );
 }

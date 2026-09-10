@@ -4,7 +4,7 @@ import { MapPin } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
 import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
 import { PLZ_STORAGE_KEY } from "@/lib/geo";
-import { lookupPlz } from "@/lib/plz";
+import { DEMO_PLZ_CHIPS, lookupPlz } from "@/lib/plz";
 import { CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import type { DeliveryPlace } from "@/lib/place";
 import { useCallback, useState } from "react";
@@ -26,27 +26,17 @@ function persistPlace(place: DeliveryPlace) {
   setCookie(CITY_COOKIE, place.city);
 }
 
-export function HeroSearch({
-  initialPlz,
-  initialStreet = "",
+export function AddressFirst({
   q,
   cuisine,
   km = 5,
 }: {
-  initialPlz: string;
-  initialStreet?: string;
   q?: string;
   cuisine?: string;
   km?: number | null;
 }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const meta = initialPlz ? lookupPlz(initialPlz) : undefined;
-  const label = initialStreet
-    ? initialStreet
-    : initialPlz
-      ? `${initialPlz}${meta ? ` · ${meta.district}` : ""}`
-      : t.addressPlaceholder;
 
   const go = useCallback(
     (place: DeliveryPlace) => {
@@ -62,34 +52,45 @@ export function HeroSearch({
     [cuisine, km, q],
   );
 
-  function find() {
-    if (initialPlz) {
-      document.getElementById("restaurants")?.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-    setOpen(true);
+  function pickChip(plz: string) {
+    const meta = lookupPlz(plz);
+    if (!meta) return;
+    go({
+      street: "",
+      postalCode: meta.plz,
+      city: "Frankfurt am Main",
+      lat: meta.lat,
+      lng: meta.lng,
+    });
   }
 
   return (
-    <div className="w-full max-w-xl">
-      <div className="w-full rounded-[16px] border border-[#E8E2DC] bg-white p-1.5 shadow-[0_8px_24px_rgba(17,24,39,0.06)] sm:flex sm:items-stretch sm:gap-2">
+    <div className="mx-auto max-w-md rounded-2xl border border-[#E8E8EC] bg-white px-5 py-8 text-center">
+      <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#FCE4EC] text-[#E91E63]">
+        <MapPin className="size-5" strokeWidth={1.75} />
+      </span>
+      <h2 className="mt-4 font-display text-xl font-semibold tracking-tight text-[#0F172A]">{t.addressFirstTitle}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-[#64748B]">{t.addressFirstLead}</p>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-[12px] bg-[#FCE4EC] px-3.5 text-left text-[15px] text-[#0F172A] sm:h-12 sm:px-4"
+        className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#E91E63] px-5 text-sm font-semibold text-white hover:bg-[#C2185B]"
       >
-        <MapPin className="size-5 shrink-0 text-[#E91E63]" strokeWidth={1.75} />
-        <span className={`truncate ${initialPlz ? "font-semibold" : "text-[#9CA3AF]"}`}>{label}</span>
+        {t.enterLocation}
       </button>
-      <button
-        type="button"
-        onClick={find}
-        className="mt-1.5 h-12 w-full shrink-0 rounded-[12px] bg-[#E91E63] px-5 text-sm font-semibold text-white hover:bg-[#C2185B] sm:mt-0 sm:w-auto"
-      >
-        {t.findRestaurants}
-      </button>
-      <LocationPicker open={open} onClose={() => setOpen(false)} onPick={go} />
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {DEMO_PLZ_CHIPS.slice(0, 3).map((chip) => (
+          <button
+            key={chip.plz}
+            type="button"
+            onClick={() => pickChip(chip.plz)}
+            className="rounded-full border border-[#E8E8EC] bg-white px-3 py-1.5 text-[12px] font-medium text-[#0F172A] hover:border-[#E91E63] hover:text-[#E91E63]"
+          >
+            {chip.label}
+          </button>
+        ))}
       </div>
+      <LocationPicker open={open} onClose={() => setOpen(false)} onPick={go} />
     </div>
   );
 }
