@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { dishPhoto } from "../src/lib/media";
+import { namedDishPhoto } from "../src/lib/media";
 
-function dishImage(name: string, cuisine: string) {
-  return dishPhoto(null, cuisine, name);
+function dishImage(name: string) {
+  return namedDishPhoto(name) ?? `/media/dishes/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.jpg`;
 }
 
 const prisma = new PrismaClient();
@@ -704,7 +704,7 @@ async function main() {
             name: item.name,
             description: item.description,
             priceCents: item.priceCents,
-            imageUrl: dishImage(item.name, r.cuisine),
+            imageUrl: dishImage(item.name),
           },
         });
         itemIds.push(created.id);

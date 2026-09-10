@@ -1,7 +1,7 @@
 "use client";
 
 import { useI18n } from "@/components/locale-provider";
-import { RADIUS_PRESETS } from "@/lib/constants";
+import { RADIUS_COOKIE, RADIUS_PRESETS } from "@/lib/constants";
 
 export function RadiusChips({
   plz,
@@ -24,27 +24,35 @@ export function RadiusChips({
     { value: "all", label: t.radiusCity, active: km == null },
   ];
 
+  function select(value: string) {
+    document.cookie = `${RADIUS_COOKIE}=${encodeURIComponent(value)};path=/;max-age=31536000;SameSite=Lax`;
+    const params = new URLSearchParams();
+    params.set("plz", plz);
+    params.set("km", value);
+    if (q) params.set("q", q);
+    if (cuisine) params.set("cuisine", cuisine);
+    window.location.assign(`/?${params.toString()}`);
+  }
+
   return (
     <div
-      role="group"
-      aria-label={t.maxDeliveryRadius}
-      className="inline-flex h-10 max-w-full items-stretch overflow-x-auto rounded-full bg-[#F3F4F6] p-1"
+      role="radiogroup"
+      aria-label={t.eta}
+      className="inline-flex h-8 items-center rounded-full bg-[#F3F4F6] p-0.5"
     >
       {options.map((opt) => (
-        <form key={opt.value} action="/radius" method="post" className="flex">
-          {plz ? <input type="hidden" name="plz" value={plz} /> : null}
-          {q ? <input type="hidden" name="q" value={q} /> : null}
-          {cuisine ? <input type="hidden" name="cuisine" value={cuisine} /> : null}
-          <input type="hidden" name="km" value={opt.value} />
-          <button
-            type="submit"
-            className={`h-full min-w-[3.75rem] rounded-full px-3.5 text-[13px] font-medium whitespace-nowrap sm:min-w-[4.5rem] sm:px-5 ${
-              opt.active ? "bg-[#E91E63] text-white" : "bg-transparent text-[#6B7280] hover:text-[#111827]"
-            }`}
-          >
-            {opt.label}
-          </button>
-        </form>
+        <button
+          key={opt.value}
+          type="button"
+          role="radio"
+          aria-checked={opt.active}
+          onClick={() => select(opt.value)}
+          className={`h-7 rounded-full px-2.5 text-[12px] font-medium whitespace-nowrap sm:px-3.5 ${
+            opt.active ? "bg-[#E91E63] text-white" : "text-[#6B7280] hover:text-[#111827]"
+          }`}
+        >
+          {opt.label}
+        </button>
       ))}
     </div>
   );

@@ -46,21 +46,21 @@ export default async function PartnerApplyPage({
           <p className="mt-5 text-sm text-text-secondary">
             {t.partnerStep1} · {t.partnerStep2} · {t.partnerStep3}
           </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="mt-12 grid gap-6 sm:grid-cols-3 sm:gap-8">
             {[
               { value: t.partnerStatCommission, label: t.partnerStatCommissionLabel },
               { value: t.partnerStatSetup, label: t.partnerStatSetupLabel },
               { value: t.partnerStatPayout, label: t.partnerStatPayoutLabel },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-border bg-[#FAFAFA] px-5 py-6">
+              <div key={stat.label} className="rounded-[20px] border border-[#E5E7EB] bg-[#FAFAFA] px-6 py-8 sm:px-8 sm:py-10">
                 <p
                   className={`font-display font-semibold tracking-tight text-ink ${
-                    stat.value.length > 8 ? "text-2xl leading-tight sm:text-3xl" : "text-3xl sm:text-4xl"
+                    stat.value.length > 10 ? "text-3xl leading-tight sm:text-4xl" : "text-4xl sm:text-5xl"
                   }`}
                 >
                   {stat.value}
                 </p>
-                <p className="mt-1 text-sm text-text-secondary">{stat.label}</p>
+                <p className="mt-3 text-sm text-text-secondary sm:text-base">{stat.label}</p>
               </div>
             ))}
           </div>

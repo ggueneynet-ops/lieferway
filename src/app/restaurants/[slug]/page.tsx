@@ -4,12 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MenuClient } from "@/components/menu-client";
-import { Bike, Clock, MapPin, Star } from "lucide-react";
+import { Bike, Clock, MapPin, ShoppingBag, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
-import { RestaurantLogo } from "@/components/restaurant-logo";
 import { getCopy } from "@/lib/get-locale";
-import { cuisineName, interpolate } from "@/lib/i18n";
+import { cuisineName } from "@/lib/i18n";
 import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constants";
 import { formatDistanceKm, normalizePlz } from "@/lib/plz";
 import { distanceFromOrigin, parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
@@ -37,72 +36,86 @@ export default async function RestaurantPage({
   });
   if (!restaurant || !restaurant.isActive) notFound();
   const distanceKm = distanceFromOrigin(origin, restaurant.lat, restaurant.lng);
+  const photo = restaurantPhoto(restaurant.imageUrl, restaurant.cuisine, restaurant.slug);
+
+  const facts = [
+    {
+      icon: Star,
+      label: t.infoRating,
+      value: `${restaurant.rating.toFixed(1)} (${restaurant.reviewCount})`,
+    },
+    {
+      icon: Clock,
+      label: t.infoEta,
+      value: `${restaurant.etaMin}–${restaurant.etaMax} Min.`,
+    },
+    {
+      icon: Bike,
+      label: t.infoFee,
+      value: formatEUR(restaurant.deliveryFeeCents, locale),
+    },
+    {
+      icon: MapPin,
+      label: t.infoDistance,
+      value: distanceKm != null ? formatDistanceKm(distanceKm, locale) : "—",
+    },
+    {
+      icon: ShoppingBag,
+      label: t.infoMin,
+      value: formatEUR(restaurant.minOrderCents, locale),
+    },
+  ];
 
   return (
     <>
       <SiteHeader plz={plz} km={km} />
-      <main className="flex-1">
-        <div className="border-b border-border bg-surface">
-          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:py-4">
-            <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-muted sm:h-[88px] sm:w-[88px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={restaurantPhoto(restaurant.imageUrl, restaurant.cuisine, restaurant.slug)}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-              <RestaurantLogo name={restaurant.name} size={20} className="absolute bottom-1 left-1 ring-1 ring-white" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-text-secondary">
-                {cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}
-              </p>
-              <div className="mt-0.5 flex flex-wrap items-center gap-2">
-                <h1 className="font-display text-xl font-semibold leading-tight tracking-tight sm:text-2xl">
-                  {restaurant.name}
-                </h1>
-                <span className="inline-flex rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                  {t.demoBadge} / {t.demoExample}
-                </span>
+      <main className="flex-1 bg-[#FAFAFA]">
+        <div className="relative aspect-[16/7] min-h-[180px] max-h-[320px] overflow-hidden bg-[#F3F4F6]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photo} alt="" className="h-full w-full object-cover object-center" />
+        </div>
+        <div className="lw-wrap py-6 sm:py-8">
+          <p className="text-[13px] text-[#6B7280]">
+            {cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}
+          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-2xl font-semibold tracking-tight text-[#111827] sm:text-3xl">
+              {restaurant.name}
+            </h1>
+            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280] ring-1 ring-[#E5E7EB]">
+              {t.demoBadge} / {t.demoExample}
+            </span>
+          </div>
+          {!restaurant.isOpen && (
+            <p className="mt-2 text-sm font-medium text-destructive">{t.closedNow}</p>
+          )}
+
+          <div className="mt-5 grid grid-cols-3 gap-px overflow-hidden rounded-[20px] border border-[#E5E7EB] bg-[#E5E7EB]">
+            {facts.map((fact) => (
+              <div key={fact.label} className="bg-white px-3 py-3.5 sm:px-4">
+                <p className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">
+                  <fact.icon className="size-3.5 shrink-0" strokeWidth={1.75} />
+                  {fact.label}
+                </p>
+                <p className="mt-1 text-[13px] font-semibold leading-snug text-[#111827] sm:text-[15px]">{fact.value}</p>
               </div>
-              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground sm:text-xs">
-                <span className="inline-flex items-center gap-1">
-                  <Star className="size-3 fill-primary text-primary" />
-                  {restaurant.rating.toFixed(1)} ({restaurant.reviewCount})
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="size-3" />
-                  {restaurant.etaMin}–{restaurant.etaMax} Min.
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Bike className="size-3" />
-                  {formatEUR(restaurant.deliveryFeeCents, locale)} {t.delivery}
-                </span>
-                {distanceKm != null ? (
-                  <span className="inline-flex items-center gap-1 font-medium text-ink">
-                    <MapPin className="size-3 text-primary" />
-                    {formatDistanceKm(distanceKm, locale)}
-                  </span>
-                ) : null}
-                {restaurant.maxDeliveryKm != null ? (
-                  <span>{interpolate(t.withinRadius, { km: String(restaurant.maxDeliveryKm) })}</span>
-                ) : null}
-                <span>{t.minOrder} {formatEUR(restaurant.minOrderCents, locale)}</span>
-              </div>
-              {!restaurant.isOpen && (
-                <p className="mt-1 text-xs font-medium text-destructive">{t.closedNow}</p>
-              )}
+            ))}
+            <div className="bg-white px-3 py-3.5 sm:px-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">{t.delivery}</p>
+              <p className="mt-1 text-[13px] font-semibold leading-snug text-[#111827] sm:text-[15px]">{t.restaurantDelivers}</p>
             </div>
           </div>
-        </div>
-        <div className="mx-auto max-w-6xl px-4 py-5">
-          <p className="mb-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
             {restaurant.address} · {restaurant.description}
           </p>
-          <p className="mb-6 max-w-2xl rounded-2xl border border-primary/15 bg-primary-soft/50 px-4 py-3 text-sm leading-relaxed text-ink">
-            {t.restaurantDelivers} {t.restaurantDeliversHint}
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
+            {t.restaurantDeliversHint}
           </p>
-          <MenuClient restaurant={restaurant} />
+
+          <div className="mt-8">
+            <MenuClient restaurant={restaurant} />
+          </div>
         </div>
       </main>
       <SiteFooter />

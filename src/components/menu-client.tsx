@@ -51,7 +51,7 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                     <img
                       src={photo}
                       alt=""
-                      className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                      className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-xl object-cover sm:h-20 sm:w-20"
                     />
                     <div className="flex min-w-0 flex-1 flex-col justify-center">
                       <h3 className="text-[15px] font-medium leading-tight">{item.name}</h3>

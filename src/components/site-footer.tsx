@@ -9,7 +9,8 @@ export async function SiteFooter() {
       <div className="lw-wrap flex flex-col gap-8 py-10 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Logo size="sm" />
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-text-secondary">{t.footerLegal}</p>
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-[#111827]">{t.footerLegal}</p>
+          <p className="mt-1.5 max-w-md text-[11px] leading-relaxed text-[#9CA3AF]">{t.footerDemoNote}</p>
         </div>
         <nav className="flex flex-col gap-2.5 text-sm text-text-secondary">
           <Link href="/partner/anmelden" className="hover:text-ink">

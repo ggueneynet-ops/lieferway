@@ -221,7 +221,7 @@ export function RestaurantOrders({
   }
 
   const incoming = orders.filter((o) => o.status === "PLACED");
-  const active = orders.filter((o) => ["ACCEPTED", "PREPARING", "READY"].includes(o.status));
+  const active = orders.filter((o) => ["ACCEPTED", "PREPARING", "READY", "OUT_FOR_DELIVERY"].includes(o.status));
 
   return (
     <div className={flash ? "lw-kitchen-flash -mx-3 rounded-xl px-3 py-1 md:-mx-5 md:px-5" : ""}>
@@ -324,6 +324,16 @@ export function RestaurantOrders({
               {o.status === "PREPARING" && (
                 <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "ready")}>
                   {t.readyForCourier}
+                </Button>
+              )}
+              {o.status === "READY" && (
+                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "out")}>
+                  {t.startDelivery}
+                </Button>
+              )}
+              {o.status === "OUT_FOR_DELIVERY" && (
+                <Button className="h-11 px-5 text-base" onClick={() => act(o.id, "deliver")}>
+                  {t.markDelivered}
                 </Button>
               )}
             </OrderCard>

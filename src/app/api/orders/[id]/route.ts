@@ -83,12 +83,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (!courierId) return fail("Kurier fehlt.");
     } else if (action === "assign" && isAdmin) {
       courierId = body?.courierId ?? null;
-    } else if (action === "out" && (isCourier || isAdmin) && order.status === "READY") {
+    } else if (action === "out" && (isCourier || isAdmin || isOwner) && order.status === "READY") {
       if (isCourier && order.courierId && order.courierId !== session.id) return fail("Andere Tour.");
-      if (!order.courierId) courierId = isCourier ? session.id : courierId;
+      if (isCourier && !order.courierId) courierId = session.id;
       status = "OUT_FOR_DELIVERY";
-    } else if (action === "deliver" && (isCourier || isAdmin) && order.status === "OUT_FOR_DELIVERY") {
-      if (isCourier && order.courierId !== session.id) return fail("Andere Tour.");
+    } else if (action === "deliver" && (isCourier || isAdmin || isOwner) && order.status === "OUT_FOR_DELIVERY") {
+      if (isCourier && order.courierId && order.courierId !== session.id) return fail("Andere Tour.");
       status = "DELIVERED";
       deliveredAt = new Date();
     } else if (action === "cancel" && isCustomer && order.status === "PLACED") {
