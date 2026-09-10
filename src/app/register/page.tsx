@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,20 +12,25 @@ import { toast } from "sonner";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { useI18n } from "@/components/locale-provider";
 import { GoogleSignIn } from "@/components/google-sign-in";
-import { LOCALES, type Locale } from "@/lib/i18n";
 import { normalizePhone } from "@/lib/phone";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { t, locale, setLocale } = useI18n();
+  const { t, locale } = useI18n();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!accepted) {
+      toast.error(t.termsRequired);
+      return;
+    }
     if (!normalizePhone(phone)) {
       toast.error(t.phoneInvalid);
       return;
@@ -77,26 +83,49 @@ export default function RegisterPage() {
           <p className="mt-1 text-xs text-muted-foreground">{t.phoneHint}</p>
         </div>
         <div>
-          <Label>{t.password}</Label>
-          <Input className="mt-1" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
-        </div>
-        <div className="flex gap-2 text-sm">
-          {LOCALES.map((code: Locale) => (
+          <Label htmlFor="register-password">{t.password}</Label>
+          <div className="relative mt-1">
+            <Input
+              id="register-password"
+              className="h-12 pr-12"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              autoComplete="new-password"
+              required
+            />
             <button
-              key={code}
               type="button"
-              onClick={() => setLocale(code)}
-              className={`rounded-full border px-3 py-1 ${locale === code ? "bg-primary text-primary-foreground" : ""}`}
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[#6B7280]"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? t.hidePassword : t.showPassword}
             >
-              {code.toUpperCase()}
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
-          ))}
+          </div>
         </div>
-        <Button className="w-full" type="submit" disabled={busy}>
+        <label className="flex items-start gap-2.5 text-sm leading-snug text-[#4B5563]">
+          <input
+            type="checkbox"
+            className="mt-0.5 size-4 shrink-0 rounded border-[#D1D5DB] text-primary accent-primary"
+            checked={accepted}
+            onChange={(e) => setAccepted(e.target.checked)}
+            required
+          />
+          <span>
+            {t.acceptTerms}{" "}
+            <Link href="/datenschutz" className="font-medium text-primary underline-offset-2 hover:underline">
+              {t.privacy}
+            </Link>
+            {t.acceptTermsEnd}
+          </span>
+        </label>
+        <Button className="w-full" type="submit" disabled={busy || !accepted}>
           {t.register}
         </Button>
       </form>
-      <GoogleSignIn next="/" />
+      <GoogleSignIn next="/" showApple />
       <p className="mt-6 text-sm">
         {t.alreadyHaveAccount}{" "}
         <Link href="/login" className="font-medium text-primary">

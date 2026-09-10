@@ -15,10 +15,11 @@ import type { PaymentMethod } from "@/lib/constants";
 import { interpolate } from "@/lib/i18n";
 import { customerNeedsPhone } from "@/lib/phone";
 import { toast } from "sonner";
-import { PaymentPicker, payCtaLabel } from "@/components/payment-picker";
+import { PaymentPicker } from "@/components/payment-picker";
+import { QtyStepper } from "@/components/cart-panel";
 
 export function CheckoutClient() {
-  const { cart, foodSubtotal, clear } = useCart();
+  const { cart, foodSubtotal, clear, setQty } = useCart();
   const { t, locale } = useI18n();
   const router = useRouter();
   const [street, setStreet] = useState("Berger Straße 142");
@@ -172,7 +173,8 @@ export function CheckoutClient() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:gap-8">
           <div className="space-y-5">
             <section className="rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
-              <h2 className="font-display text-lg font-semibold tracking-tight">{t.contactSection}</h2>
+              <h2 className="font-display text-lg font-semibold tracking-tight">{t.address}</h2>
+              <p className="mt-1 text-sm text-[#6B7280]">{t.contactSection}</p>
               <div className="mt-4 grid gap-3">
                 <div>
                   <Label htmlFor="checkout-name">
@@ -238,13 +240,18 @@ export function CheckoutClient() {
           </div>
           <aside className="h-fit rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
             <h2 className="font-display text-lg font-semibold tracking-tight">{t.summary}</h2>
-            <ul className="mt-3 space-y-1 text-sm">
+            <ul className="mt-3 space-y-3 text-sm">
               {cart.items.map((i) => (
-                <li key={i.menuItemId} className="flex justify-between gap-2">
-                  <span>
-                    {i.quantity}× {i.name}
-                  </span>
-                  <span className="tabular-nums">{formatEUR(i.priceCents * i.quantity, locale)}</span>
+                <li key={i.menuItemId} className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-[#111827]">{i.name}</p>
+                    <p className="tabular-nums text-[#6B7280]">{formatEUR(i.priceCents * i.quantity, locale)}</p>
+                  </div>
+                  <QtyStepper
+                    value={i.quantity}
+                    onChange={(n) => setQty(i.menuItemId, n)}
+                    label={t.qty}
+                  />
                 </li>
               ))}
             </ul>
@@ -279,15 +286,26 @@ export function CheckoutClient() {
               </p>
             </div>
             <Button
-              className="mt-4 h-12 w-full text-base"
+              className="mt-4 hidden h-12 w-full text-base lg:inline-flex"
               size="lg"
               disabled={busy || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
               onClick={pay}
             >
-              {busy ? t.processing : payCtaLabel(method, t)}
+              {busy ? t.processing : t.placeOrder}
             </Button>
-            <p className="mt-2 text-center text-[11px] text-[#9CA3AF]">{t.demoPaymentNote}</p>
+            <p className="mt-2 hidden text-center text-[11px] text-[#9CA3AF] lg:block">{t.demoPaymentNote}</p>
           </aside>
+        </div>
+        <div className="h-24 lg:hidden" aria-hidden />
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E7EB] bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+          <Button
+            className="h-12 w-full text-base font-semibold"
+            size="lg"
+            disabled={busy || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
+            onClick={pay}
+          >
+            {busy ? t.processing : t.placeOrder}
+          </Button>
         </div>
       </main>
   );

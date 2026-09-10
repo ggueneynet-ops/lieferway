@@ -120,11 +120,11 @@ export function CartPanel({
           {t.clearCart}
         </Button>
         {belowMin ? (
-          <Button className="h-12 flex-1 text-base" disabled>
+          <Button className="h-12 flex-1 text-base font-semibold" disabled>
             {t.checkout}
           </Button>
         ) : (
-          <Button asChild className="h-12 flex-1 text-base">
+          <Button asChild className="h-12 flex-1 text-base font-semibold">
             <Link href="/checkout" onClick={onCheckout}>
               {t.checkout}
             </Link>

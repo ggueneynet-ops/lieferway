@@ -90,27 +90,25 @@ export default async function RestaurantPage({
             <p className="mt-2 text-sm font-medium text-destructive">{t.closedNow}</p>
           )}
 
-          <div className="mt-5 grid grid-cols-3 gap-px overflow-hidden rounded-[20px] border border-[#E5E7EB] bg-[#E5E7EB]">
+          <div className="mt-4 flex flex-wrap gap-1.5">
             {facts.map((fact) => (
-              <div key={fact.label} className="bg-white px-3 py-3.5 sm:px-4">
-                <p className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">
-                  <fact.icon className="size-3.5 shrink-0" strokeWidth={1.75} />
-                  {fact.label}
-                </p>
-                <p className="mt-1 text-[13px] font-semibold leading-snug text-[#111827] sm:text-[15px]">{fact.value}</p>
+              <div
+                key={fact.label}
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-white py-1 pl-2 pr-2.5"
+              >
+                <fact.icon className="size-3 shrink-0 text-[#9CA3AF]" strokeWidth={1.75} />
+                <span className="text-[12px] font-semibold tabular-nums text-[#111827]">{fact.value}</span>
+                <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">{fact.label}</span>
               </div>
             ))}
-            <div className="bg-white px-3 py-3.5 sm:px-4">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">{t.delivery}</p>
-              <p className="mt-1 text-[13px] font-semibold leading-snug text-[#111827] sm:text-[15px]">{t.restaurantDelivers}</p>
-            </div>
           </div>
-
-          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
-            {restaurant.address} · {restaurant.description}
+          <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#FCE4EC] px-2.5 py-1 text-[11px] font-semibold text-[#C2185B]">
+            <Bike className="size-3 shrink-0" strokeWidth={2} />
+            {t.restaurantDelivers}
           </p>
+
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
-            {t.restaurantDeliversHint}
+            {restaurant.address} · {restaurant.description}
           </p>
 
           <div className="mt-8">

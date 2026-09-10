@@ -88,6 +88,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             : [...base.items, { ...line, quantity: qty }];
           return { ...base, items };
         });
+        setSheetOpen(true);
         return !replaced;
       },
       setQty: (menuItemId, qty) => {

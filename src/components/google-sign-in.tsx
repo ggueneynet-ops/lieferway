@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "@/components/locale-provider";
+import { toast } from "sonner";
 
 function GoogleMark() {
   return (
@@ -25,11 +26,19 @@ function GoogleMark() {
   );
 }
 
-export function GoogleSignIn({ next = "/" }: { next?: string }) {
+function AppleMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5 fill-current" aria-hidden>
+      <path d="M16.37 12.64c-.03-2.14 1.75-3.17 1.83-3.22-1-1.46-2.56-1.66-3.11-1.68-1.32-.14-2.58.78-3.25.78-.67 0-1.71-.76-2.81-.74-1.45.02-2.78.84-3.52 2.14-1.51 2.61-.38 6.47 1.08 8.59.72 1.04 1.57 2.2 2.69 2.16 1.08-.04 1.49-.7 2.8-.7 1.3 0 1.68.7 2.81.67 1.17-.02 1.9-1.05 2.61-2.1.82-1.2 1.16-2.37 1.18-2.43-.03-.01-2.25-.86-2.28-3.47zM14.5 6.9c.59-.72.99-1.72.88-2.72-.85.03-1.88.57-2.49 1.28-.55.63-1.03 1.65-.9 2.62.95.07 1.93-.48 2.51-1.18z" />
+    </svg>
+  );
+}
+
+export function GoogleSignIn({ next = "/", showApple = false }: { next?: string; showApple?: boolean }) {
   const { t } = useI18n();
   const dest = next.startsWith("/") && !next.startsWith("//") ? next : "/";
   return (
-    <div className="mt-5 space-y-4">
+    <div className="mt-5 space-y-3">
       <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
         <span className="h-px flex-1 bg-border" />
         {t.orContinueWith}
@@ -42,6 +51,18 @@ export function GoogleSignIn({ next = "/" }: { next?: string }) {
         <GoogleMark />
         {t.continueWithGoogle}
       </a>
+      {showApple ? (
+        <button
+          type="button"
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-black text-sm font-medium text-white"
+          onClick={() => {
+            toast.message(t.appleComingSoon);
+          }}
+        >
+          <AppleMark />
+          {t.continueWithApple}
+        </button>
+      ) : null}
     </div>
   );
 }

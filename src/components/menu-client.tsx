@@ -82,8 +82,6 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                               toast.message(t.cartReplaced, {
                                 description: t.cartReplacedHint,
                               });
-                            } else {
-                              toast.success(`${item.name} ${t.add.toLowerCase()}`);
                             }
                           }}
                         >
