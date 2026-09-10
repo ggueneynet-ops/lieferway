@@ -15,6 +15,8 @@ import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constan
 import { formatDistanceKm, normalizePlz } from "@/lib/plz";
 import { distanceFromOrigin, parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 
+export const dynamic = "force-dynamic";
+
 export default async function RestaurantPage({
   params,
 }: {

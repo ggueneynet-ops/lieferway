@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { RestaurantAppShell } from "@/components/restaurant-app-shell";
 import { RestaurantLogoForm } from "@/components/restaurant-logo-form";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
@@ -26,6 +27,16 @@ export default async function RestaurantSettingsPage({
       <h1 className="mb-3 text-lg font-semibold">{t.rpSettings}</h1>
       {q.ok === "logo" ? <p className="mb-3 rounded-xl bg-white px-3 py-2 text-sm">{t.logoSaved}</p> : null}
       {q.error ? <p className="mb-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{q.error}</p> : null}
+      <Link
+        href="/restaurant/delivery"
+        className="mb-4 block rounded-2xl border border-[#E5E7EB] bg-white p-4"
+      >
+        <p className="text-sm font-semibold text-[#111827]">{t.rpDelivery}</p>
+        <p className="mt-1 text-sm text-[#6B7280]">{t.deliveryFromSettings}</p>
+        <p className="mt-2 text-sm font-medium text-primary">
+          {restaurant.etaMin}–{restaurant.etaMax} Min. · {t.minOrderEuro} {(restaurant.minOrderCents / 100).toFixed(2)} €
+        </p>
+      </Link>
       <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4">
         <RestaurantLogoForm
           restaurantId={restaurant.id}
