@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const ASSET = "v=7";
+const PNG = "v=8";
+const SVG = "v=5";
 
 /** Single-piece lockup (icon + wordmark). Never add a second “Lieferway” label beside it. */
 export function Logo({
@@ -16,18 +17,21 @@ export function Logo({
   onDark?: boolean;
 }) {
   const img = (
-    <img
-      src={onDark ? `/logo-header-white.png?${ASSET}` : `/logo-header.png?${ASSET}`}
-      srcSet={
-        onDark
-          ? undefined
-          : `/logo-header-h64.png?${ASSET} 286w, /logo-header-h96.png?${ASSET} 430w, /logo-header-h128.png?${ASSET} 573w`
-      }
-      sizes="(max-width: 640px) 148px, 176px"
-      alt="Lieferway"
-      draggable={false}
-      className="block h-full w-auto max-w-none"
-    />
+    <picture className="block h-full">
+      <source type="image/svg+xml" srcSet={`/lieferway-header.svg?${SVG}`} />
+      <img
+        src={onDark ? `/logo-header-white.png?${PNG}` : `/logo-header.png?${PNG}`}
+        srcSet={
+          onDark
+            ? undefined
+            : `/logo-header-h64.png?${PNG} 286w, /logo-header-h96.png?${PNG} 430w, /logo-header-h128.png?${PNG} 573w`
+        }
+        sizes="(max-width: 640px) 148px, 176px"
+        alt="Lieferway"
+        draggable={false}
+        className="block h-full w-auto max-w-none"
+      />
+    </picture>
   );
 
   const classes = cn(

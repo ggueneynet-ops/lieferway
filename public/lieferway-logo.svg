@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" fill="none">
+  <g transform="translate(140,40) scale(2.1)" fill="#E91E63">
+    <rect x="12" y="34" width="42" height="7" rx="3.5"/>
+    <rect x="4" y="50" width="54" height="7" rx="3.5"/>
+    <rect x="14" y="66" width="38" height="7" rx="3.5"/>
+    <rect x="52" y="26" width="70" height="70" rx="12"/>
+    <g fill="#fff">
+      <path d="M70 78c0-20 9.5-34 19-34s19 14 19 34H70z"/>
+      <ellipse cx="89" cy="78" rx="20" ry="4.5"/>
+      <rect x="85.5" y="38" width="7" height="7" rx="2"/>
+      <circle cx="89" cy="36" r="3.5"/>
+    </g>
+    <circle cx="145" cy="46" r="16"/>
+    <path d="M132 42c2-10 12-16 24-14 4 .6 6 4 4 7-6 2-14 3-22 2-4-.4-6-3-6 5z"/>
+    <ellipse cx="158" cy="42" rx="12" ry="4.5"/>
+    <path d="M132 60c10 0 28 6 34 22 1.5 4-1 9-7 9l-28-2c-10-1-16-12-10-22 3-5 7-7 11-7z"/>
+    <path d="M158 74c12 4 26 12 34 20 2.5 2.5.5 7-3.5 6-12-4-24-12-34-18-3.5-2-2-7 3.5-8z"/>
+    <path d="M115 112c28-12 72-16 100 0 5 3 4 10-2 12-28 10-68 12-94 2-7-2.5-9-10-4-14z"/>
+    <path d="M196 86c3 12 5 24 2 36-1.5 5-8 6-10 1-5-12-7-24-4-36 1.5-5 10-6 12-1z"/>
+    <rect x="186" y="78" width="28" height="10" rx="5"/>
+    <circle cx="120" cy="132" r="22"/>
+    <circle cx="120" cy="132" r="8" fill="#fff"/>
+    <circle cx="204" cy="132" r="22"/>
+    <circle cx="204" cy="132" r="8" fill="#fff"/>
+  </g>
+  <text x="400" y="560" text-anchor="middle" font-family="Liberation Sans, Arial, Helvetica, sans-serif" font-size="96" font-weight="700" font-style="italic" fill="#E91E63">Lieferway</text>
+</svg>
