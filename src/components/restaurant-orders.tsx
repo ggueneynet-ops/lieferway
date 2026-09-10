@@ -16,7 +16,7 @@ import { playKitchenBell, startKeepAlive, stopKeepAlive, unlockKitchenBell } fro
 import { isPickup } from "@/lib/fulfillment";
 
 const MUTE_KEY = "lw_kitchen_mute";
-const GONG_MS = 2600;
+const ALERT_MS = 1150;
 
 type Snapshot = {
   orders: KitchenOrder[];
@@ -97,7 +97,7 @@ export function RestaurantOrders({
   }, [incomingKey, muted]);
 
   // One scheduler for the kitchen page lifetime. Snapshot polls must not clear it
-  // (that was stopping the gong after ~2 hits). Keep-alive holds AudioContext open.
+  // (that was stopping the alert after ~2 hits). Keep-alive holds AudioContext open.
   useEffect(() => {
     let timer: number | undefined;
     let stopped = false;
@@ -116,12 +116,12 @@ export function RestaurantOrders({
     const loop = () => {
       if (stopped) return;
       strikeIfNeeded();
-      const wait = !mutedRef.current && incomingKeyRef.current ? GONG_MS : 500;
+      const wait = !mutedRef.current && incomingKeyRef.current ? ALERT_MS : 500;
       timer = window.setTimeout(loop, wait);
     };
 
     strikeIfNeeded();
-    timer = window.setTimeout(loop, !mutedRef.current && incomingKeyRef.current ? GONG_MS : 500);
+    timer = window.setTimeout(loop, !mutedRef.current && incomingKeyRef.current ? ALERT_MS : 500);
 
     return () => {
       stopped = true;
