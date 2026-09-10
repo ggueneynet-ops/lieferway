@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { RestaurantAppShell } from "@/components/restaurant-app-shell";
 import { RestaurantLogoForm } from "@/components/restaurant-logo-form";
+import { PersonalOrderLink } from "@/components/personal-order-link";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
 import { getCopy } from "@/lib/get-locale";
+import { publicOrigin } from "@/lib/public-origin";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,7 @@ export default async function RestaurantSettingsPage({
 }) {
   const { restaurant } = await requireOwnedRestaurant();
   const { t } = await getCopy();
+  const origin = await publicOrigin();
   const q = await searchParams;
   if (!restaurant) {
     return (
@@ -27,6 +30,9 @@ export default async function RestaurantSettingsPage({
       <h1 className="mb-3 text-lg font-semibold">{t.rpSettings}</h1>
       {q.ok === "logo" ? <p className="mb-3 rounded-xl bg-white px-3 py-2 text-sm">{t.logoSaved}</p> : null}
       {q.error ? <p className="mb-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{q.error}</p> : null}
+      <div className="mb-4">
+        <PersonalOrderLink slug={restaurant.slug} origin={origin} />
+      </div>
       <Link
         href="/restaurant/delivery"
         className="mb-4 block rounded-2xl border border-[#E5E7EB] bg-white p-4"

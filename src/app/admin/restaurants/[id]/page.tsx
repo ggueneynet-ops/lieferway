@@ -15,6 +15,7 @@ import {
   restaurantReportTotals,
   type ReportPreset,
 } from "@/lib/restaurant-reports";
+import { updateSlugAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -139,6 +140,25 @@ export default async function AdminRestaurantReportPage({
             </button>
           </form>
         </div>
+
+        <form action={updateSlugAction} className="rounded-2xl border bg-white p-4 space-y-2">
+          <input type="hidden" name="id" value={restaurant.id} />
+          <h2 className="font-semibold">{t.adminSlug}</h2>
+          <p className="text-sm text-text-secondary">{t.adminSlugHint}</p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-text-secondary">/</span>
+            <input
+              name="slug"
+              defaultValue={restaurant.slug}
+              required
+              className="h-12 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-base"
+            />
+            <button type="submit" className="h-12 rounded-xl bg-primary px-4 text-sm font-medium text-white">
+              {t.save}
+            </button>
+          </div>
+          <p className="break-all text-sm text-primary">/{restaurant.slug}</p>
+        </form>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border bg-white p-4">

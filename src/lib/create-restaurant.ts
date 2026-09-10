@@ -4,18 +4,9 @@ import { DEFAULT_COMMISSION_PERCENT, DEFAULT_RESTAURANT_RADIUS_KM } from "@/lib/
 import { CUISINE_RESTAURANT_PHOTO, DEFAULT_RESTAURANT_PHOTO } from "@/lib/media";
 import { parseLogoUrl } from "@/lib/logo-upload";
 import { DEFAULT_NEW_RESTAURANT_PLZS, lookupPlz } from "@/lib/plz";
+import { uniqueRestaurantSlug, slugifyName } from "@/lib/slug";
 
-export function slugifyName(name: string) {
-  const base = name
-    .toLowerCase()
-    .replace(/ä/g, "ae")
-    .replace(/ö/g, "oe")
-    .replace(/ü/g, "ue")
-    .replace(/ß/g, "ss")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-  return base || "restaurant";
-}
+export { slugifyName };
 
 export type CreateRestaurantInput = {
   name: string;
@@ -99,12 +90,13 @@ export async function createRestaurantRecord(
 
       const logoParsed = parseLogoUrl(input.logoUrl ?? "");
       const logoUrl = logoParsed === "invalid" ? null : logoParsed;
+      const slug = await uniqueRestaurantSlug(name, { city });
 
       const restaurant = await tx.restaurant.create({
         data: {
           ownerId,
           name,
-          slug: `${slugifyName(name)}-${ownerId.slice(-6)}`,
+          slug,
           description: `${name} in ${city}.`,
           cuisine,
           address,

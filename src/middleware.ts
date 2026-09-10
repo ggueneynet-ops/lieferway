@@ -84,5 +84,6 @@ export const config = {
     "/courier/:path*",
     "/partner/:path*",
     "/api/:path*",
+    "/:slug",
   ],
 };

@@ -9,6 +9,7 @@ import { cuisineName, interpolate } from "@/lib/i18n";
 import { formatEUR } from "@/lib/money";
 import { restaurantSnapshotMap } from "@/lib/restaurant-reports";
 import { RestaurantLogoForm } from "@/components/restaurant-logo-form";
+import { updateSlugAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -43,8 +44,8 @@ export default async function AdminRestaurantsPage({
         {q.ok === "provision" ? (
           <p className="rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.provisionSaved}</p>
         ) : null}
-        {q.ok === "logo" ? (
-          <p className="rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.logoSaved}</p>
+        {q.ok === "slug" ? (
+          <p className="rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.adminSlugSaved}</p>
         ) : null}
 
         <section className="rounded-2xl border border-border bg-surface p-5">
@@ -229,6 +230,29 @@ export default async function AdminRestaurantsPage({
                   </button>
                 </div>
                 <p className="text-xs text-text-secondary">{t.maxDeliveryRadiusHint}</p>
+              </form>
+              <form action={updateSlugAction} className="mt-3 space-y-2 border-t border-border pt-3">
+                <input type="hidden" name="id" value={r.id} />
+                <label className="text-sm font-medium text-ink" htmlFor={`slug-${r.id}`}>
+                  {t.adminSlug}
+                </label>
+                <p className="text-xs text-text-secondary">{t.adminSlugHint}</p>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 text-sm text-text-secondary">/</span>
+                  <input
+                    id={`slug-${r.id}`}
+                    name="slug"
+                    defaultValue={r.slug}
+                    required
+                    className="h-12 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-base"
+                  />
+                  <button type="submit" className="h-12 shrink-0 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground">
+                    {t.save}
+                  </button>
+                </div>
+                <p className="break-all text-xs text-primary">
+                  /{r.slug}
+                </p>
               </form>
             </div>
             );
