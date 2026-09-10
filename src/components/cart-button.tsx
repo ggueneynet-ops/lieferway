@@ -1,5 +1,6 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart-provider";
 import { useI18n } from "@/components/locale-provider";
@@ -8,12 +9,18 @@ export function CartButton({ compact = false }: { compact?: boolean }) {
   const { count, openCart } = useCart();
   const { t } = useI18n();
 
+  const open = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openCart();
+  };
+
   if (compact) {
     return (
       <button
         type="button"
-        onClick={openCart}
-        className="relative inline-flex size-10 items-center justify-center rounded-xl text-ink hover:bg-muted"
+        onClick={open}
+        className="relative z-50 inline-flex size-10 cursor-pointer touch-manipulation items-center justify-center rounded-xl text-ink hover:bg-muted"
         aria-label={t.cart}
         data-cart-trigger="header"
       >
@@ -30,9 +37,9 @@ export function CartButton({ compact = false }: { compact?: boolean }) {
   return (
     <button
       type="button"
-      onClick={openCart}
+      onClick={open}
       data-cart-trigger="header"
-      className="relative inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary-pressed sm:h-11"
+      className="relative z-50 inline-flex h-10 cursor-pointer touch-manipulation items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary-pressed sm:h-11"
     >
       <ShoppingBag className="size-4" />
       <span>{t.cart}</span>

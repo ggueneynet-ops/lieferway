@@ -19,13 +19,23 @@ export function StickyCartBar() {
 
   return (
     <>
-      <div className="h-[4.5rem] md:hidden" aria-hidden />
-      <div className="fixed inset-x-0 bottom-16 z-50 px-3 py-2 md:hidden">
+      <div
+        className="h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:hidden"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none fixed inset-x-0 z-[60] px-3 py-2 md:hidden"
+        style={{ bottom: "calc(4rem + env(safe-area-inset-bottom, 0px))" }}
+      >
         <button
           type="button"
-          onClick={openCart}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openCart();
+          }}
           data-cart-trigger="bar"
-          className="flex h-12 w-full items-center justify-between rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(233,30,99,0.35)]"
+          className="pointer-events-auto flex h-12 w-full cursor-pointer touch-manipulation items-center justify-between rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(233,30,99,0.35)]"
         >
           <span className="inline-flex items-center gap-2">
             <ShoppingBag className="size-4" />

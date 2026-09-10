@@ -33,7 +33,7 @@ export function MobileTabBar() {
   return (
     <>
       <div className="h-16 md:hidden" aria-hidden />
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom,0px)] md:hidden">
         <ul className="grid h-16 grid-cols-4">
           {tabs.map((tab) => (
             <li key={tab.href}>

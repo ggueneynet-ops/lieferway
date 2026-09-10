@@ -18,9 +18,9 @@ export function Providers({
     <LocaleProvider initialLocale={initialLocale}>
       <CartProvider>
         {children}
-        <CartSheet />
-        <StickyCartBar />
         <MobileTabBar />
+        <StickyCartBar />
+        <CartSheet />
       </CartProvider>
     </LocaleProvider>
   );

@@ -53,14 +53,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
-    setCart(readStoredCart());
+    setCart((prev) => prev ?? readStoredCart());
     setReady(true);
   }, []);
 
   useEffect(() => {
     if (!ready) return;
-    if (cart) window.localStorage.setItem(KEY, JSON.stringify(cart));
-    else window.localStorage.removeItem(KEY);
+    try {
+      if (cart) window.localStorage.setItem(KEY, JSON.stringify(cart));
+      else window.localStorage.removeItem(KEY);
+    } catch {
+      /* Safari private mode / quota — keep in-memory cart */
+    }
   }, [cart, ready]);
 
   const api = useMemo<Ctx>(() => {

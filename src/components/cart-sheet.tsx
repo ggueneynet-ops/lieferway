@@ -8,6 +8,18 @@ import { useI18n } from "@/components/locale-provider";
 import { CartPanel } from "@/components/cart-panel";
 import { isStaffArea } from "@/lib/paths";
 
+/** Host on <html>, not <body>: iOS Safari treats position:fixed inside a flex body as document-absolute. */
+function overlayRoot(): HTMLElement | null {
+  if (typeof document === "undefined") return null;
+  const existing = document.getElementById("lw-overlay-root");
+  if (existing instanceof HTMLElement) return existing;
+  const el = document.createElement("div");
+  el.id = "lw-overlay-root";
+  el.style.cssText = "position:absolute;left:0;top:0;width:0;height:0;overflow:visible;";
+  document.documentElement.appendChild(el);
+  return el;
+}
+
 export function CartSheet() {
   const { sheetOpen, closeCart } = useCart();
   const { t } = useI18n();
@@ -23,33 +35,29 @@ export function CartSheet() {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
+    if (hidden && sheetOpen) closeCart();
+  }, [hidden, sheetOpen, closeCart]);
+
+  useEffect(() => {
     if (hidden || !sheetOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeCart();
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [hidden, sheetOpen, closeCart]);
 
-  if (!mounted || hidden) return null;
+  if (!mounted || hidden || !sheetOpen) return null;
+  const root = overlayRoot();
+  if (!root) return null;
 
   return createPortal(
-    <div data-cart-root="" aria-hidden={!sheetOpen}>
+    <div data-cart-root="" className="lw-cart-overlay">
       <button
         type="button"
-        tabIndex={sheetOpen ? 0 : -1}
         aria-label={t.closeCart}
         onClick={closeCart}
         className="lw-cart-scrim"
-        style={{
-          pointerEvents: sheetOpen ? "auto" : "none",
-          opacity: sheetOpen ? 1 : 0,
-        }}
       />
       <div
         role="dialog"
@@ -57,10 +65,6 @@ export function CartSheet() {
         aria-labelledby="lw-cart-title"
         data-cart-sheet="bottom"
         className="lw-cart-drawer"
-        style={{
-          transform: sheetOpen ? "translate3d(0,0,0)" : "translate3d(0,100%,0)",
-          pointerEvents: sheetOpen ? "auto" : "none",
-        }}
       >
         <div className="flex justify-center pt-2.5" aria-hidden>
           <span className="h-1.5 w-11 rounded-full bg-[#D1D5DB]" />
@@ -72,7 +76,7 @@ export function CartSheet() {
           <button
             type="button"
             onClick={closeCart}
-            className="rounded-full px-2 py-1 text-sm text-[#6B7280] hover:bg-[#F3F4F6]"
+            className="touch-manipulation rounded-full px-2 py-1 text-sm text-[#6B7280] hover:bg-[#F3F4F6]"
           >
             {t.close}
           </button>
@@ -82,6 +86,6 @@ export function CartSheet() {
         </div>
       </div>
     </div>,
-    document.body,
+    root,
   );
 }

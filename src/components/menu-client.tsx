@@ -61,6 +61,7 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                         <span className="font-semibold">{formatEUR(item.priceCents, locale)}</span>
                         <Button
                           size="sm"
+                          className="h-8 touch-manipulation"
                           disabled={!restaurant.isOpen || !item.isAvailable}
                           onClick={() => {
                             const same = add(
