@@ -7,6 +7,7 @@ import { OrderTracker } from "@/components/order-timeline";
 import { StatusBadge } from "@/components/status-badge";
 import { formatEUR } from "@/lib/money";
 import { OrderPoller } from "@/components/order-poller";
+import { ReviewForm } from "@/components/review-form";
 import { getCopy } from "@/lib/get-locale";
 
 export default async function OrderDetailPage({
@@ -23,6 +24,7 @@ export default async function OrderDetailPage({
     include: {
       items: true,
       restaurant: true,
+      review: true,
     },
   });
   if (!order) notFound();
@@ -64,6 +66,17 @@ export default async function OrderDetailPage({
             <h2 className="mb-5 font-display font-semibold tracking-tight">{t.status}</h2>
             <OrderTracker orderId={order.id} initialStatus={order.status} locale={locale} />
           </div>
+          {order.status === "DELIVERED" && !order.review ? (
+            <div className="mt-6">
+              <ReviewForm orderId={order.id} />
+            </div>
+          ) : null}
+          {order.review ? (
+            <p className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#6B7280]">
+              {t.reviewAlready} · {order.review.rating}/5
+              {order.review.comment ? ` — ${order.review.comment}` : ""}
+            </p>
+          ) : null}
           <ul className="mt-6 divide-y divide-border/80 overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
             {order.items.map((item) => (
               <li key={item.id} className="flex justify-between p-4 text-sm">

@@ -1,7 +1,8 @@
 import { RestaurantAppShell } from "@/components/restaurant-app-shell";
+import { RestaurantReviewsPanel } from "@/components/restaurant-reviews-panel";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
+import { prisma } from "@/lib/prisma";
 import { getCopy } from "@/lib/get-locale";
-import { interpolate } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -16,18 +17,31 @@ export default async function RestaurantReviewsPage() {
     );
   }
 
+  const reviews = await prisma.review.findMany({
+    where: { restaurantId: restaurant.id },
+    include: {
+      customer: { select: { name: true } },
+      order: { select: { shortCode: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
   return (
     <RestaurantAppShell title={t.rpReviews} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
       <h1 className="mb-3 text-lg font-semibold">{t.rpReviews}</h1>
-      <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
-        <p className="text-3xl font-semibold">{restaurant.rating.toFixed(1)}</p>
-        <p className="mt-1 text-sm text-[#6B7280]">
-          {interpolate(t.rpReviewsStub, {
-            rating: restaurant.rating.toFixed(1),
-            count: String(restaurant.reviewCount),
-          })}
-        </p>
-      </div>
+      <RestaurantReviewsPanel
+        rating={restaurant.rating}
+        count={restaurant.reviewCount}
+        reviews={reviews.map((r) => ({
+          id: r.id,
+          rating: r.rating,
+          comment: r.comment,
+          reply: r.reply,
+          createdAt: r.createdAt.toISOString(),
+          orderShortCode: r.order.shortCode,
+          customer: r.customer,
+        }))}
+      />
     </RestaurantAppShell>
   );
 }

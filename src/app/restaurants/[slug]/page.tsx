@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MenuClient } from "@/components/menu-client";
+import { ReviewList } from "@/components/review-list";
 import { Bike, Clock, MapPin, ShoppingBag, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
@@ -32,6 +33,11 @@ export default async function RestaurantPage({
       categories: {
         orderBy: { sortOrder: "asc" },
         include: { items: { orderBy: { name: "asc" } } },
+      },
+      reviews: {
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        include: { customer: { select: { name: true } } },
       },
     },
   });
@@ -119,6 +125,16 @@ export default async function RestaurantPage({
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
             {restaurant.address} · {restaurant.description}
           </p>
+
+          <div className="mt-8">
+            <h2 className="mb-3 font-display text-xl font-semibold text-[#111827]">{t.rpReviews}</h2>
+            <ReviewList
+              reviews={restaurant.reviews}
+              locale={locale}
+              empty={t.noReviewsYet}
+              replyLabel={t.restaurantReply}
+            />
+          </div>
 
           <div className="mt-8">
             <MenuClient restaurant={restaurant} />

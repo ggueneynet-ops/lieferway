@@ -17,7 +17,10 @@ export default async function OrdersPage() {
 
   const orders = await prisma.order.findMany({
     where: session.role === "ADMIN" ? {} : { customerId: session.id },
-    include: { restaurant: { select: { name: true, slug: true, imageUrl: true, cuisine: true } } },
+    include: {
+      restaurant: { select: { name: true, slug: true, imageUrl: true, cuisine: true } },
+      review: { select: { id: true, rating: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -53,6 +56,14 @@ export default async function OrdersPage() {
                       {o.shortCode} · {formatEUR(o.totalCents, locale)} ·{" "}
                       {formatBerlinDateTime(o.createdAt, locale)}
                     </p>
+                    {o.status === "DELIVERED" && !o.review ? (
+                      <p className="mt-1 text-sm font-medium text-primary">{t.leaveReview}</p>
+                    ) : null}
+                    {o.review ? (
+                      <p className="mt-1 text-sm text-[#6B7280]">
+                        {t.reviewAlready} · {o.review.rating}/5
+                      </p>
+                    ) : null}
                   </div>
                 </Link>
               </li>

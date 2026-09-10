@@ -824,7 +824,7 @@ async function main() {
   }
 
   let n = 1;
-  await placeOrder({
+  const anadoluDeliveredA = await placeOrder({
     n: n++,
     customerId: customer.id,
     restaurant: anadolu,
@@ -836,7 +836,7 @@ async function main() {
     createdAt: addDays(lastWeek, 1),
     courierId: courier.id,
   });
-  await placeOrder({
+  const anadoluDeliveredB = await placeOrder({
     n: n++,
     customerId: customerTr.id,
     restaurant: anadolu,
@@ -925,6 +925,29 @@ async function main() {
 
   const { regeneratePayouts } = await import("../src/lib/payouts");
   await regeneratePayouts();
+
+  const { refreshRestaurantRating } = await import("../src/lib/reviews");
+  await prisma.review.create({
+    data: {
+      orderId: anadoluDeliveredA.id,
+      restaurantId: anadolu.id,
+      customerId: customer.id,
+      rating: 5,
+      comment: "Adana Kebap war perfekt, pünktlich an der Tür.",
+      reply: "Danke! Freuen uns auf deinen nächsten Besuch.",
+      repliedAt: new Date(),
+    },
+  });
+  await prisma.review.create({
+    data: {
+      orderId: anadoluDeliveredB.id,
+      restaurantId: anadolu.id,
+      customerId: customerTr.id,
+      rating: 4,
+      comment: "Lezzetliydi, biraz geç geldi.",
+    },
+  });
+  await refreshRestaurantRating(anadolu.id);
 
   await prisma.partnerApplication.createMany({
     data: [
