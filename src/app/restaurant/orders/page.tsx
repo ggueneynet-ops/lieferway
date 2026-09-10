@@ -166,10 +166,11 @@ export default async function RestaurantOrdersHistoryPage({
             <li key={o.id} className="rounded-2xl border border-[#E5E7EB] bg-white p-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-semibold">{o.shortCode}</p>
-                <StatusBadge status={o.status} locale={locale} />
+                <StatusBadge status={o.status} locale={locale} fulfillmentType={o.fulfillmentType} />
               </div>
               <p className="mt-1 text-sm text-[#6B7280]">
                 {formatBerlinDateTime(o.createdAt, locale)} · {o.customer.name}
+                {o.fulfillmentType === "PICKUP" ? ` · ${t.fulfillmentPickup}` : ""}
               </p>
               <ul className="mt-2 text-sm text-[#111827]">
                 {o.items.map((i) => (

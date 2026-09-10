@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MenuClient } from "@/components/menu-client";
 import { ReviewList } from "@/components/review-list";
+import { RestaurantFulfillment } from "@/components/restaurant-fulfillment";
 import { Bike, Clock, MapPin, ShoppingBag, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
@@ -119,10 +120,15 @@ export default async function RestaurantPage({
               </div>
             ))}
           </div>
-          <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#FCE4EC] px-2.5 py-1 text-[11px] font-semibold text-[#C2185B]">
-            <Bike className="size-3 shrink-0" strokeWidth={2} />
-            {t.restaurantDelivers}
-          </p>
+          <RestaurantFulfillment
+            restaurantId={restaurant.id}
+            pickupAllowed={restaurant.pickupAllowed !== false}
+            address={restaurant.address}
+            city={restaurant.city}
+            postalCode={restaurant.postalCode}
+            etaMin={restaurant.etaMin}
+            deliveryFeeCents={restaurant.deliveryFeeCents}
+          />
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
             {restaurant.address} · {restaurant.description}

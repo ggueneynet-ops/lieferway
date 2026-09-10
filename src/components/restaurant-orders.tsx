@@ -13,6 +13,7 @@ import type { KitchenOrder } from "@/lib/restaurant-live";
 import { parsePrepMinutes, PREP_CHIPS } from "@/lib/prep";
 import { PrintBonButton } from "@/components/print-bon-button";
 import { playKitchenBell, startKeepAlive, stopKeepAlive, unlockKitchenBell } from "@/lib/kitchen-gong";
+import { isPickup } from "@/lib/fulfillment";
 
 const MUTE_KEY = "lw_kitchen_mute";
 const GONG_MS = 2600;
@@ -359,6 +360,7 @@ export function RestaurantOrders({
                 locale={locale}
                 noteLabel={t.note}
                 deliveryLabel={t.deliveryTo}
+                pickupLabel={t.pickupAtCounter}
                 phoneLabel={t.phoneNumber}
                 nameLabel={t.fullName}
                 highlight={highlight.has(o.id)}
@@ -412,13 +414,16 @@ export function RestaurantOrders({
               locale={locale}
               noteLabel={t.note}
               deliveryLabel={t.deliveryTo}
+              pickupLabel={t.pickupAtCounter}
               phoneLabel={t.phoneNumber}
               nameLabel={t.fullName}
               kicker={
                 o.status === "PREPARING"
                   ? t.rpInPrep
                   : o.status === "READY"
-                    ? t.rpReadyCta
+                    ? isPickup(o.fulfillmentType)
+                      ? t.rpReadyPickup
+                      : t.rpReadyCta
                     : o.status === "OUT_FOR_DELIVERY"
                       ? t.rpOnTheWay
                       : t.accepted
@@ -443,10 +448,20 @@ export function RestaurantOrders({
                   onClick={() => act(o.id, "ready")}
                   className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
                 >
-                  {t.rpReadyCta}
+                  {isPickup(o.fulfillmentType) ? t.rpReadyPickup : t.rpReadyCta}
                 </button>
               )}
-              {o.status === "READY" && (
+              {o.status === "READY" && isPickup(o.fulfillmentType) && (
+                <button
+                  type="button"
+                  disabled={pending.has(o.id)}
+                  onClick={() => act(o.id, "deliver")}
+                  className="h-12 w-full rounded-xl bg-primary px-6 text-base font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+                >
+                  {t.rpMarkPickedUp}
+                </button>
+              )}
+              {o.status === "READY" && !isPickup(o.fulfillmentType) && (
                 <button
                   type="button"
                   disabled={pending.has(o.id)}
@@ -492,6 +507,7 @@ function OrderCard({
   locale,
   noteLabel,
   deliveryLabel,
+  pickupLabel,
   phoneLabel,
   nameLabel,
   highlight,
@@ -502,11 +518,13 @@ function OrderCard({
   locale: Locale;
   noteLabel: string;
   deliveryLabel: string;
+  pickupLabel: string;
   phoneLabel: string;
   nameLabel: string;
   highlight?: boolean;
   kicker?: string;
 }) {
+  const pickup = isPickup(order.fulfillmentType);
   return (
     <article
       className={`rounded-2xl border bg-white p-4 ${highlight ? "lw-new-ticket shadow-[0_8px_24px_rgba(233,30,99,0.12)]" : "border-[#E5E7EB]"}`}
@@ -536,11 +554,13 @@ function OrderCard({
               "—"
             )}
           </p>
-          <p className="text-xs text-text-secondary">
-            {deliveryLabel}: {order.street}, {order.postalCode} {order.city}
+          <p className={`text-sm font-medium ${pickup ? "text-[#C2185B]" : "text-text-secondary"}`}>
+            {pickup
+              ? pickupLabel
+              : `${deliveryLabel}: ${order.street}, ${order.postalCode} ${order.city}`}
           </p>
         </div>
-        <StatusBadge status={order.status} locale={locale} />
+        <StatusBadge status={order.status} locale={locale} fulfillmentType={order.fulfillmentType} />
       </div>
       <ul className="mt-2 text-sm">
         {order.items.map((i) => (

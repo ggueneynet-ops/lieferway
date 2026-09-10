@@ -10,6 +10,7 @@ import { OrderPoller } from "@/components/order-poller";
 import { ReviewForm } from "@/components/review-form";
 import { getCopy } from "@/lib/get-locale";
 import { interpolate } from "@/lib/i18n";
+import { isPickup } from "@/lib/fulfillment";
 
 export default async function OrderDetailPage({
   params,
@@ -52,7 +53,9 @@ export default async function OrderDetailPage({
     order.paymentStatus === "PAID"
       ? t.paid
       : order.paymentStatus === "CASH_ON_DELIVERY"
-        ? t.cashOnDelivery
+        ? isPickup(order.fulfillmentType)
+          ? t.cashOnPickup
+          : t.cashOnDelivery
         : t.processing;
 
   return (
@@ -64,7 +67,7 @@ export default async function OrderDetailPage({
           <p className="text-sm text-muted-foreground">{order.shortCode}</p>
           <div className="mt-1 flex flex-wrap items-center gap-3">
             <h1 className="font-display text-2xl font-semibold tracking-tight">{order.restaurant.name}</h1>
-            <StatusBadge status={order.status} locale={locale} />
+            <StatusBadge status={order.status} locale={locale} fulfillmentType={order.fulfillmentType} />
           </div>
           {latestNotice ? (
             <p className="mt-4 rounded-2xl border border-primary/20 bg-primary-soft px-4 py-3 text-sm text-ink">
@@ -90,10 +93,14 @@ export default async function OrderDetailPage({
           </a>
           <p className="mt-2 text-xs text-[#6B7280]">{t.invoiceNotBon}</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {order.street}, {order.postalCode} {order.city}
+            {isPickup(order.fulfillmentType)
+              ? `${t.pickupAtCounter} · ${order.restaurant.address}, ${order.restaurant.postalCode} ${order.restaurant.city}`
+              : `${order.street}, ${order.postalCode} ${order.city}`}
           </p>
           <p className="mt-4 rounded-2xl border border-primary/15 bg-primary-soft/50 px-4 py-3 text-sm leading-relaxed text-ink">
-            {t.restaurantDelivers} {t.restaurantDeliversHint}
+            {isPickup(order.fulfillmentType)
+              ? t.pickupHint
+              : `${t.restaurantDelivers} ${t.restaurantDeliversHint}`}
           </p>
           <div className="mt-6 rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
             <h2 className="mb-5 font-display font-semibold tracking-tight">{t.status}</h2>
@@ -103,6 +110,7 @@ export default async function OrderDetailPage({
               locale={locale}
               shortCode={order.shortCode}
               restaurantName={order.restaurant.name}
+              fulfillmentType={order.fulfillmentType}
             />
           </div>
           {order.status === "DELIVERED" && !order.review ? (
@@ -145,7 +153,7 @@ export default async function OrderDetailPage({
             </p>
           )}
           <p className="flex justify-between text-muted-foreground">
-            <span>{t.fee}</span>
+            <span>{isPickup(order.fulfillmentType) ? t.fulfillmentPickup : t.fee}</span>
             <span>{formatEUR(order.deliveryFeeCents)}</span>
           </p>
           <p className="flex justify-between font-semibold">

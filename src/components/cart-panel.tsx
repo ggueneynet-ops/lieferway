@@ -74,7 +74,7 @@ export function CartPanel({
           </p>
         </div>
         <p className="rounded-2xl bg-[#FCE4EC] px-3.5 py-2.5 text-[13px] leading-relaxed text-[#111827]">
-          {t.restaurantDelivers} {t.restaurantDeliversHint}
+          {cart.fulfillmentType === "PICKUP" ? t.pickupHint : `${t.restaurantDelivers} ${t.restaurantDeliversHint}`}
         </p>
         <ul className="divide-y divide-[#F3F4F6]">
           {cart.items.map((item) => (
@@ -101,7 +101,7 @@ export function CartPanel({
             <span className="tabular-nums">{formatEUR(foodSubtotal, locale)}</span>
           </p>
           <p className="flex justify-between text-[#6B7280]">
-            <span>{t.fee}</span>
+            <span>{cart.fulfillmentType === "PICKUP" ? t.fulfillmentPickup : t.fee}</span>
             <span className="tabular-nums">{formatEUR(cart.deliveryFeeCents, locale)}</span>
           </p>
           <p className="flex justify-between text-base font-semibold text-[#111827]">

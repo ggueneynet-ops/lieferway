@@ -73,11 +73,12 @@ export default async function OrdersPage() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium">{o.restaurant.name}</p>
-                      <StatusBadge status={o.status} locale={locale} />
+                      <StatusBadge status={o.status} locale={locale} fulfillmentType={o.fulfillmentType} />
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {o.shortCode} · {formatEUR(o.totalCents, locale)} ·{" "}
                       {formatBerlinDateTime(o.createdAt, locale)}
+                      {o.fulfillmentType === "PICKUP" ? ` · ${t.fulfillmentPickup}` : ""}
                     </p>
                     <p className="mt-1 text-sm font-medium text-primary">{t.invoiceDoc}</p>
                     {o.status === "DELIVERED" && !o.review ? (

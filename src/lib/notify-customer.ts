@@ -1,7 +1,8 @@
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendCustomerEmail } from "@/lib/mail";
-import { interpolate, parseLocale, STATUS_LABEL, t as dict } from "@/lib/i18n";
+import { interpolate, orderStatusLabel, parseLocale, t as dict } from "@/lib/i18n";
+import { isPickup } from "@/lib/fulfillment";
 
 function noticeId() {
   return `c${randomBytes(12).toString("hex")}`;
@@ -17,24 +18,35 @@ const NOTIFY_STATUSES = new Set([
   "REJECTED",
 ]);
 
-function noticeCopy(status: string, locale: ReturnType<typeof parseLocale>, vars: Record<string, string>) {
+function noticeCopy(
+  status: string,
+  locale: ReturnType<typeof parseLocale>,
+  vars: Record<string, string>,
+  fulfillment?: string | null,
+) {
   const t = dict(locale);
+  const pickup = isPickup(fulfillment);
   const template =
     status === "PLACED"
       ? t.orderNoticePlaced
       : status === "REJECTED"
         ? t.orderNoticeRejected
         : status === "READY"
-          ? t.orderNoticeReady
+          ? pickup
+            ? t.orderNoticePickupReady
+            : t.orderNoticeReady
           : status === "OUT_FOR_DELIVERY"
             ? t.orderNoticeOut
             : status === "DELIVERED"
-              ? t.orderNoticeDelivered
+              ? pickup
+                ? t.orderNoticePickedUp
+                : t.orderNoticeDelivered
               : t.orderNoticeAccepted;
-  const statusLabel =
-    status === "PREPARING" || status === "ACCEPTED"
-      ? STATUS_LABEL[locale].ACCEPTED
-      : (STATUS_LABEL[locale][status] ?? status);
+  const statusLabel = orderStatusLabel(
+    locale,
+    status === "PREPARING" || status === "ACCEPTED" ? "ACCEPTED" : status,
+    fulfillment,
+  );
   return {
     title: `${vars.restaurant} · ${statusLabel}`,
     body: interpolate(template, vars),
@@ -66,7 +78,7 @@ export async function notifyCustomerOfOrderStatus(orderId: string, status: strin
       code: order.shortCode,
       min: String(order.prepMinutes ?? 25),
       email: order.customer.email,
-    });
+    }, order.fulfillmentType);
     const subject = `Lieferway · ${order.shortCode} · ${copy.title}`;
     const link = `${appUrl}/orders/${order.id}`;
     let attachments: { filename: string; content: Buffer; contentType: string }[] | undefined;

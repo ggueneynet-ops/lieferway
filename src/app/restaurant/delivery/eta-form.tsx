@@ -10,6 +10,7 @@ type Props = {
   etaMax: number;
   minOrderEuro: string;
   deliveryFeeEuro: string;
+  pickupAllowed: boolean;
 };
 
 function digits(value: string) {
@@ -22,6 +23,7 @@ export function DeliveryEtaForm({
   etaMax,
   minOrderEuro,
   deliveryFeeEuro,
+  pickupAllowed,
 }: Props) {
   const { t } = useI18n();
   const [min, setMin] = useState(String(etaMin));
@@ -112,6 +114,19 @@ export function DeliveryEtaForm({
           />
         </div>
       </div>
+      <label className="mt-4 flex items-start gap-3 rounded-xl bg-[#F9FAFB] px-3 py-3">
+        <input
+          type="checkbox"
+          name="pickupAllowed"
+          value="1"
+          defaultChecked={pickupAllowed}
+          className="mt-1 size-4 accent-[#E91E63]"
+        />
+        <span>
+          <span className="block text-sm font-semibold text-[#111827]">{t.pickupAllowed}</span>
+          <span className="mt-0.5 block text-sm text-[#6B7280]">{t.pickupAllowedHint}</span>
+        </span>
+      </label>
       <button type="submit" className="mt-4 h-12 w-full rounded-xl bg-primary text-sm font-semibold text-white">
         {t.save}
       </button>

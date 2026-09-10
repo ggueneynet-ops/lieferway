@@ -215,6 +215,7 @@ export async function ensureCustomerInvoice(orderId: string): Promise<StoredInvo
     discountCents: order.discountCents,
     couponCode: order.couponCode,
     totalCents: order.totalCents,
+    fulfillmentType: order.fulfillmentType,
   });
   const pdfPath = await writePdf("customer", `${number}.pdf`, pdfBytes);
   const record: StoredInvoice = {

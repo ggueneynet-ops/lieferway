@@ -4,6 +4,7 @@ import { formatEUR } from "@/lib/money";
 import { formatBerlinBonDate } from "@/lib/datetime";
 import { interpolate, t as dict, type Dictionary, type Locale } from "@/lib/i18n";
 import { restaurantInitials, restaurantLogo } from "@/lib/media";
+import { isPickup } from "@/lib/fulfillment";
 
 const MIME: Record<string, string> = {
   ".png": "image/png",
@@ -35,6 +36,7 @@ export type BonOrder = {
   postalCode: string;
   city: string;
   prepMinutes?: number | null;
+  fulfillmentType?: string | null;
   items: { name: string; quantity: number }[];
   customer: { name: string; phone: string | null };
 };
@@ -127,6 +129,7 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
   const t = dict(locale);
   const pay = bonPayLabel(order.paymentMethod, t);
   const when = formatBerlinBonDate(order.createdAt, locale);
+  const pickup = isPickup(order.fulfillmentType);
   const rows = order.items
     .map(
       (i) =>
@@ -213,6 +216,16 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
       letter-spacing: 0.04em;
       margin: 0 0 8px;
     }
+    .pickup-banner {
+      border: 3px solid #000;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+      padding: 6px 4px;
+      margin: 0 0 10px;
+    }
     .code {
       font-size: 28px;
       font-weight: 800;
@@ -263,13 +276,18 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
       }
       <h1>${escapeHtml(order.restaurantName)}</h1>
       <p class="kind">${escapeHtml(t.lieferbonTitle)}</p>
+      ${pickup ? `<p class="pickup-banner">${escapeHtml(t.pickupAtCounter)}</p>` : ""}
     </div>
     <p class="code">${escapeHtml(order.shortCode)}</p>
     <p class="when">${escapeHtml(when)}</p>
     <hr class="hr" />
     <p class="line"><span class="k">${escapeHtml(t.bonCustomer)}</span><br/>${escapeHtml(order.customer.name)}</p>
     ${phone ? `<p class="line"><span class="k">${escapeHtml(t.bonPhone)}</span><br/>${escapeHtml(phone)}</p>` : ""}
-    <p class="line"><span class="k">${escapeHtml(t.bonAddress)}</span><br/>${escapeHtml(order.street)}<br/>${escapeHtml(order.postalCode)} ${escapeHtml(order.city)}</p>
+    ${
+      pickup
+        ? `<p class="line"><span class="k">${escapeHtml(t.fulfillmentPickup)}</span><br/>${escapeHtml(t.pickupAtCounter)}</p>`
+        : `<p class="line"><span class="k">${escapeHtml(t.bonAddress)}</span><br/>${escapeHtml(order.street)}<br/>${escapeHtml(order.postalCode)} ${escapeHtml(order.city)}</p>`
+    }
     <hr class="hr" />
     <p class="k">${escapeHtml(t.bonItems)}</p>
     <table>${rows}</table>

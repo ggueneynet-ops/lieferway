@@ -58,3 +58,14 @@ export const CUSTOMER_STATUS_FLOW: OrderStatus[] = [
   "OUT_FOR_DELIVERY",
   "DELIVERED",
 ];
+
+export const FULFILLMENT_TYPES = ["DELIVERY", "PICKUP"] as const;
+export type FulfillmentType = (typeof FULFILLMENT_TYPES)[number];
+
+/** Pickup tracker: Bestellt → Angenommen → Fertig zur Abholung → Abgeholt. */
+export const PICKUP_CUSTOMER_STATUS_FLOW: OrderStatus[] = [
+  "PLACED",
+  "ACCEPTED",
+  "READY",
+  "DELIVERED",
+];

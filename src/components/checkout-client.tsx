@@ -17,9 +17,11 @@ import { customerNeedsPhone } from "@/lib/phone";
 import { toast } from "sonner";
 import { PaymentPicker } from "@/components/payment-picker";
 import { QtyStepper } from "@/components/cart-panel";
+import { FulfillmentToggle } from "@/components/fulfillment-toggle";
+import { isPickup } from "@/lib/fulfillment";
 
 export function CheckoutClient() {
-  const { cart, foodSubtotal, clear, setQty } = useCart();
+  const { cart, foodSubtotal, clear, setQty, setFulfillment } = useCart();
   const { t, locale } = useI18n();
   const router = useRouter();
   const [street, setStreet] = useState("Berger Straße 142");
@@ -78,9 +80,10 @@ export function CheckoutClient() {
   }
 
   const discountCents = applyCoupon(foodSubtotal, coupon);
+  const pickup = isPickup(cart.fulfillmentType) && cart.pickupAllowed;
   const totals = computeOrderTotals({
     foodSubtotalCents: foodSubtotal,
-    deliveryFeeCents: cart.deliveryFeeCents,
+    deliveryFeeCents: pickup ? 0 : cart.deliveryFeeCents,
     discountCents,
     commissionPercent: 5,
   });
@@ -112,6 +115,13 @@ export function CheckoutClient() {
       toast.error(t.nameRequired);
       return;
     }
+    const pickup = isPickup(current.fulfillmentType) && current.pickupAllowed;
+    if (!pickup) {
+      if (street.trim().length < 3 || postalCode.trim().length < 4 || city.trim().length < 2) {
+        toast.error(t.address);
+        return;
+      }
+    }
     if (foodSubtotal < current.minOrderCents) {
       toast.error(t.minNotMet);
       return;
@@ -138,11 +148,12 @@ export function CheckoutClient() {
           paymentMethod: method,
           paymentIntentId,
           customerName: fullName.trim(),
-          street,
-          city,
-          postalCode,
+          street: pickup ? current.restaurantAddress || street : street,
+          city: pickup ? current.restaurantCity || city : city,
+          postalCode: pickup ? current.restaurantPostalCode || postalCode : postalCode,
           notes,
           couponCode: coupon?.code,
+          fulfillmentType: pickup ? "PICKUP" : "DELIVERY",
         }),
       });
       const data = await res.json();
@@ -173,8 +184,29 @@ export function CheckoutClient() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:gap-8">
           <div className="space-y-5">
             <section className="rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
-              <h2 className="font-display text-lg font-semibold tracking-tight">{t.address}</h2>
-              <p className="mt-1 text-sm text-[#6B7280]">{t.contactSection}</p>
+              <h2 className="font-display text-lg font-semibold tracking-tight">
+                {pickup ? t.contactPickupSection : t.address}
+              </h2>
+              <p className="mt-1 text-sm text-[#6B7280]">{pickup ? t.pickupHint : t.contactSection}</p>
+              {cart.pickupAllowed ? (
+                <div className="mt-4">
+                  <FulfillmentToggle
+                    pickupAllowed
+                    value={pickup ? "PICKUP" : "DELIVERY"}
+                    onChange={(next) =>
+                      setFulfillment(next, {
+                        restaurantId: cart.restaurantId,
+                        pickupAllowed: cart.pickupAllowed,
+                        listedDeliveryFeeCents: cart.listedDeliveryFeeCents,
+                        restaurantAddress: cart.restaurantAddress,
+                        restaurantCity: cart.restaurantCity,
+                        restaurantPostalCode: cart.restaurantPostalCode,
+                        etaMin: cart.etaMin,
+                      })
+                    }
+                  />
+                </div>
+              ) : null}
               <div className="mt-4 grid gap-3">
                 <div>
                   <Label htmlFor="checkout-name">
@@ -202,6 +234,18 @@ export function CheckoutClient() {
                   <Input className="mt-1 h-11" type="tel" value={phone} readOnly />
                   <p className="mt-1 text-xs text-muted-foreground">{t.phoneOnTicket}</p>
                 </div>
+                {pickup ? (
+                  <div className="rounded-xl bg-[#F9FAFB] px-3 py-3 text-sm">
+                    <p className="font-semibold text-[#111827]">{t.pickupAtCounter}</p>
+                    <p className="mt-1 text-[#6B7280]">
+                      {cart.restaurantAddress}, {cart.restaurantPostalCode} {cart.restaurantCity}
+                    </p>
+                    <p className="mt-1 text-[#6B7280]">
+                      {interpolate(t.pickupEtaLabel, { min: String(cart.etaMin) })}
+                    </p>
+                  </div>
+                ) : (
+                  <>
                 <div>
                   <Label>{t.street}</Label>
                   <Input className="mt-1 h-11" value={street} onChange={(e) => setStreet(e.target.value)} />
@@ -216,6 +260,8 @@ export function CheckoutClient() {
                     <Input className="mt-1 h-11" value={city} onChange={(e) => setCity(e.target.value)} />
                   </div>
                 </div>
+                  </>
+                )}
                 <div>
                   <Label>{t.notes}</Label>
                   <Textarea className="mt-1" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
@@ -223,8 +269,12 @@ export function CheckoutClient() {
               </div>
             </section>
             <section className="rounded-[20px] border border-[#E91E63]/20 bg-[#FCE4EC] px-5 py-4 sm:px-6">
-              <h2 className="font-display text-base font-semibold tracking-tight text-[#111827]">{t.restaurantDelivers}</h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-[#6B7280]">{t.restaurantDeliversHint}</p>
+              <h2 className="font-display text-base font-semibold tracking-tight text-[#111827]">
+                {pickup ? t.pickupAtCounter : t.restaurantDelivers}
+              </h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-[#6B7280]">
+                {pickup ? t.pickupHint : t.restaurantDeliversHint}
+              </p>
             </section>
             <PaymentPicker
               method={method}
@@ -277,8 +327,8 @@ export function CheckoutClient() {
                 </p>
               )}
               <p className="flex justify-between text-muted-foreground">
-                <span>{t.fee}</span>
-                <span className="tabular-nums">{formatEUR(cart.deliveryFeeCents, locale)}</span>
+                <span>{pickup ? t.fulfillmentPickup : t.fee}</span>
+                <span className="tabular-nums">{formatEUR(pickup ? 0 : cart.deliveryFeeCents, locale)}</span>
               </p>
               <p className="flex justify-between text-base font-semibold">
                 <span>{t.total}</span>

@@ -43,6 +43,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
         postalCode: order.postalCode,
         city: order.city,
         prepMinutes: order.prepMinutes,
+        fulfillmentType: order.fulfillmentType,
         items: order.items,
         customer: order.customer,
       }),

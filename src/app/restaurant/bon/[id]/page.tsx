@@ -39,6 +39,7 @@ export default async function RestaurantBonPage({
       postalCode: order.postalCode,
       city: order.city,
       prepMinutes: order.prepMinutes,
+      fulfillmentType: order.fulfillmentType,
       items: order.items,
       customer: order.customer,
     }),

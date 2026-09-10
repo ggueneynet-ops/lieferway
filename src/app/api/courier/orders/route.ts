@@ -12,12 +12,13 @@ export async function GET() {
     const orders = await prisma.order.findMany({
       where:
         session.role === "ADMIN"
-          ? { status: { in: ["READY", "OUT_FOR_DELIVERY"] } }
+          ? { status: { in: ["READY", "OUT_FOR_DELIVERY"] }, fulfillmentType: { not: "PICKUP" } }
           : {
               OR: [
                 { courierId: session.id, status: { in: ["READY", "OUT_FOR_DELIVERY"] } },
                 { status: "READY", courierId: null },
               ],
+              fulfillmentType: { not: "PICKUP" },
             },
       include: {
         items: true,

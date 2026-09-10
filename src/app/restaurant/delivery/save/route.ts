@@ -46,12 +46,15 @@ export async function POST(req: Request) {
       return fail("Liefergebühr prüfen.");
     }
 
+    const pickupAllowed = form.get("pickupAllowed") === "1";
+
     await prisma.$executeRaw`
       UPDATE "Restaurant"
       SET "etaMin" = ${etaMin},
           "etaMax" = ${etaMax},
           "minOrderCents" = ${minOrderCents},
-          "deliveryFeeCents" = ${deliveryFeeCents}
+          "deliveryFeeCents" = ${deliveryFeeCents},
+          "pickupAllowed" = ${pickupAllowed ? 1 : 0}
       WHERE "id" = ${id}
     `;
 

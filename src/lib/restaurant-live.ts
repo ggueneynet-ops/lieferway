@@ -18,6 +18,7 @@ export type KitchenOrder = {
   street: string;
   city: string;
   postalCode: string;
+  fulfillmentType: string;
   items: { id: string; name: string; quantity: number }[];
   customer: { name: string; phone: string | null };
 };
@@ -35,6 +36,7 @@ export function serializeKitchenOrder(o: {
   street: string;
   city: string;
   postalCode: string;
+  fulfillmentType?: string | null;
   items: { id: string; name: string; quantity: number }[];
   customer: { name: string; phone: string | null };
 }): KitchenOrder {
@@ -51,6 +53,7 @@ export function serializeKitchenOrder(o: {
     street: o.street,
     city: o.city,
     postalCode: o.postalCode,
+    fulfillmentType: o.fulfillmentType === "PICKUP" ? "PICKUP" : "DELIVERY",
     items: o.items.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity })),
     customer: o.customer,
   };

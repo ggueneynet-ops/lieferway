@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { STATUS_LABEL, type Locale } from "@/lib/i18n";
+import { orderStatusLabel, type Locale } from "@/lib/i18n";
 
 const tones: Record<string, string> = {
   PLACED: "bg-warning/15 text-ink",
@@ -12,10 +12,18 @@ const tones: Record<string, string> = {
   CANCELLED: "bg-bg-muted text-text-secondary",
 };
 
-export function StatusBadge({ status, locale = "de" }: { status: string; locale?: Locale }) {
+export function StatusBadge({
+  status,
+  locale = "de",
+  fulfillmentType,
+}: {
+  status: string;
+  locale?: Locale;
+  fulfillmentType?: string | null;
+}) {
   return (
     <Badge className={`border-0 ${tones[status] ?? "bg-muted"}`}>
-      {STATUS_LABEL[locale][status] ?? status}
+      {orderStatusLabel(locale, status, fulfillmentType)}
     </Badge>
   );
 }

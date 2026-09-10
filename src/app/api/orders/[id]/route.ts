@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { regeneratePayouts } from "@/lib/payouts";
 import type { OrderStatus, Role } from "@/lib/constants";
 import { parsePrepMinutes } from "@/lib/prep";
+import { isPickup } from "@/lib/fulfillment";
 
 export async function OPTIONS() {
   return options();
@@ -93,15 +94,21 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     } else if (action === "ready" && (isOwner || isAdmin) && ["PREPARING", "ACCEPTED"].includes(order.status)) {
       status = "READY";
     } else if (action === "claim" && (isCourier || isAdmin) && order.status === "READY" && !order.courierId) {
+      if (isPickup(order.fulfillmentType)) return fail("Abholung — keine Kurier-Tour.");
       courierId = isAdmin && body?.courierId ? body.courierId : session.role === "COURIER" ? session.id : body?.courierId ?? null;
       if (!courierId) return fail("Kurier fehlt.");
     } else if (action === "assign" && isAdmin) {
       courierId = body?.courierId ?? null;
     } else if (action === "out" && (isCourier || isAdmin || isOwner) && order.status === "READY") {
+      if (isPickup(order.fulfillmentType)) return fail("Abholung — keine Auslieferung.");
       if (isCourier && order.courierId && order.courierId !== session.id) return fail("Andere Tour.");
       if (isCourier && !order.courierId) courierId = session.id;
       status = "OUT_FOR_DELIVERY";
-    } else if (action === "deliver" && (isCourier || isAdmin || isOwner) && order.status === "OUT_FOR_DELIVERY") {
+    } else if (
+      action === "deliver" &&
+      (isCourier || isAdmin || isOwner) &&
+      (order.status === "OUT_FOR_DELIVERY" || (isPickup(order.fulfillmentType) && order.status === "READY"))
+    ) {
       if (isCourier && order.courierId && order.courierId !== session.id) return fail("Andere Tour.");
       status = "DELIVERED";
       deliveredAt = new Date();

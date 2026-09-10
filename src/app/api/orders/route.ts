@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { applyCoupon, computeOrderTotals, paymentStatusFor, uniqueShortCode } from "@/lib/orders";
 import { PAYMENT_METHODS } from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
+import { parseFulfillment } from "@/lib/fulfillment";
 
 export async function OPTIONS() {
   return options();
@@ -45,11 +46,12 @@ const createSchema = z.object({
   paymentMethod: z.enum(PAYMENT_METHODS),
   paymentIntentId: z.string().optional(),
   customerName: z.string().trim().min(2).max(80),
-  street: z.string().min(3),
-  city: z.string().min(2),
-  postalCode: z.string().min(4),
+  street: z.string().optional(),
+  city: z.string().optional(),
+  postalCode: z.string().optional(),
   notes: z.string().optional(),
   couponCode: z.string().optional(),
+  fulfillmentType: z.enum(["DELIVERY", "PICKUP"]).optional(),
 });
 
 export async function POST(req: Request) {
@@ -75,6 +77,21 @@ export async function POST(req: Request) {
     if (!restaurant || !restaurant.isActive || !restaurant.isOpen) {
       return fail("Restaurant nimmt gerade keine Bestellungen an.");
     }
+
+    const fulfillment = parseFulfillment(parsed.data.fulfillmentType);
+    const pickup = fulfillment === "PICKUP";
+    if (pickup && restaurant.pickupAllowed === false) {
+      return fail("Dieses Restaurant bietet keine Abholung an.");
+    }
+    const street = pickup
+      ? restaurant.address
+      : (parsed.data.street ?? "").trim();
+    const city = pickup ? restaurant.city : (parsed.data.city ?? "").trim();
+    const postalCode = pickup ? restaurant.postalCode : (parsed.data.postalCode ?? "").trim();
+    if (!pickup && (street.length < 3 || city.length < 2 || postalCode.length < 4)) {
+      return fail("Bitte Lieferadresse angeben.");
+    }
+    const deliveryFeeCents = pickup ? 0 : restaurant.deliveryFeeCents;
 
     const menuItems = await prisma.menuItem.findMany({
       where: {
@@ -111,7 +128,7 @@ export async function POST(req: Request) {
     const discountCents = applyCoupon(foodSubtotalCents, coupon);
     const totals = computeOrderTotals({
       foodSubtotalCents,
-      deliveryFeeCents: restaurant.deliveryFeeCents,
+      deliveryFeeCents,
       discountCents,
       commissionPercent: restaurant.commissionPercent,
     });
@@ -139,16 +156,17 @@ export async function POST(req: Request) {
         couponId: coupon?.id,
         couponCode: coupon?.code,
         foodSubtotalCents,
-        deliveryFeeCents: restaurant.deliveryFeeCents,
+        deliveryFeeCents,
         discountCents,
         totalCents: totals.totalCents,
         commissionPercent: restaurant.commissionPercent,
         commissionCents: totals.commissionCents,
         restaurantPayoutCents: totals.restaurantPayoutCents,
-        street: parsed.data.street,
-        city: parsed.data.city,
-        postalCode: parsed.data.postalCode,
+        street,
+        city,
+        postalCode,
         notes: parsed.data.notes,
+        fulfillmentType: fulfillment,
         items: { create: lines },
       },
       include: {
@@ -156,6 +174,16 @@ export async function POST(req: Request) {
         restaurant: { select: { name: true, slug: true, imageUrl: true, address: true } },
       },
     });
+    await prisma.$executeRawUnsafe(
+      `UPDATE "Order" SET "fulfillmentType" = ?, "deliveryFeeCents" = ?, "totalCents" = ?, "street" = ?, "city" = ?, "postalCode" = ? WHERE "id" = ?`,
+      fulfillment,
+      deliveryFeeCents,
+      totals.totalCents,
+      street,
+      city,
+      postalCode,
+      order.id,
+    );
 
     const { notifyRestaurantOrders } = await import("@/lib/order-events");
     notifyRestaurantOrders(order.restaurantId);

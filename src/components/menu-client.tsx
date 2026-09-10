@@ -25,6 +25,11 @@ type Restaurant = {
   cuisine?: string;
   minOrderCents: number;
   deliveryFeeCents: number;
+  pickupAllowed?: boolean;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  etaMin?: number;
   isOpen: boolean;
   categories: Category[];
 };
@@ -70,7 +75,12 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
                                 restaurantSlug: restaurant.slug,
                                 restaurantName: restaurant.name,
                                 minOrderCents: restaurant.minOrderCents,
-                                deliveryFeeCents: restaurant.deliveryFeeCents,
+                                listedDeliveryFeeCents: restaurant.deliveryFeeCents,
+                                pickupAllowed: Boolean(restaurant.pickupAllowed),
+                                restaurantAddress: restaurant.address ?? "",
+                                restaurantCity: restaurant.city ?? "",
+                                restaurantPostalCode: restaurant.postalCode ?? "",
+                                etaMin: restaurant.etaMin ?? 25,
                               },
                               {
                                 menuItemId: item.id,
@@ -123,7 +133,7 @@ export function MenuClient({ restaurant }: { restaurant: Restaurant }) {
               <span className="tabular-nums">{formatEUR(foodSubtotal, locale)}</span>
             </p>
             <p className="flex justify-between text-sm text-muted-foreground">
-              <span>{t.fee}</span>
+              <span>{cart!.fulfillmentType === "PICKUP" ? t.fulfillmentPickup : t.fee}</span>
               <span className="tabular-nums">{formatEUR(cart!.deliveryFeeCents, locale)}</span>
             </p>
             <p className="mt-1 flex justify-between font-semibold">

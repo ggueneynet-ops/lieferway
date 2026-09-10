@@ -2,26 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
-import { CUSTOMER_STATUS_FLOW, type OrderStatus } from "@/lib/constants";
-import { STATUS_LABEL, type Locale } from "@/lib/i18n";
+import { type OrderStatus } from "@/lib/constants";
+import { orderStatusLabel, STATUS_LABEL, type Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/locale-provider";
 import { toast } from "sonner";
+import { customerStatusFlow, customerStep, isPickup } from "@/lib/fulfillment";
 
-function customerStep(status: string): OrderStatus {
-  if (status === "READY") return "PREPARING";
-  if ((CUSTOMER_STATUS_FLOW as string[]).includes(status)) return status as OrderStatus;
-  return "PLACED";
-}
-
-function hintFor(step: OrderStatus, t: ReturnType<typeof useI18n>["t"]) {
+function hintFor(step: OrderStatus, pickup: boolean, t: ReturnType<typeof useI18n>["t"]) {
   if (step === "PLACED") return t.stepPlacedHint;
   if (step === "ACCEPTED") return t.stepAcceptedHint;
   if (step === "PREPARING") return t.stepPreparingHint;
+  if (step === "READY") return pickup ? t.stepPickupReadyHint : t.stepPreparingHint;
   if (step === "OUT_FOR_DELIVERY") return t.stepOutHint;
-  return t.stepDeliveredHint;
+  return pickup ? t.stepPickedUpHint : t.stepDeliveredHint;
 }
 
-export function OrderTimeline({ status, locale = "de" }: { status: string; locale?: Locale }) {
+export function OrderTimeline({
+  status,
+  locale = "de",
+  fulfillmentType,
+}: {
+  status: string;
+  locale?: Locale;
+  fulfillmentType?: string | null;
+}) {
   const { t } = useI18n();
   if (status === "REJECTED" || status === "CANCELLED") {
     return (
@@ -30,18 +34,20 @@ export function OrderTimeline({ status, locale = "de" }: { status: string; local
       </p>
     );
   }
-  const current = customerStep(status);
-  const idx = CUSTOMER_STATUS_FLOW.indexOf(current);
+  const pickup = isPickup(fulfillmentType);
+  const flow = customerStatusFlow(fulfillmentType);
+  const current = customerStep(status, fulfillmentType);
+  const idx = flow.indexOf(current);
   const delivered = status === "DELIVERED";
 
   return (
     <ol className="relative">
-      {CUSTOMER_STATUS_FLOW.map((step, i) => {
+      {flow.map((step, i) => {
         const complete = delivered || idx > i;
         const isCurrent = !delivered && idx === i;
         return (
           <li key={step} className="relative flex gap-3 pb-5 last:pb-0">
-            {i < CUSTOMER_STATUS_FLOW.length - 1 ? (
+            {i < flow.length - 1 ? (
               <span
                 className={`absolute start-[11px] top-7 h-[calc(100%-8px)] w-0.5 ${
                   complete ? "bg-[#E91E63]" : "bg-[#E5E7EB]"
@@ -62,10 +68,10 @@ export function OrderTimeline({ status, locale = "de" }: { status: string; local
             </span>
             <div className="min-w-0 pt-0.5">
               <p className={`text-[15px] leading-tight ${complete || isCurrent ? "font-semibold text-[#111827]" : "text-[#9CA3AF]"}`}>
-                {STATUS_LABEL[locale][step]}
+                {orderStatusLabel(locale, step, fulfillmentType)}
               </p>
-              {isCurrent || (delivered && i === CUSTOMER_STATUS_FLOW.length - 1) ? (
-                <p className="mt-0.5 text-[13px] text-[#6B7280]">{hintFor(step, t)}</p>
+              {isCurrent || (delivered && i === flow.length - 1) ? (
+                <p className="mt-0.5 text-[13px] text-[#6B7280]">{hintFor(step, pickup, t)}</p>
               ) : null}
             </div>
           </li>
@@ -81,14 +87,17 @@ export function OrderTracker({
   locale = "de",
   shortCode,
   restaurantName,
+  fulfillmentType,
 }: {
   orderId: string;
   initialStatus: string;
   locale?: Locale;
   shortCode?: string;
   restaurantName?: string;
+  fulfillmentType?: string | null;
 }) {
   const [status, setStatus] = useState(initialStatus);
+  const [fulfillment, setFulfillment] = useState(fulfillmentType ?? "DELIVERY");
   const [flash, setFlash] = useState<string | null>(null);
 
   useEffect(() => {
@@ -96,17 +105,22 @@ export function OrderTracker({
   }, [initialStatus]);
 
   useEffect(() => {
+    setFulfillment(fulfillmentType ?? "DELIVERY");
+  }, [fulfillmentType]);
+
+  useEffect(() => {
     let stopped = false;
     let last = initialStatus;
     const tick = async () => {
       const res = await fetch(`/api/orders/${orderId}`, { cache: "no-store" });
       if (!res.ok || stopped) return;
-      const data = (await res.json()) as { order?: { status?: string } };
+      const data = (await res.json()) as { order?: { status?: string; fulfillmentType?: string } };
       const next = data.order?.status;
+      if (data.order?.fulfillmentType) setFulfillment(data.order.fulfillmentType);
       if (next && next !== last) {
         last = next;
         setStatus(next);
-        const label = STATUS_LABEL[locale][next] ?? next;
+        const label = orderStatusLabel(locale, next, data.order?.fulfillmentType ?? fulfillment);
         const msg = restaurantName ? `${restaurantName} · ${label}` : label;
         setFlash(msg);
         const line = shortCode ? `${shortCode} · ${label}` : msg;
@@ -122,14 +136,14 @@ export function OrderTracker({
       stopped = true;
       window.clearInterval(id);
     };
-  }, [orderId, initialStatus, locale, shortCode, restaurantName]);
+  }, [orderId, initialStatus, locale, shortCode, restaurantName, fulfillment]);
 
   return (
     <div>
       {flash ? (
         <p className="mb-4 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-medium text-ink">{flash}</p>
       ) : null}
-      <OrderTimeline status={status} locale={locale} />
+      <OrderTimeline status={status} locale={locale} fulfillmentType={fulfillment} />
     </div>
   );
 }

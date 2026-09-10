@@ -681,6 +681,7 @@ async function main() {
         etaMin: r.etaMin,
         etaMax: r.etaMax,
         commissionPercent: r.commissionPercent,
+        pickupAllowed: true,
         serviceAreas: {
           create: (geo?.plzs ?? [r.postalCode]).map((postalCode) => ({ postalCode })),
         },

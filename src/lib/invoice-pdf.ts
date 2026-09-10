@@ -3,6 +3,7 @@ import { formatEUR } from "@/lib/money";
 import { lieferwayIssuer, VAT_DELIVERY, VAT_FOOD, vatIncluded } from "@/lib/legal-entity";
 import { formatBerlinInvoiceDate } from "@/lib/datetime";
 import { interpolate, t as dict, type Locale } from "@/lib/i18n";
+import { isPickup } from "@/lib/fulfillment";
 
 const A4: [number, number] = [595.28, 841.89];
 const MARGIN = 50;
@@ -27,6 +28,7 @@ export type CustomerInvoicePdfInput = {
   discountCents: number;
   couponCode?: string | null;
   totalCents: number;
+  fulfillmentType?: string | null;
 };
 
 export type CommissionInvoicePdfInput = {
@@ -211,7 +213,12 @@ export async function buildCustomerInvoicePdf(input: CustomerInvoicePdfInput): P
       `-${formatEUR(input.discountCents, input.locale)}`,
     );
   }
-  w.pair(t.fee, formatEUR(input.deliveryFeeCents, input.locale));
+  if (isPickup(input.fulfillmentType)) {
+    w.pair(t.fulfillmentPickup, t.pickupAtCounter);
+    w.pair(t.fee, formatEUR(0, input.locale));
+  } else {
+    w.pair(t.fee, formatEUR(input.deliveryFeeCents, input.locale));
+  }
   w.rule();
   w.pair(t.invoiceTotal, formatEUR(input.totalCents, input.locale), { bold: true, size: 13 });
   w.gap(10);
