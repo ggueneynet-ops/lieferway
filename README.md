@@ -18,7 +18,7 @@ Password for all accounts: `lieferway`
 | Admin | `admin@lieferway.de` | Hidden `/admin` only |
 | Courier (legacy) | `kurier@lieferway.de` | Hidden `/courier` — not a marketplace |
 
-Coupons: `WILLKOMMEN10`, `FRANKFURT`, `HOSGELDIN`.
+Coupons: `START5` (5 € ab 20 € Speisen), `LOCAL5` (5 % auf Speisen), `WILLKOMMEN10` (10 %), `FRANKFURT` (5 € ab 20 €), `HOSGELDIN` (3 €). Launch Week: selected restaurants (`pasta-e-basta`, `mainhattan-burger`, `green-bowl`) show **0 € Liefergebühr**.
 
 ## Run locally
 

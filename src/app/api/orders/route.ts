@@ -2,7 +2,8 @@ import { z } from "zod";
 import { getSession, requireSession } from "@/lib/auth";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
-import { applyCoupon, computeOrderTotals, paymentStatusFor, uniqueShortCode } from "@/lib/orders";
+import { applyCoupon, computeOrderTotals, couponBelowMinimum, paymentStatusFor, uniqueShortCode } from "@/lib/orders";
+import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 import { PAYMENT_METHODS } from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
 import { parseFulfillment } from "@/lib/fulfillment";
@@ -91,7 +92,7 @@ export async function POST(req: Request) {
     if (!pickup && (street.length < 3 || city.length < 2 || postalCode.length < 4)) {
       return fail("Bitte Lieferadresse angeben.");
     }
-    const deliveryFeeCents = pickup ? 0 : restaurant.deliveryFeeCents;
+    const deliveryFeeCents = pickup ? 0 : listedDeliveryFeeCents(restaurant);
 
     const menuItems = await prisma.menuItem.findMany({
       where: {
@@ -124,6 +125,9 @@ export async function POST(req: Request) {
         where: { code: parsed.data.couponCode.trim().toUpperCase() },
       });
       if (!coupon || !coupon.isActive) return fail("Gutschein ungültig.");
+      if (couponBelowMinimum(foodSubtotalCents, coupon)) {
+        return fail("Mindestbestellwert für diesen Gutschein nicht erreicht.");
+      }
     }
     const discountCents = applyCoupon(foodSubtotalCents, coupon);
     const totals = computeOrderTotals({

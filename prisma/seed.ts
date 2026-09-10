@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { namedDishPhoto } from "../src/lib/media";
+import { isLaunchWeekRestaurant } from "../src/lib/constants";
 
 function dishImage(name: string) {
   return namedDishPhoto(name) ?? `/media/dishes/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.jpg`;
@@ -682,6 +683,7 @@ async function main() {
         etaMax: r.etaMax,
         commissionPercent: r.commissionPercent,
         pickupAllowed: true,
+        launchWeekFreeDelivery: isLaunchWeekRestaurant(r.slug),
         serviceAreas: {
           create: (geo?.plzs ?? [r.postalCode]).map((postalCode) => ({ postalCode })),
         },
@@ -735,6 +737,7 @@ async function main() {
       code: "FRANKFURT",
       description: "5 € Rabatt ab 20 € Speisen",
       discountCents: 500,
+      minSubtotalCents: 2000,
     },
   });
   await prisma.coupon.create({
@@ -742,6 +745,21 @@ async function main() {
       code: "HOSGELDIN",
       description: "3 € Willkommensrabatt",
       discountCents: 300,
+    },
+  });
+  await prisma.coupon.create({
+    data: {
+      code: "LOCAL5",
+      description: "5 % auf Speisen — lokaler Tüten-Coupon",
+      discountPercent: 5,
+    },
+  });
+  await prisma.coupon.create({
+    data: {
+      code: "START5",
+      description: "5 € Startguthaben ab 20 € Speisen",
+      discountCents: 500,
+      minSubtotalCents: 2000,
     },
   });
 

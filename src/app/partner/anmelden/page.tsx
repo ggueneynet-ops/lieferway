@@ -43,9 +43,17 @@ export default async function PartnerApplyPage({
             {t.partnerHeroTitle}
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">{t.partnerHeroLead}</p>
-          <p className="mt-4 inline-flex rounded-full bg-[#FCE4EC] px-3 py-1 text-[12px] font-semibold text-[#C2185B]">
-            {t.noContractLock}
-          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {[t.partnerPitchCommission, t.partnerPitchNoContract, t.partnerPitchSelfDelivery].map((pitch) => (
+              <p
+                key={pitch}
+                className="inline-flex rounded-full bg-[#FCE4EC] px-3 py-1 text-[12px] font-semibold text-[#C2185B]"
+              >
+                {pitch}
+              </p>
+            ))}
+          </div>
+          <p className="mt-3 text-sm font-semibold text-ink">{t.partnerPitchLine}</p>
           <p className="mt-5 text-sm text-text-secondary">
             {t.partnerStep1} · {t.partnerStep2} · {t.partnerStep3}
           </p>

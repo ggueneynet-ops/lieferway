@@ -25,6 +25,16 @@ export async function PromoBand() {
           <p className="mt-2 font-display text-2xl font-semibold leading-tight tracking-tight sm:text-[1.7rem]">
             {t.promoBody}
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {["START5", "LOCAL5"].map((code) => (
+              <span
+                key={code}
+                className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold tracking-wide text-white"
+              >
+                {code}
+              </span>
+            ))}
+          </div>
           <Link
             href="#restaurants"
             className="mt-5 inline-flex h-11 items-center rounded-full bg-[#E91E63] px-5 text-sm font-semibold text-white hover:bg-[#C2185B]"

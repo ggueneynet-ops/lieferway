@@ -1,4 +1,15 @@
 export const DEFAULT_COMMISSION_PERCENT = 5;
+
+/** Inner-city venues with 0 € Liefergebühr during Launch Week. */
+export const LAUNCH_WEEK_RESTAURANT_SLUGS = [
+  "pasta-e-basta",
+  "mainhattan-burger",
+  "green-bowl",
+] as const;
+
+export function isLaunchWeekRestaurant(slug: string) {
+  return (LAUNCH_WEEK_RESTAURANT_SLUGS as readonly string[]).includes(slug);
+}
 export const AUTH_COOKIE = "lw_session";
 export const LOCALE_COOKIE = "lw_locale";
 export const PLZ_COOKIE = "lw_plz";

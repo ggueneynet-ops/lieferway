@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { fail, json, options } from "@/lib/http";
+import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 
 export async function OPTIONS() {
   return options();
@@ -17,5 +18,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ slug: stri
     },
   });
   if (!restaurant || !restaurant.isActive) return fail("Restaurant nicht gefunden.", 404);
-  return json({ restaurant });
+  return json({
+    restaurant: {
+      ...restaurant,
+      deliveryFeeCents: listedDeliveryFeeCents(restaurant),
+    },
+  });
 }

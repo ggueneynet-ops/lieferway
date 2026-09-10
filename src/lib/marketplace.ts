@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 import { normalizePlz } from "@/lib/plz";
 import {
   distanceFromOrigin,
@@ -45,6 +46,7 @@ export type MarketplaceRestaurant = {
   maxDeliveryKm: number | null;
   distanceKm: number | null;
   pickupAllowed: boolean;
+  launchWeekFreeDelivery: boolean;
 };
 
 export async function listMarketplaceRestaurants(opts: {
@@ -87,7 +89,7 @@ export async function listMarketplaceRestaurants(opts: {
       logoUrl: r.logoUrl,
       rating: r.rating,
       reviewCount: r.reviewCount,
-      deliveryFeeCents: r.deliveryFeeCents,
+      deliveryFeeCents: listedDeliveryFeeCents(r),
       minOrderCents: r.minOrderCents,
       etaMin: r.etaMin,
       etaMax: r.etaMax,
@@ -99,6 +101,7 @@ export async function listMarketplaceRestaurants(opts: {
       maxDeliveryKm: r.maxDeliveryKm,
       distanceKm,
       pickupAllowed: r.pickupAllowed !== false,
+      launchWeekFreeDelivery: Boolean(r.launchWeekFreeDelivery),
     });
   }
 

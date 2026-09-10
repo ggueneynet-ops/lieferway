@@ -19,7 +19,8 @@ export type RestaurantCardData = {
   etaMin: number;
   etaMax: number;
   isOpen: boolean;
-  pickupAllowed?: boolean;
+    pickupAllowed?: boolean;
+  launchWeekFreeDelivery?: boolean;
 };
 
 export function restaurantCardCopy(t: Dictionary) {
@@ -33,6 +34,7 @@ export function restaurantCardCopy(t: Dictionary) {
     newLabel: t.badgeNew,
     pickupLabel: t.restaurantOffersPickup,
     pickupFeeLabel: t.pickupFeeNone,
+    launchWeekLabel: t.launchWeekBadge,
   };
 }
 
@@ -48,6 +50,7 @@ export function RestaurantCard({
   newLabel,
   pickupLabel,
   pickupFeeLabel,
+  launchWeekLabel,
   fulfillment = "DELIVERY",
 }: {
   r: RestaurantCardData;
@@ -61,13 +64,15 @@ export function RestaurantCard({
   newLabel?: string;
   pickupLabel?: string;
   pickupFeeLabel?: string;
+  launchWeekLabel?: string;
   fulfillment?: FulfillmentType;
 }) {
   const photo = restaurantPhoto(r.imageUrl, r.cuisine, r.slug);
   const popular = r.reviewCount >= 700;
   const isNew = r.reviewCount < 350;
   const pickup = fulfillment === "PICKUP" && r.pickupAllowed !== false;
-  const free = !pickup && r.deliveryFeeCents === 0;
+  const launchWeek = Boolean(r.launchWeekFreeDelivery);
+  const free = !pickup && (r.deliveryFeeCents === 0 || launchWeek);
 
   return (
     <Link
@@ -100,6 +105,11 @@ export function RestaurantCard({
           {selfDeliveryLabel ? (
             <span className="rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-[#C2185B] shadow-sm">
               {selfDeliveryLabel}
+            </span>
+          ) : null}
+          {launchWeek && launchWeekLabel ? (
+            <span className="rounded-full bg-[#1A2744] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+              {launchWeekLabel}
             </span>
           ) : null}
           {free && freeDeliveryLabel ? (

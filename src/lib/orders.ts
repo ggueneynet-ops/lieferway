@@ -2,11 +2,22 @@ import { prisma } from "./prisma";
 import { commissionCents } from "./money";
 import type { PaymentMethod } from "./constants";
 
-export function applyCoupon(
-  foodSubtotalCents: number,
-  coupon: { discountPercent: number | null; discountCents: number | null; isActive: boolean } | null,
-) {
+export type CouponDiscount = {
+  discountPercent: number | null;
+  discountCents: number | null;
+  isActive: boolean;
+  minSubtotalCents?: number | null;
+};
+
+export function couponBelowMinimum(foodSubtotalCents: number, coupon: CouponDiscount | null) {
+  if (!coupon?.isActive) return false;
+  const min = coupon.minSubtotalCents ?? 0;
+  return min > 0 && foodSubtotalCents < min;
+}
+
+export function applyCoupon(foodSubtotalCents: number, coupon: CouponDiscount | null) {
   if (!coupon || !coupon.isActive) return 0;
+  if (couponBelowMinimum(foodSubtotalCents, coupon)) return 0;
   if (coupon.discountPercent) {
     return Math.round((foodSubtotalCents * coupon.discountPercent) / 100);
   }

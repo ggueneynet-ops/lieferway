@@ -44,6 +44,7 @@ export default async function RestaurantDeliveryPage({
         minOrderEuro={euroDefault(restaurant.minOrderCents)}
         deliveryFeeEuro={euroDefault(restaurant.deliveryFeeCents)}
         pickupAllowed={restaurant.pickupAllowed !== false}
+        launchWeekFreeDelivery={Boolean(restaurant.launchWeekFreeDelivery)}
       />
 
       <p className="mb-3 text-sm text-[#6B7280]">{t.maxDeliveryRadiusHint}</p>

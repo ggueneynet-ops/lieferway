@@ -56,13 +56,14 @@ model Restaurant {
   logoUrl           String?
   rating            Float    @default(4.5)
   reviewCount       Int      @default(120)
-  deliveryFeeCents  Int      @default(249)
-  minOrderCents     Int      @default(1000)
-  etaMin            Int      @default(25)
-  etaMax            Int      @default(45)
-  maxDeliveryKm     Float?
-  commissionPercent Float    @default(5)
-  pickupAllowed     Boolean  @default(true)
+  deliveryFeeCents          Int      @default(249)
+  minOrderCents             Int      @default(1000)
+  etaMin                    Int      @default(25)
+  etaMax                    Int      @default(45)
+  maxDeliveryKm             Float?
+  commissionPercent         Float    @default(5)
+  pickupAllowed             Boolean  @default(true)
+  launchWeekFreeDelivery    Boolean  @default(false)
   isOpen            Boolean  @default(true)
   isActive          Boolean  @default(true)
   hoursJson         String?
@@ -111,13 +112,14 @@ model MenuItem {
 }
 
 model Coupon {
-  id              String  @id @default(cuid())
-  code            String  @unique
-  description     String
-  discountPercent Int?
-  discountCents   Int?
-  isActive        Boolean @default(true)
-  orders          Order[]
+  id                String  @id @default(cuid())
+  code              String  @unique
+  description       String
+  discountPercent   Int?
+  discountCents     Int?
+  minSubtotalCents  Int?
+  isActive          Boolean @default(true)
+  orders            Order[]
 }
 
 model Order {

@@ -22,6 +22,7 @@ export function RestaurantFulfillment({
   postalCode,
   etaMin,
   deliveryFeeCents,
+  launchWeekFreeDelivery,
 }: {
   restaurantId: string;
   pickupAllowed: boolean;
@@ -30,6 +31,7 @@ export function RestaurantFulfillment({
   postalCode: string;
   etaMin: number;
   deliveryFeeCents: number;
+  launchWeekFreeDelivery?: boolean;
 }) {
   const { t, locale } = useI18n();
   const { cart, setFulfillment } = useCart();
@@ -93,7 +95,7 @@ export function RestaurantFulfillment({
       ) : (
         <p className="inline-flex items-center gap-1.5 rounded-full bg-[#FCE4EC] px-2.5 py-1 text-[11px] font-semibold text-[#C2185B]">
           <Bike className="size-3 shrink-0" strokeWidth={2} />
-          {t.restaurantDelivers}
+          {launchWeekFreeDelivery ? `${t.launchWeekBadge} · ${t.badgeFreeDelivery}` : t.restaurantDelivers}
         </p>
       )}
       {pickup ? (

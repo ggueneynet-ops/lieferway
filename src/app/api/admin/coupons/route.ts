@@ -25,6 +25,7 @@ const schema = z.object({
   description: z.string().min(3),
   discountPercent: z.number().int().min(1).max(80).optional(),
   discountCents: z.number().int().positive().optional(),
+  minSubtotalCents: z.number().int().min(0).optional(),
 });
 
 export async function POST(req: Request) {
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
         description: parsed.data.description,
         discountPercent: parsed.data.discountPercent ?? null,
         discountCents: parsed.data.discountCents ?? null,
+        minSubtotalCents: parsed.data.minSubtotalCents ?? null,
       },
     });
     return json({ coupon }, 201);

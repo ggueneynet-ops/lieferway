@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatEUR } from "@/lib/money";
-import { applyCoupon, computeOrderTotals } from "@/lib/orders";
+import { applyCoupon, computeOrderTotals, couponBelowMinimum } from "@/lib/orders";
 import type { PaymentMethod } from "@/lib/constants";
 import { interpolate } from "@/lib/i18n";
 import { customerNeedsPhone } from "@/lib/phone";
@@ -37,6 +37,7 @@ export function CheckoutClient() {
     code: string;
     discountPercent: number | null;
     discountCents: number | null;
+    minSubtotalCents: number | null;
     isActive: boolean;
   } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -80,6 +81,7 @@ export function CheckoutClient() {
   }
 
   const discountCents = applyCoupon(foodSubtotal, coupon);
+  const couponBlocked = couponBelowMinimum(foodSubtotal, coupon);
   const pickup = isPickup(cart.fulfillmentType) && cart.pickupAllowed;
   const totals = computeOrderTotals({
     foodSubtotalCents: foodSubtotal,
@@ -88,12 +90,27 @@ export function CheckoutClient() {
     commissionPercent: 5,
   });
 
-  async function applyCode() {
-    const res = await fetch(`/api/coupons/${encodeURIComponent(couponCode)}`);
+  async function applyCode(raw?: string) {
+    const code = (raw ?? couponCode).trim().toUpperCase();
+    if (!code) {
+      toast.error(t.couponInvalid);
+      return;
+    }
+    setCouponCode(code);
+    const res = await fetch(`/api/coupons/${encodeURIComponent(code)}?subtotal=${foodSubtotal}`);
     const data = await res.json();
     if (!res.ok) {
-      toast.error(data.error ?? t.couponInvalid);
       setCoupon(null);
+      if (data.error === "min_not_met") {
+        toast.error(
+          interpolate(t.couponMinNotMet, {
+            code: data.coupon?.code ?? code,
+            min: formatEUR(data.minSubtotalCents ?? 0, locale),
+          }),
+        );
+        return;
+      }
+      toast.error(data.error ?? t.couponInvalid);
       return;
     }
     setCoupon(data.coupon);
@@ -152,7 +169,7 @@ export function CheckoutClient() {
           city: pickup ? current.restaurantCity || city : city,
           postalCode: pickup ? current.restaurantPostalCode || postalCode : postalCode,
           notes,
-          couponCode: coupon?.code,
+          couponCode: coupon && !couponBlocked ? coupon.code : undefined,
           fulfillmentType: pickup ? "PICKUP" : "DELIVERY",
         }),
       });
@@ -307,14 +324,47 @@ export function CheckoutClient() {
             </ul>
             <div className="mt-3 flex gap-2">
               <Input
-                placeholder="WILLKOMMEN10"
+                placeholder="START5 · LOCAL5"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void applyCode();
+                  }
+                }}
               />
-              <Button type="button" variant="outline" onClick={applyCode}>
+              <Button type="button" variant="outline" onClick={() => void applyCode()}>
                 {t.apply}
               </Button>
             </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {(["START5", "LOCAL5"] as const).map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => void applyCode(code)}
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                    coupon?.code === code
+                      ? "bg-[#E91E63] text-white"
+                      : "bg-[#FCE4EC] text-[#C2185B]"
+                  }`}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-[11px] leading-relaxed text-[#6B7280]">
+              {t.couponHintStart5} · {t.couponHintLocal5}
+            </p>
+            {couponBlocked && coupon ? (
+              <p className="mt-2 text-[12px] font-medium text-destructive">
+                {interpolate(t.couponMinNotMet, {
+                  code: coupon.code,
+                  min: formatEUR(coupon.minSubtotalCents ?? 0, locale),
+                })}
+              </p>
+            ) : null}
             <div className="mt-4 space-y-1 text-sm">
               <p className="flex justify-between">
                 <span>{t.subtotal}</span>

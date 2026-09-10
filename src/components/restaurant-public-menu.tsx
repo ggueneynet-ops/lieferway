@@ -15,6 +15,7 @@ import { cuisineName } from "@/lib/i18n";
 import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constants";
 import { formatDistanceKm, normalizePlz } from "@/lib/plz";
 import { distanceFromOrigin, parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
+import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 
 export async function RestaurantPublicMenu({ slug }: { slug: string }) {
   const { t, locale } = await getCopy();
@@ -40,6 +41,7 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
   if (!restaurant || !restaurant.isActive) notFound();
   const distanceKm = distanceFromOrigin(origin, restaurant.lat, restaurant.lng);
   const photo = restaurantPhoto(restaurant.imageUrl, restaurant.cuisine, restaurant.slug);
+  const feeCents = listedDeliveryFeeCents(restaurant);
 
   const facts = [
     {
@@ -55,7 +57,7 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
     {
       icon: Bike,
       label: t.infoFee,
-      value: formatEUR(restaurant.deliveryFeeCents, locale),
+      value: formatEUR(feeCents, locale),
     },
     {
       icon: MapPin,
@@ -93,10 +95,18 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
             <h1 className="font-display text-2xl font-semibold tracking-tight text-[#111827] sm:text-3xl">
               {restaurant.name}
             </h1>
+            {restaurant.launchWeekFreeDelivery ? (
+              <span className="rounded-full bg-[#1A2744] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                {t.launchWeekBadge}
+              </span>
+            ) : null}
             <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280] ring-1 ring-[#E5E7EB]">
               {t.demoBadge} / {t.demoExample}
             </span>
           </div>
+          {restaurant.launchWeekFreeDelivery ? (
+            <p className="mt-2 text-sm font-medium text-[#C2185B]">{t.launchWeekFreeHint}</p>
+          ) : null}
           {!restaurant.isOpen && (
             <p className="mt-2 text-sm font-medium text-destructive">{t.closedNow}</p>
           )}
@@ -120,7 +130,8 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
             city={restaurant.city}
             postalCode={restaurant.postalCode}
             etaMin={restaurant.etaMin}
-            deliveryFeeCents={restaurant.deliveryFeeCents}
+            deliveryFeeCents={feeCents}
+            launchWeekFreeDelivery={Boolean(restaurant.launchWeekFreeDelivery)}
           />
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B7280]">
@@ -138,7 +149,7 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
           </div>
 
           <div className="mt-8">
-            <MenuClient restaurant={restaurant} />
+            <MenuClient restaurant={{ ...restaurant, deliveryFeeCents: feeCents }} />
           </div>
         </div>
       </main>

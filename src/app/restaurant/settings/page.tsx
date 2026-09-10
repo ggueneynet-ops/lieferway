@@ -42,6 +42,7 @@ export default async function RestaurantSettingsPage({
         <p className="mt-2 text-sm font-medium text-primary">
           {restaurant.etaMin}–{restaurant.etaMax} Min. · {t.minOrderEuro} {(restaurant.minOrderCents / 100).toFixed(2)} €
           {restaurant.pickupAllowed !== false ? ` · ${t.pickupAllowed}` : ""}
+          {restaurant.launchWeekFreeDelivery ? ` · ${t.launchWeekBadge}` : ""}
         </p>
       </Link>
       <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4">

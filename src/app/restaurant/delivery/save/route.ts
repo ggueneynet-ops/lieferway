@@ -47,6 +47,7 @@ export async function POST(req: Request) {
     }
 
     const pickupAllowed = form.get("pickupAllowed") === "1";
+    const launchWeekFreeDelivery = form.get("launchWeekFreeDelivery") === "1";
 
     await prisma.$executeRaw`
       UPDATE "Restaurant"
@@ -54,7 +55,8 @@ export async function POST(req: Request) {
           "etaMax" = ${etaMax},
           "minOrderCents" = ${minOrderCents},
           "deliveryFeeCents" = ${deliveryFeeCents},
-          "pickupAllowed" = ${pickupAllowed ? 1 : 0}
+          "pickupAllowed" = ${pickupAllowed ? 1 : 0},
+          "launchWeekFreeDelivery" = ${launchWeekFreeDelivery ? 1 : 0}
       WHERE "id" = ${id}
     `;
 

@@ -9,7 +9,7 @@ export default async function AdminCouponsPage() {
   return (
     <PanelShell roles={["ADMIN"]} title={t.adminCoupons}>
       <p className="mb-4 text-sm text-muted-foreground">
-        Prozent oder Festbetrag auf Speisen. Demo: WILLKOMMEN10, FRANKFURT, HOSGELDIN.
+        Prozent oder Festbetrag auf Speisen. Demo: START5 (5 € ab 20 €), LOCAL5 (5 %), WILLKOMMEN10, FRANKFURT, HOSGELDIN.
       </p>
       <AdminCoupons initial={JSON.parse(JSON.stringify(coupons))} />
     </PanelShell>
