@@ -37,7 +37,7 @@ function unlockKitchenBell() {
   const ctx = getAudioContext();
   if (!ctx) return false;
   if (ctx.state === "suspended") void ctx.resume();
-  return ctx.state === "running" || ctx.state === "suspended";
+  return ctx.state === "running";
 }
 
 function playKitchenBell() {
@@ -121,8 +121,10 @@ export function RestaurantOrders({
 }) {
   const [orders, setOrders] = useState(initial);
   const [open, setOpen] = useState(isOpen);
-  const [muted, setMuted] = useState(false);
-  const [soundReady, setSoundReady] = useState(false);
+  const [muted, setMuted] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(MUTE_KEY) === "1";
+  });
   const [flash, setFlash] = useState(false);
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const [live, setLive] = useState(false);
@@ -135,10 +137,6 @@ export function RestaurantOrders({
   const incomingKeyRef = useRef("");
   const { t, locale } = useI18n();
   const baseTitle = `${restaurantName} · ${t.restaurantOrders}`;
-
-  useEffect(() => {
-    setMuted(window.localStorage.getItem(MUTE_KEY) === "1");
-  }, []);
 
   const applySnapshot = useCallback((data: Snapshot) => {
     const next = data.orders ?? [];
@@ -174,22 +172,25 @@ export function RestaurantOrders({
     .join(",");
   incomingKeyRef.current = incomingKey;
 
-  // Repeat a loud gong while any ticket is still PLACED. Stops on Annehmen or Ablehnen
-  // (incomingKey becomes empty). Multiple NEW orders keep the loop going.
+  // Gong is ON unless the restaurant muted. Repeat while any ticket is PLACED.
   useEffect(() => {
-    if (!incomingKey || muted || !soundReady) return;
+    if (!incomingKey || muted) return;
+    unlockKitchenBell();
     playKitchenBell();
     const second = window.setTimeout(() => {
       if (!mutedRef.current && incomingKeyRef.current) playKitchenBell();
     }, 1800);
     const id = window.setInterval(() => {
-      if (!mutedRef.current && incomingKeyRef.current) playKitchenBell();
+      if (!mutedRef.current && incomingKeyRef.current) {
+        unlockKitchenBell();
+        playKitchenBell();
+      }
     }, 3500);
     return () => {
       window.clearTimeout(second);
       window.clearInterval(id);
     };
-  }, [incomingKey, muted, soundReady]);
+  }, [incomingKey, muted]);
 
   useEffect(() => {
     let stopped = false;
@@ -240,21 +241,31 @@ export function RestaurantOrders({
       startPoll();
     }
 
-    const unlock = () => {
-      unlockKitchenBell();
-      setSoundReady(true);
-      if (incomingKeyRef.current && !mutedRef.current) playKitchenBell();
-    };
-    window.addEventListener("pointerdown", unlock, { once: true });
-
     return () => {
       stopped = true;
       es?.close();
       if (pollId != null) window.clearInterval(pollId);
       window.clearTimeout(watchdog);
-      window.removeEventListener("pointerdown", unlock);
     };
   }, [restaurantId, applySnapshot]);
+
+  useEffect(() => {
+    const unlock = () => {
+      const ctx = getAudioContext();
+      const blocked = !ctx || ctx.state !== "running";
+      unlockKitchenBell();
+      if (blocked && incomingKeyRef.current && !mutedRef.current) playKitchenBell();
+    };
+    unlockKitchenBell();
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    window.addEventListener("touchstart", unlock, { passive: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("touchstart", unlock);
+    };
+  }, []);
 
   async function act(id: string, action: string, prepMinutes?: number) {
     if (pending.has(id)) return;
@@ -342,11 +353,10 @@ export function RestaurantOrders({
 
   function toggleMute() {
     unlockKitchenBell();
-    setSoundReady(true);
     const next = !muted;
     setMuted(next);
     window.localStorage.setItem(MUTE_KEY, next ? "1" : "0");
-    if (!next) playKitchenBell();
+    if (!next && incomingKeyRef.current) playKitchenBell();
   }
 
   const incoming = orders
@@ -383,19 +393,6 @@ export function RestaurantOrders({
             {muted ? t.soundOff : t.soundOn}
           </Button>
         </div>
-        {!soundReady && !muted ? (
-          <button
-            type="button"
-            onClick={() => {
-              unlockKitchenBell();
-              setSoundReady(true);
-              playKitchenBell();
-            }}
-            className="w-full rounded-xl bg-primary px-3 py-2.5 text-left text-sm font-medium text-primary-foreground"
-          >
-            {t.tapForSound}
-          </button>
-        ) : null}
       </div>
 
       <section className="mb-4">
