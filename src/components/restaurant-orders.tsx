@@ -44,21 +44,63 @@ function playKitchenBell() {
   if (!ctx) return;
   void ctx.resume();
   const now = ctx.currentTime;
-  const ding = (freq: number, start: number, dur: number, gain = 0.2) => {
+  const dur = 1.05;
+
+  const master = ctx.createGain();
+  master.gain.value = 0.9;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -10;
+  comp.knee.value = 6;
+  comp.ratio.value = 3.5;
+  comp.attack.value = 0.003;
+  comp.release.value = 0.18;
+  master.connect(comp);
+  comp.connect(ctx.destination);
+
+  const nLen = Math.floor(ctx.sampleRate * 0.07);
+  const noiseBuf = ctx.createBuffer(1, nLen, ctx.sampleRate);
+  const data = noiseBuf.getChannelData(0);
+  for (let i = 0; i < nLen; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / nLen) ** 2;
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = noiseBuf;
+  const nf = ctx.createBiquadFilter();
+  nf.type = "bandpass";
+  nf.frequency.value = 380;
+  nf.Q.value = 0.9;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.0001, now);
+  ng.gain.exponentialRampToValueAtTime(0.62, now + 0.006);
+  ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+  noise.connect(nf);
+  nf.connect(ng);
+  ng.connect(master);
+  noise.start(now);
+
+  const partials: [number, number, number][] = [
+    [92, 0.62, dur],
+    [138, 0.36, 0.95],
+    [184, 0.24, 0.88],
+    [246, 0.16, 0.72],
+    [368, 0.11, 0.5],
+    [523, 0.07, 0.38],
+    [784, 0.045, 0.24],
+  ];
+  for (const [freq, gain, d] of partials) {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.type = "triangle";
-    o.frequency.setValueAtTime(freq, start);
-    g.gain.setValueAtTime(0.0001, start);
-    g.gain.exponentialRampToValueAtTime(gain, start + 0.018);
-    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o.type = "sine";
+    o.frequency.setValueAtTime(freq, now);
+    o.frequency.exponentialRampToValueAtTime(Math.max(40, freq * 0.982), now + d);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
     o.connect(g);
-    g.connect(ctx.destination);
-    o.start(start);
-    o.stop(start + dur + 0.03);
-  };
-  ding(880, now, 0.16, 0.22);
-  ding(1174.7, now + 0.13, 0.32, 0.18);
+    g.connect(master);
+    o.start(now);
+    o.stop(now + d + 0.04);
+  }
 }
 
 function orderTime(iso: string, locale: Locale) {
@@ -123,15 +165,26 @@ export function RestaurantOrders({
     };
   }, [orders, baseTitle]);
 
+  const incomingKey = orders
+    .filter((o) => o.status === "PLACED")
+    .map((o) => o.id)
+    .sort()
+    .join(",");
+
   useEffect(() => {
-    const hasIncoming = orders.some((o) => o.status === "PLACED");
-    if (!hasIncoming || muted || !soundReady) return;
+    if (!incomingKey || muted || !soundReady) return;
     playKitchenBell();
+    const second = window.setTimeout(() => {
+      if (!mutedRef.current) playKitchenBell();
+    }, 1800);
     const id = window.setInterval(() => {
       if (!mutedRef.current) playKitchenBell();
-    }, 2600);
-    return () => window.clearInterval(id);
-  }, [orders, muted, soundReady]);
+    }, 4200);
+    return () => {
+      window.clearTimeout(second);
+      window.clearInterval(id);
+    };
+  }, [incomingKey, muted, soundReady]);
 
   useEffect(() => {
     let stopped = false;
