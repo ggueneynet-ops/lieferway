@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     "Lieferway: Essen bestellen in Frankfurt am Main. Lokale Küchen, Lieferung durch das Restaurant.",
   icons: {
     icon: [
-      { url: "/icon-pin-fork.svg?v=20", type: "image/svg+xml" },
-      { url: "/favicon.svg?v=20", type: "image/svg+xml" },
-      { url: "/favicon-32.png?v=20", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-64.png?v=20", sizes: "64x64", type: "image/png" },
+      { url: "/icon-pin-fork.svg?v=21", type: "image/svg+xml" },
+      { url: "/favicon.svg?v=21", type: "image/svg+xml" },
+      { url: "/favicon-32.png?v=21", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-64.png?v=21", sizes: "64x64", type: "image/png" },
     ],
-    apple: "/apple-touch-icon.png?v=20",
+    apple: "/apple-touch-icon.png?v=21",
   },
 };
 

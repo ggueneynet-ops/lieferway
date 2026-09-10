@@ -81,14 +81,16 @@ export function RestaurantCard({
   return (
     <Link
       href={`/${r.slug}`}
-      className="group block overflow-hidden rounded-2xl border border-[#E8E8EC] bg-white shadow-[0_4px_14px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.07)]"
+      className="group block w-full min-w-0 overflow-hidden rounded-2xl border border-[#E8E8EC] bg-white shadow-[0_4px_14px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.07)]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F8]">
+      <div className="lw-card-photo shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={photo}
           alt=""
-          className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.03]"
+          width={800}
+          height={600}
+          className="transition duration-500 group-hover:scale-[1.03]"
         />
         {!r.isOpen && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-medium text-white">
