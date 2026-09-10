@@ -65,8 +65,7 @@ export async function uniqueRestaurantSlug(
   const base = slugifyName(name);
   if (!(await slugTaken(base, opts?.excludeId))) return base;
 
-  const cityPart = slugifyName(opts?.city || "frankfurt") || "frankfurt";
-  const withCity = `${base}-${cityPart}`.slice(0, 60);
+  const withCity = `${base}-frankfurt`.slice(0, 60);
   if (!(await slugTaken(withCity, opts?.excludeId))) return withCity;
 
   for (let i = 0; i < 24; i++) {
