@@ -410,7 +410,7 @@ export const dictionaries = {
     invoiceTotal: "Gesamtbetrag",
     invoicePlaceholder: "Demo-Platzhalter",
     invoiceIssuerNote:
-      "Rechnungssteller: Demo-Platzhalter — Firmenanschrift und USt-IdNr. folgen (keine DE000000000-Nummer).",
+      "Rechnungssteller: Demo-Platzhalter — Firmenanschrift und USt-IdNr. folgen nach Gewerbeanmeldung.",
     invoiceVatHeading: "MwSt. Demo (im Gesamtpreis enthalten)",
     invoiceVatFood: "Speisen {rate} %",
     invoiceVatDelivery: "Lieferung {rate} %",
@@ -961,7 +961,7 @@ export const dictionaries = {
     invoiceTotal: "Total",
     invoicePlaceholder: "demo placeholder",
     invoiceIssuerNote:
-      "Issuer: demo placeholder — company address and VAT ID to follow (not a fake DE000000000 number).",
+      "Issuer: demo placeholder — company address and VAT ID to follow after trade registration.",
     invoiceVatHeading: "VAT demo (included in the total)",
     invoiceVatFood: "Food {rate} %",
     invoiceVatDelivery: "Delivery {rate} %",
@@ -1512,7 +1512,7 @@ export const dictionaries = {
     invoiceTotal: "Toplam",
     invoicePlaceholder: "Demo yer tutucu",
     invoiceIssuerNote:
-      "Düzenleyen: Demo yer tutucu — şirket adresi ve USt-IdNr. sonra gelecek (sahte DE000000000 yok).",
+      "Düzenleyen: Demo yer tutucu — şirket adresi ve USt-IdNr. ticaret sicilinden sonra gelecek.",
     invoiceVatHeading: "KDV demo (toplama dahil)",
     invoiceVatFood: "Yemek %{rate}",
     invoiceVatDelivery: "Teslimat %{rate}",
