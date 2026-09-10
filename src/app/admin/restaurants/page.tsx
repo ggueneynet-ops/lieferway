@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PanelShell } from "@/components/panel-shell";
 import { prisma } from "@/lib/prisma";
 import { CUISINES, DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
@@ -5,6 +6,8 @@ import { restaurantPhoto } from "@/lib/media";
 import { RestaurantLogo } from "@/components/restaurant-logo";
 import { getCopy } from "@/lib/get-locale";
 import { cuisineName, interpolate } from "@/lib/i18n";
+import { formatEUR } from "@/lib/money";
+import { restaurantSnapshotMap } from "@/lib/restaurant-reports";
 
 export const dynamic = "force-dynamic";
 
@@ -15,14 +18,17 @@ export default async function AdminRestaurantsPage({
 }) {
   const q = await searchParams;
   const { t, locale } = await getCopy();
-  const restaurants = await prisma.restaurant.findMany({
-    include: { owner: { select: { email: true, name: true } } },
-    orderBy: { name: "asc" },
-  });
+  const [restaurants, snapshots] = await Promise.all([
+    prisma.restaurant.findMany({
+      include: { owner: { select: { email: true, name: true } } },
+      orderBy: { name: "asc" },
+    }),
+    restaurantSnapshotMap(),
+  ]);
 
   return (
     <PanelShell roles={["ADMIN"]} title={t.restaurants}>
-      <div className="mx-auto max-w-xl space-y-8">
+      <div className="mx-auto max-w-2xl space-y-8">
         {q.error ? (
           <p className="rounded-xl bg-danger/10 px-4 py-3 text-base text-danger">{q.error}</p>
         ) : null}
@@ -115,7 +121,9 @@ export default async function AdminRestaurantsPage({
           <h2 className="text-lg font-semibold text-ink">
             {t.list} ({restaurants.length})
           </h2>
-          {restaurants.map((r) => (
+          {restaurants.map((r) => {
+            const snap = snapshots.get(r.id);
+            return (
             <div key={r.id} className="rounded-2xl border border-border bg-surface p-4">
               <div className="flex gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -124,7 +132,7 @@ export default async function AdminRestaurantsPage({
                   alt=""
                   className="h-12 w-12 shrink-0 rounded-lg object-cover"
                 />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-2 text-base font-medium text-ink">
                     <RestaurantLogo name={r.name} size={28} />
                     {r.name}
@@ -133,7 +141,32 @@ export default async function AdminRestaurantsPage({
                     {cuisineName(locale, r.cuisine)} · {r.owner.email}
                   </p>
                 </div>
+                <Link
+                  href={`/admin/restaurants/${r.id}`}
+                  className="shrink-0 rounded-full border border-border px-3 py-1.5 text-sm text-ink hover:bg-bg-muted"
+                >
+                  {t.reports}
+                </Link>
               </div>
+              <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-xl bg-bg-muted px-2 py-2">
+                  <dt className="text-[11px] text-text-secondary">{t.ordersCount}</dt>
+                  <dd className="text-sm font-semibold text-ink">{snap?.orderCount ?? 0}</dd>
+                </div>
+                <div className="rounded-xl bg-bg-muted px-2 py-2">
+                  <dt className="text-[11px] text-text-secondary">{t.revenueFood}</dt>
+                  <dd className="text-sm font-semibold text-ink">
+                    {formatEUR(snap?.foodCents ?? 0, locale)}
+                  </dd>
+                </div>
+                <div className="rounded-xl bg-bg-muted px-2 py-2">
+                  <dt className="text-[11px] text-text-secondary">{t.platformCommission}</dt>
+                  <dd className="text-sm font-semibold text-ink">
+                    {formatEUR(snap?.commissionCents ?? 0, locale)}
+                  </dd>
+                </div>
+              </dl>
+              <p className="mt-1 text-center text-[11px] text-text-secondary">{t.snapshotHint}</p>
               <form action="/admin/restaurants/commission" method="post" className="mt-3 space-y-2">
                 <input type="hidden" name="id" value={r.id} />
                 <div className="flex items-center gap-3">
@@ -167,7 +200,8 @@ export default async function AdminRestaurantsPage({
                 <p className="text-xs text-text-secondary">{t.maxDeliveryRadiusHint}</p>
               </form>
             </div>
-          ))}
+            );
+          })}
         </section>
       </div>
     </PanelShell>
