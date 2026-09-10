@@ -5,9 +5,11 @@ import { t, type Locale } from "@/lib/i18n";
 export function AccountMenu({
   user,
   locale,
+  className = "",
 }: {
   user: SessionUser | null;
   locale: Locale;
+  className?: string;
 }) {
   const copy = t(locale);
 
@@ -15,7 +17,7 @@ export function AccountMenu({
     return (
       <Link
         href="/login"
-        className="inline-flex h-11 items-center rounded-xl px-3 text-sm font-medium text-ink hover:bg-muted"
+        className={`inline-flex h-11 items-center rounded-xl px-3 text-sm font-medium text-ink hover:bg-muted ${className}`}
       >
         {copy.login}
       </Link>
@@ -23,7 +25,7 @@ export function AccountMenu({
   }
 
   return (
-    <details className="relative">
+    <details className={`relative ${className}`}>
       <summary className="flex h-11 cursor-pointer list-none items-center rounded-xl px-3 text-sm font-medium text-ink hover:bg-muted [&::-webkit-details-marker]:hidden">
         {copy.account}
       </summary>

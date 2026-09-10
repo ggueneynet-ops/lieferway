@@ -53,7 +53,13 @@ export default async function PartnerApplyPage({
               { value: t.partnerStatPayout, label: t.partnerStatPayoutLabel },
             ].map((stat) => (
               <div key={stat.label} className="rounded-2xl border border-border bg-[#FAFAFA] px-5 py-6">
-                <p className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">{stat.value}</p>
+                <p
+                  className={`font-display font-semibold tracking-tight text-ink ${
+                    stat.value.length > 8 ? "text-2xl leading-tight sm:text-3xl" : "text-3xl sm:text-4xl"
+                  }`}
+                >
+                  {stat.value}
+                </p>
                 <p className="mt-1 text-sm text-text-secondary">{stat.label}</p>
               </div>
             ))}

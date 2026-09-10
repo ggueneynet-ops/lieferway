@@ -319,8 +319,8 @@ export const dictionaries = {
     partnerStatCommissionLabel: "Provision",
     partnerStatSetup: "0 €",
     partnerStatSetupLabel: "Setup",
-    partnerStatPayout: "Montags",
-    partnerStatPayoutLabel: "Auszahlung",
+    partnerStatPayout: "Auszahlung montags",
+    partnerStatPayoutLabel: "Jede Woche auf Ihr Konto",
     aboutBody:
       "Lieferway ist der Marktplatz für Frankfurt: lokale Küchen, faire 5 % Provision, Lieferung durch das Restaurant selbst. Diese Demo zeigt den Ablauf – ohne echten Zahlungsverkehr.",
     helpBody:
@@ -637,8 +637,8 @@ export const dictionaries = {
     partnerStatCommissionLabel: "Commission",
     partnerStatSetup: "€0",
     partnerStatSetupLabel: "Setup",
-    partnerStatPayout: "Mondays",
-    partnerStatPayoutLabel: "Payout",
+    partnerStatPayout: "Payout Mondays",
+    partnerStatPayoutLabel: "Weekly to your account",
     aboutBody:
       "Lieferway is the Frankfurt marketplace: local kitchens, a fair 5% commission, delivery by the restaurant itself. This demo shows the flow — no real payments.",
     helpBody:
@@ -955,8 +955,8 @@ export const dictionaries = {
     partnerStatCommissionLabel: "Komisyon",
     partnerStatSetup: "0 €",
     partnerStatSetupLabel: "Kurulum",
-    partnerStatPayout: "Pazartesi",
-    partnerStatPayoutLabel: "Ödeme",
+    partnerStatPayout: "Pazartesi ödeme",
+    partnerStatPayoutLabel: "Her hafta hesabınıza",
     aboutBody:
       "Lieferway Frankfurt pazarı: yerel mutfaklar, adil %5 komisyon, teslimatı restoran yapar. Bu demo akışı gösterir — gerçek ödeme yok.",
     helpBody:
