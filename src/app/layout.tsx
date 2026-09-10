@@ -19,6 +19,8 @@ const jakarta = Plus_Jakarta_Sans({
   style: ["normal", "italic"],
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     default: "Lieferway – Essen bestellen in Frankfurt",

@@ -3,12 +3,10 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { CourierBoard } from "@/components/courier-board";
-import { getCopy } from "@/lib/get-locale";
 
 export default async function CourierPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/courier");
-  const { t } = await getCopy();
   const orders = await prisma.order.findMany({
     where:
       session.role === "ADMIN"
@@ -28,7 +26,7 @@ export default async function CourierPage() {
   });
 
   return (
-    <PanelShell roles={["COURIER"]} title={`${t.courierPanel} · Frankfurt`}>
+    <PanelShell roles={["COURIER"]} title="Auslieferung · Frankfurt">
       <CourierBoard initial={JSON.parse(JSON.stringify(orders))} courierId={session.id} />
     </PanelShell>
   );

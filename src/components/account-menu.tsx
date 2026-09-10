@@ -44,16 +44,6 @@ export function AccountMenu({
             {copy.restaurantPanel}
           </Link>
         ) : null}
-        {user.role === "ADMIN" ? (
-          <Link href="/admin" className="block px-3 py-2.5 text-sm hover:bg-muted">
-            {copy.adminPanel}
-          </Link>
-        ) : null}
-        {user.role === "COURIER" ? (
-          <Link href="/courier" className="block px-3 py-2.5 text-sm hover:bg-muted">
-            {copy.courierPanel}
-          </Link>
-        ) : null}
         <form action="/logout" method="post">
           <button type="submit" className="block w-full px-3 py-2.5 text-left text-sm hover:bg-muted">
             {copy.logout}

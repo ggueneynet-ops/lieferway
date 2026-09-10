@@ -19,7 +19,7 @@ export default async function AdminHome() {
   ]);
 
   return (
-    <PanelShell roles={["ADMIN"]} title={t.adminPanel}>
+    <PanelShell roles={["ADMIN"]} title="Verwaltung">
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-border bg-surface p-5">
