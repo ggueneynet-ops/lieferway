@@ -16,7 +16,7 @@ export const dictionaries = {
     brand: "Lieferway",
     tagline: "Dein Weg zum Essen.",
     city: "Frankfurt am Main",
-    searchPlaceholder: "Gericht, Küche oder Restaurant",
+    searchPlaceholder: "Restaurant oder Gericht suchen",
     heroTitle: "Dein Essen. Dein Viertel. Dein Weg.",
     heroSubtitle:
       "Lokale Restaurants. Faire Provision. Direkte Lieferung durch das Restaurant.",

@@ -4,6 +4,7 @@ import { useI18n } from "@/components/locale-provider";
 import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
 import { PLZ_STORAGE_KEY } from "@/lib/geo";
 import { defaultDemoPlace, lookupPlz, sanitizeDemoPlz } from "@/lib/plz";
+import { markSplashShown } from "@/lib/splash";
 import { formatPlaceLine, type DeliveryPlace } from "@/lib/place";
 import { CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import { ChevronDown, MapPin } from "lucide-react";
@@ -80,6 +81,7 @@ export default function PlzForm({
 
   const applyPlace = useCallback(
     (place: DeliveryPlace) => {
+      markSplashShown();
       persistPlace(place);
       saveRecentPlace(place);
       goMarketplace(place, q, cuisine, km);
@@ -121,11 +123,9 @@ export default function PlzForm({
     );
   }, [autoDetect, cuisine, initialPlz, initialStreet, km, q]);
 
-  const summary = initialStreet
-    ? initialStreet
-    : initialPlz
-      ? `${initialPlz}${placeMeta ? ` · ${placeMeta.district}` : ""}`
-      : t.enterLocation;
+  const summary = initialPlz
+    ? `${initialPlz}${placeMeta ? ` · ${placeMeta.district}` : ""}`
+    : t.enterLocation;
 
   const subtitle = initialStreet
     ? `${initialPlz}${initialCity ? ` ${initialCity}` : ""}`
@@ -139,11 +139,12 @@ export default function PlzForm({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex max-w-[36vw] items-center gap-1.5 rounded-lg px-1.5 py-1.5 text-left text-sm text-ink hover:bg-muted sm:max-w-[16rem] sm:px-2"
+          className="inline-flex max-w-[58vw] items-center gap-1 rounded-full border border-[#E8E8EC] bg-[#F7F7F8] px-2.5 py-1.5 text-left text-[13px] font-semibold text-[#0F172A] hover:bg-white sm:max-w-[20rem]"
           aria-haspopup="dialog"
         >
-          <MapPin className="size-4 shrink-0 text-primary" />
-          <span className="min-w-0 truncate font-medium">{summary}</span>
+          <MapPin className="size-3.5 shrink-0 text-[#E91E63]" />
+          <span className="min-w-0 truncate">{summary}</span>
+          <ChevronDown className="size-3.5 shrink-0 text-[#94A3B8]" />
         </button>
         <LocationPicker open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
       </div>

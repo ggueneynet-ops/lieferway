@@ -10,7 +10,6 @@ import {
   RADIUS_COOKIE,
   STREET_COOKIE,
 } from "@/lib/constants";
-import { HomeSectionTitle } from "@/components/home-copy";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
@@ -21,7 +20,7 @@ import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { HomeSearch } from "@/components/home-search";
 import { AddressFirst } from "@/components/address-first";
 import { LaunchWeekBanner } from "@/components/launch-week-banner";
-import { RadiusChips } from "@/components/radius-chips";
+import { RadiusFilter } from "@/components/radius-filter";
 import { MarketFulfillmentSwitch } from "@/components/market-fulfillment";
 import { SPLASH_COOKIE } from "@/lib/splash";
 import { parseFulfillment } from "@/lib/fulfillment";
@@ -62,33 +61,28 @@ export default async function Home({
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-white">
         <section className="lw-wrap pt-3 pb-2">
-          <p className="text-center text-[11px] font-medium tracking-[0.12em] text-[#64748B]">
-            {copy.heroHeadline}
-          </p>
-          <div className="mt-3 flex justify-center sm:justify-start">
-            <MarketFulfillmentSwitch initial={fulfillment} />
-          </div>
-          <div className="mt-3">
-            <HomeSearch initialQ={q ?? ""} plz={plz} cuisine={cuisine} km={km} />
-          </div>
+          <MarketFulfillmentSwitch initial={fulfillment} compact />
+          {hasAddress ? (
+            <div className="mt-3">
+              <HomeSearch initialQ={q ?? ""} plz={plz} cuisine={cuisine} km={km} />
+            </div>
+          ) : null}
         </section>
 
         {hasAddress ? (
           <>
-            <section className="lw-wrap pt-2 pb-3">
-              <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
-            </section>
             <section className="lw-wrap pb-3">
               <LaunchWeekBanner />
             </section>
+            <section className="lw-wrap pt-1 pb-3">
+              <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
+            </section>
             <section id="restaurants" className="lw-wrap pt-1 pb-20">
-              {plz ? (
-                <div className="mb-3">
-                  <RadiusChips plz={plz} q={q} cuisine={cuisine} km={km} />
-                </div>
-              ) : null}
-              <div className="mb-3">
-                <HomeSectionTitle count={filtered.length} plz={plz} km={plz ? km : undefined} />
+              <div className="mb-3 flex items-center justify-between gap-3">
+                {plz ? <RadiusFilter plz={plz} q={q} cuisine={cuisine} km={km} /> : <span />}
+                <p className="text-[12px] text-[#64748B]">
+                  {filtered.length} {copy.restaurants}
+                </p>
               </div>
               {filtered.length === 0 ? (
                 <div className="rounded-2xl border border-[#E8E8EC] bg-white px-4 py-12 text-center">
@@ -117,7 +111,7 @@ export default async function Home({
             </section>
           </>
         ) : (
-          <section className="lw-wrap pb-20 pt-4">
+          <section className="lw-wrap pb-20 pt-2">
             <AddressFirst q={q} cuisine={cuisine} km={km} />
           </section>
         )}

@@ -5,6 +5,7 @@ import { useI18n } from "@/components/locale-provider";
 import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
 import { PLZ_STORAGE_KEY } from "@/lib/geo";
 import { DEMO_PLZ_CHIPS, lookupPlz } from "@/lib/plz";
+import { markSplashShown } from "@/lib/splash";
 import { CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import type { DeliveryPlace } from "@/lib/place";
 import { useCallback, useState } from "react";
@@ -40,6 +41,7 @@ export function AddressFirst({
 
   const go = useCallback(
     (place: DeliveryPlace) => {
+      markSplashShown();
       persistPlace(place);
       saveRecentPlace(place);
       const params = new URLSearchParams();
