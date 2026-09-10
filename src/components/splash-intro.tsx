@@ -51,17 +51,14 @@ export function SplashIntro() {
       className="lw-splash fixed inset-0 z-[80] flex flex-col items-center justify-center gap-5 px-6"
     >
       <span className="lw-splash-mark">
-        <picture>
-          <source type="image/svg+xml" srcSet="/lieferway-logo.svg?v=5" />
-          <img
-            src="/logo-master-a.png?v=8"
-            alt="Lieferway"
-            width={260}
-            height={198}
-            draggable={false}
-            className="mx-auto h-auto w-[min(68vw,260px)]"
-          />
-        </picture>
+        <img
+          src="/logo-master-a.png?v=9"
+          alt="Lieferway"
+          width={260}
+          height={198}
+          draggable={false}
+          className="mx-auto h-auto w-[min(68vw,260px)]"
+        />
       </span>
       <span className="text-center text-[13px] font-medium text-[#FCE4EC]">{t.tagline}</span>
       <span className="absolute bottom-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] text-[11px] font-medium text-white/70">
