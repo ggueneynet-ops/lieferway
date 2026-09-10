@@ -1,13 +1,40 @@
-/** Demo issuer for customer Rechnungen and B2B Provisionsrechnungen. Not a real company filing. */
-export const LIEFERWAY_ISSUER = {
-  name: "Lieferway GmbH i.G.",
-  street: "Platzhalterstraße 1",
-  postalCode: "60311",
-  city: "Frankfurt am Main",
-  country: "Deutschland",
-  vatId: "DE000000000",
-  email: "rechnung@lieferway.de",
-} as const;
+/** Invoice issuer. Live values from env; Demo-Platzhalter only when a field is unset. */
+
+function envText(...keys: string[]) {
+  for (const key of keys) {
+    const value = process.env[key]?.trim();
+    if (value) return value;
+  }
+  return "";
+}
+
+export type LieferwayIssuer = {
+  name: string;
+  addressLines: string[];
+  vatId: string | null;
+  nameSet: boolean;
+  addressSet: boolean;
+  vatSet: boolean;
+};
+
+export function lieferwayIssuer(): LieferwayIssuer {
+  const name = envText("LIEFERWAY_LEGAL_NAME");
+  const address = envText("LIEFERWAY_ADDRESS", "LIEFERWAY_LEGAL_ADDRESS");
+  const vatId = envText("LIEFERWAY_UST_ID", "LIEFERWAY_LEGAL_UST_ID");
+  return {
+    name: name || "Lieferway GmbH i.G.",
+    addressLines: address
+      ? address
+          .split(/\n|;/)
+          .map((line) => line.trim())
+          .filter(Boolean)
+      : [],
+    vatId: vatId || null,
+    nameSet: Boolean(name),
+    addressSet: Boolean(address),
+    vatSet: Boolean(vatId),
+  };
+}
 
 export const VAT_FOOD = 0.07;
 export const VAT_DELIVERY = 0.19;

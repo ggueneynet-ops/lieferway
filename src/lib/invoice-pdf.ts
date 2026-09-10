@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { formatEUR } from "@/lib/money";
-import { LIEFERWAY_ISSUER, VAT_DELIVERY, VAT_FOOD, vatIncluded } from "@/lib/legal-entity";
+import { lieferwayIssuer, VAT_DELIVERY, VAT_FOOD, vatIncluded } from "@/lib/legal-entity";
 import { formatBerlinInvoiceDate } from "@/lib/datetime";
 import { interpolate, t as dict, type Locale } from "@/lib/i18n";
 
@@ -43,6 +43,7 @@ export type CommissionInvoicePdfInput = {
   commissionPercent: number;
   commissionCents: number;
   netPayoutCents: number;
+  draft: boolean;
 };
 
 function pdfSafe(value: string) {
@@ -142,6 +143,7 @@ class PdfWriter {
 }
 
 function header(w: PdfWriter, title: string, number: string, date: string, locale: Locale) {
+  const issuer = lieferwayIssuer();
   const t = dict(locale);
   w.page.drawRectangle({ x: 0, y: 828, width: A4[0], height: 14, color: PINK });
   w.text("Lieferway", { size: 11, bold: true, color: PINK });
@@ -149,17 +151,26 @@ function header(w: PdfWriter, title: string, number: string, date: string, local
   w.text(title, { size: 22, bold: true });
   w.text(`${number}  ·  ${date}`, { size: 10, color: MUTED });
   w.gap(4);
-  w.wrap(t.invoiceIssuerNote, { size: 8, color: MUTED });
+  if (!issuer.nameSet || !issuer.addressSet || !issuer.vatSet) {
+    w.wrap(t.invoiceIssuerNote, { size: 8, color: MUTED });
+  }
   w.rule();
 }
 
 function issuerBlock(w: PdfWriter, locale: Locale) {
   const t = dict(locale);
+  const issuer = lieferwayIssuer();
   w.text(t.invoiceSeller, { size: 8, bold: true, color: MUTED });
-  w.text(LIEFERWAY_ISSUER.name, { size: 11, bold: true });
-  w.text(`${LIEFERWAY_ISSUER.street}`, { size: 10 });
-  w.text(`${LIEFERWAY_ISSUER.postalCode} ${LIEFERWAY_ISSUER.city}`, { size: 10 });
-  w.text(`USt-IdNr.: ${LIEFERWAY_ISSUER.vatId} (${t.invoicePlaceholder})`, { size: 9, color: MUTED });
+  w.text(issuer.nameSet ? issuer.name : `${issuer.name} (${t.invoicePlaceholder})`, { size: 11, bold: true });
+  if (issuer.addressSet) {
+    for (const line of issuer.addressLines) w.text(line, { size: 10 });
+  } else {
+    w.text(`Adresse: ${t.invoicePlaceholder}`, { size: 10, color: MUTED });
+  }
+  w.text(
+    issuer.vatSet && issuer.vatId ? `USt-IdNr.: ${issuer.vatId}` : `USt-IdNr.: ${t.invoicePlaceholder}`,
+    { size: 9, color: MUTED },
+  );
   w.gap(6);
 }
 
@@ -217,7 +228,7 @@ export async function buildCustomerInvoicePdf(input: CustomerInvoicePdfInput): P
   w.wrap(t.eInvoiceComing, { size: 8, color: MUTED });
 
   doc.setTitle(`${t.invoice} ${input.number}`);
-  doc.setAuthor(LIEFERWAY_ISSUER.name);
+  doc.setAuthor(lieferwayIssuer().name);
   return doc.save();
 }
 
@@ -230,7 +241,7 @@ export async function buildCommissionInvoicePdf(input: CommissionInvoicePdfInput
   const w = new PdfWriter(page, font, bold, A4[0]);
   const date = formatBerlinInvoiceDate(input.issuedAt, input.locale);
 
-  header(w, t.commissionInvoiceDraft, input.number, date, input.locale);
+  header(w, input.draft ? t.commissionInvoiceDraft : t.commissionInvoice, input.number, date, input.locale);
   issuerBlock(w, input.locale);
 
   w.text(t.invoiceBuyer, { size: 8, bold: true, color: MUTED });
@@ -254,7 +265,7 @@ export async function buildCommissionInvoicePdf(input: CommissionInvoicePdfInput
   w.wrap(t.commissionInvoiceHint, { size: 8, color: MUTED });
   w.wrap(t.eInvoiceComingHint, { size: 8, color: MUTED });
 
-  doc.setTitle(`${t.commissionInvoice} ${input.number}`);
-  doc.setAuthor(LIEFERWAY_ISSUER.name);
+  doc.setTitle(`${input.draft ? t.commissionInvoiceDraft : t.commissionInvoice} ${input.number}`);
+  doc.setAuthor(lieferwayIssuer().name);
   return doc.save();
 }

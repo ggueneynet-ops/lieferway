@@ -165,6 +165,23 @@ async function writePdf(relDir: string, filename: string, bytes: Uint8Array) {
   return path.relative(process.cwd(), abs).replaceAll("\\", "/");
 }
 
+async function updateInvoice(id: string, data: { status: string; pdfPath: string; totalCents: number }) {
+  try {
+    await prisma.invoice.update({
+      where: { id },
+      data: { status: data.status, pdfPath: data.pdfPath, totalCents: data.totalCents },
+    });
+  } catch {
+    await prisma.$executeRawUnsafe(
+      `UPDATE "Invoice" SET "status" = ?, "pdfPath" = ?, "totalCents" = ? WHERE "id" = ?`,
+      data.status,
+      data.pdfPath,
+      data.totalCents,
+      id,
+    );
+  }
+}
+
 export async function ensureCustomerInvoice(orderId: string): Promise<StoredInvoice> {
   const existing = await findCustomerInvoice(orderId);
   if (existing) return existing;
@@ -232,6 +249,10 @@ export function berlinMonthKey(date = new Date()): string {
   return berlinYmd(date).slice(0, 7);
 }
 
+export function isBerlinMonthOpen(yyyyMm: string, date = new Date()) {
+  return yyyyMm === berlinMonthKey(date);
+}
+
 export function monthRange(yyyyMm: string) {
   if (!/^\d{4}-\d{2}$/.test(yyyyMm)) throw new Error("BAD_PERIOD");
   const fromYmd = `${yyyyMm}-01`;
@@ -251,9 +272,9 @@ export async function ensureCommissionInvoice(
   if (!restaurant) throw new Error("RESTAURANT_NOT_FOUND");
   const number = `PR-${restaurant.slug}-${yyyyMm}`;
   const existing = await findInvoiceByNumber(number);
-  if (existing) return existing;
   const totals = await restaurantReportTotals(restaurantId, { from: period.from, to: period.to });
   const net = totals.foodCents - totals.commissionCents;
+  const draft = isBerlinMonthOpen(yyyyMm);
   const pdfBytes = await buildCommissionInvoicePdf({
     number,
     locale,
@@ -268,12 +289,18 @@ export async function ensureCommissionInvoice(
     commissionPercent: restaurant.commissionPercent,
     commissionCents: totals.commissionCents,
     netPayoutCents: net,
+    draft,
   });
   const pdfPath = await writePdf("commission", `${number}.pdf`, pdfBytes);
+  const status = draft ? "DRAFT" : "ISSUED";
+  if (existing) {
+    await updateInvoice(existing.id, { status, pdfPath, totalCents: totals.commissionCents });
+    return { ...existing, status, pdfPath, totalCents: totals.commissionCents };
+  }
   const record: StoredInvoice = {
     id: invoiceId(),
     type: INVOICE_COMMISSION,
-    status: "DRAFT",
+    status,
     number,
     orderId: null,
     restaurantId: restaurant.id,

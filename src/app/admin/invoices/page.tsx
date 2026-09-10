@@ -2,7 +2,7 @@ import { PanelShell } from "@/components/panel-shell";
 import { prisma } from "@/lib/prisma";
 import { getCopy } from "@/lib/get-locale";
 import { formatEUR } from "@/lib/money";
-import { listCommissionInvoices, recentMonthKeys } from "@/lib/invoices";
+import { isBerlinMonthOpen, listCommissionInvoices, recentMonthKeys } from "@/lib/invoices";
 import { formatBerlinInvoiceDate } from "@/lib/datetime";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +35,9 @@ export default async function AdminInvoicesPage() {
                 {months.map((m) => (
                   <th key={m} className="px-4 py-2 font-medium">
                     {m}
+                    <span className="mt-0.5 block text-xs font-normal">
+                      {isBerlinMonthOpen(m) ? t.commissionInvoiceDraft : t.commissionInvoice}
+                    </span>
                   </th>
                 ))}
               </tr>
