@@ -41,19 +41,6 @@ export const CUISINES = [
   "Pizza",
 ] as const;
 
-/** Food glyphs for the category rail — not a third-party brand icon set. */
-export const CUISINE_ICONS: Record<(typeof CUISINES)[number] | "all", string> = {
-  all: "🍽️",
-  Türkisch: "🥙",
-  Italienisch: "🍝",
-  Burger: "🍔",
-  Sushi: "🍣",
-  Deutsch: "🥨",
-  Vietnamesisch: "🍜",
-  Gesund: "🥗",
-  Pizza: "🍕",
-};
-
 export const STATUS_FLOW: OrderStatus[] = [
   "PLACED",
   "ACCEPTED",

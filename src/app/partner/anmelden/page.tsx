@@ -36,16 +36,28 @@ export default async function PartnerApplyPage({
         </div>
       </header>
 
-      <section className="bg-primary px-4 py-10 text-white sm:py-14">
+      <section className="border-b border-border bg-white px-4 py-12 sm:py-16">
         <div className="mx-auto max-w-5xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/80">{t.becomePartner}</p>
-          <h1 className="mt-2 max-w-xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-secondary">{t.becomePartner}</p>
+          <h1 className="mt-2 max-w-xl font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
             {t.partnerHeroTitle}
           </h1>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/90 sm:text-base">{t.partnerHeroLead}</p>
-          <p className="mt-5 text-sm text-white/85">
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">{t.partnerHeroLead}</p>
+          <p className="mt-5 text-sm text-text-secondary">
             {t.partnerStep1} · {t.partnerStep2} · {t.partnerStep3}
           </p>
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {[
+              { value: t.partnerStatCommission, label: t.partnerStatCommissionLabel },
+              { value: t.partnerStatSetup, label: t.partnerStatSetupLabel },
+              { value: t.partnerStatPayout, label: t.partnerStatPayoutLabel },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-border bg-[#FAFAFA] px-5 py-6">
+                <p className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">{stat.value}</p>
+                <p className="mt-1 text-sm text-text-secondary">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

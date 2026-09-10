@@ -21,7 +21,7 @@ export function StickyCartBar() {
   return (
     <>
       <div className="h-[4.5rem] md:hidden" aria-hidden />
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-white px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] md:hidden">
+      <div className="fixed inset-x-0 bottom-16 z-50 border-t border-border bg-white px-3 py-2 md:hidden">
         <Link
           href="/cart"
           className="flex h-12 items-center justify-between rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"

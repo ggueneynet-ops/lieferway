@@ -9,7 +9,7 @@ export function LocaleToggle() {
   const router = useRouter();
 
   return (
-    <div className="flex overflow-hidden rounded-full border text-[11px] font-medium sm:text-xs" role="group" aria-label="Language">
+    <div className="flex overflow-hidden rounded-full border border-border text-[11px] font-medium sm:text-xs" role="group" aria-label="Language">
       {LOCALES.map((code: Locale) => (
         <button
           key={code}
@@ -18,7 +18,7 @@ export function LocaleToggle() {
             setLocale(code);
             router.refresh();
           }}
-          className={`px-2 py-1 sm:px-2.5 ${locale === code ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+          className={`px-2 py-1 sm:px-2.5 ${locale === code ? "bg-ink text-white" : "text-text-secondary hover:text-ink"}`}
         >
           {code.toUpperCase()}
         </button>

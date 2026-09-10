@@ -8,16 +8,18 @@ export function HomeSearch({
   plz,
   cuisine,
   km,
+  action = "/",
 }: {
   initialQ: string;
   plz?: string | null;
   cuisine?: string;
   km?: number | null;
+  action?: string;
 }) {
   const { t } = useI18n();
 
   return (
-    <form className="flex gap-2" action="/" method="get">
+    <form className="flex gap-2" action={action} method="get">
       {plz ? <input type="hidden" name="plz" value={plz} /> : null}
       {cuisine ? <input type="hidden" name="cuisine" value={cuisine} /> : null}
       {plz ? <input type="hidden" name="km" value={km == null ? "all" : String(km)} /> : null}
@@ -27,7 +29,7 @@ export function HomeSearch({
           name="q"
           defaultValue={initialQ}
           placeholder={t.searchPlaceholder}
-          className="h-11 w-full rounded-xl border-0 bg-bg-muted pl-10 pr-3 text-sm outline-none ring-0 placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30"
+          className="h-12 w-full rounded-2xl border border-border bg-white pl-10 pr-3 text-sm outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-primary/25"
         />
       </div>
     </form>

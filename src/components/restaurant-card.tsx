@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock, MapPin, Star } from "lucide-react";
+import { Clock, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
 
@@ -21,72 +21,62 @@ export function RestaurantCard({
   r,
   closedLabel = "Geschlossen",
   cuisineLabel,
-  distanceLabel,
-  districtLabel,
   minLabel = "Min.",
   demoLabel,
+  feeLabel,
 }: {
   r: RestaurantCardData;
   closedLabel?: string;
   cuisineLabel?: string;
-  distanceLabel?: string;
-  districtLabel?: string;
   minLabel?: string;
   demoLabel?: string;
+  feeLabel?: string;
 }) {
   const photo = restaurantPhoto(r.imageUrl, r.cuisine, r.slug);
 
   return (
     <Link
       href={`/restaurants/${r.slug}`}
-      className="flex items-center gap-4 rounded-2xl px-1 py-4 transition-colors hover:bg-muted/60"
+      className="group block overflow-hidden rounded-2xl border border-border bg-white transition hover:-translate-y-0.5 hover:border-gray-300"
     >
-      <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm sm:h-20 sm:w-20">
+      <div className="relative aspect-video overflow-hidden bg-muted">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photo} alt="" className="h-full w-full object-cover" />
+        <img src={photo} alt="" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" />
         {!r.isOpen && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-1 text-center text-[10px] font-medium text-white">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-medium text-white">
             {closedLabel}
           </div>
         )}
+        {demoLabel ? (
+          <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-text-secondary">
+            {demoLabel}
+          </span>
+        ) : null}
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
+      <div className="px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate font-display text-[16px] font-semibold leading-tight tracking-tight text-ink">
-              {r.name}
-            </h3>
-            {demoLabel ? (
-              <span className="mt-1 inline-flex rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                {demoLabel}
-              </span>
-            ) : null}
+            <h3 className="truncate font-display text-[17px] font-semibold tracking-tight text-ink">{r.name}</h3>
+            <p className="mt-0.5 truncate text-[13px] text-text-secondary">{cuisineLabel ?? r.cuisine}</p>
           </div>
           <span className="inline-flex shrink-0 items-center gap-0.5 text-[13px] font-medium text-ink">
-            <Star className="size-3.5 fill-primary text-primary" />
+            <Star className="size-3.5 fill-[#111827] text-[#111827]" />
             {r.rating.toFixed(1)}
           </span>
         </div>
-        <p className="mt-1 truncate text-[13px] text-text-secondary">
-          {cuisineLabel ?? r.cuisine}
-          {districtLabel ? ` · ${districtLabel}` : null}
+        <p className="mt-2 inline-flex items-center gap-1 text-[13px] text-text-secondary">
+          <Clock className="size-3.5" />
+          {r.etaMin}–{r.etaMax} Min.
         </p>
-        <p className="mt-1.5 flex flex-wrap items-center gap-x-2.5 text-[12px] text-muted-foreground">
-          {distanceLabel ? (
-            <span className="inline-flex items-center gap-0.5 font-medium text-ink">
-              <MapPin className="size-3 text-primary" />
-              {distanceLabel}
-            </span>
-          ) : null}
-          <span className="inline-flex items-center gap-0.5">
-            <Clock className="size-3" />
-            {r.etaMin}–{r.etaMax} Min.
-          </span>
-          <span>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="rounded-full bg-[#F3F4F6] px-2.5 py-0.5 text-[11px] text-[#6B7280]">
             {minLabel} {formatEUR(r.minOrderCents)}
           </span>
-          <span>{formatEUR(r.deliveryFeeCents)}</span>
-        </p>
+          <span className="rounded-full bg-[#F3F4F6] px-2.5 py-0.5 text-[11px] text-[#6B7280]">
+            {formatEUR(r.deliveryFeeCents)}
+            {feeLabel ? ` ${feeLabel}` : ""}
+          </span>
+        </div>
       </div>
     </Link>
   );

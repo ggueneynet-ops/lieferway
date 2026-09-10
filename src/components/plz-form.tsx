@@ -63,6 +63,7 @@ export default function PlzForm({
   cuisine,
   km = 5,
   autoDetect = false,
+  compact = false,
 }: {
   initialPlz: string;
   initialStreet?: string;
@@ -71,6 +72,7 @@ export default function PlzForm({
   cuisine: string;
   km?: number | null;
   autoDetect?: boolean;
+  compact?: boolean;
 }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
@@ -130,6 +132,23 @@ export default function PlzForm({
     : initialPlz
       ? t.deliverTo
       : t.fullAddress;
+
+  if (compact) {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="inline-flex max-w-[42vw] items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-sm text-ink hover:bg-muted sm:max-w-[16rem]"
+          aria-haspopup="dialog"
+        >
+          <MapPin className="size-4 shrink-0 text-primary" />
+          <span className="min-w-0 truncate font-medium">{summary}</span>
+        </button>
+        <LocationPicker open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
+      </div>
+    );
+  }
 
   return (
     <div id="lieferung">

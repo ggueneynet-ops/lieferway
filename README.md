@@ -74,7 +74,7 @@ Partner onboarding is apply-then-review (not self-serve panel signup):
 3. Admin **Partneranfragen**: Approve (creates restaurant + owner, demo password `lieferway`, banner to pass on), mark contacted, or reject.
 4. Customers still register at `/register`. Admin **Restaurants** can still add a venue directly.
 
-Existing **Partner-Anmeldung** stays in the footer. Admin is only `/admin` (unlisted). There is no public courier signup.
+Existing public footer: Restaurant werden · Über Lieferway · Hilfe · Datenschutz · Impressum. Admin is only `/admin` (unlisted). There is no public courier signup.
 
 ## Google sign-in (customers)
 

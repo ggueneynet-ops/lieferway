@@ -25,30 +25,23 @@ export function RadiusChips({
   ];
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="shrink-0 text-[10px] font-medium uppercase tracking-wide text-text-secondary">
-        {t.radiusLabel}
-      </span>
-      <div className="no-scrollbar flex min-w-0 gap-1.5 overflow-x-auto">
-        {options.map((opt) => (
-          <form key={opt.value} action="/radius" method="post" className="shrink-0">
-            {plz ? <input type="hidden" name="plz" value={plz} /> : null}
-            {q ? <input type="hidden" name="q" value={q} /> : null}
-            {cuisine ? <input type="hidden" name="cuisine" value={cuisine} /> : null}
-            <input type="hidden" name="km" value={opt.value} />
-            <button
-              type="submit"
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                opt.active
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-bg-muted text-ink hover:bg-primary-soft"
-              }`}
-            >
-              {opt.label}
-            </button>
-          </form>
-        ))}
-      </div>
+    <div className="inline-flex rounded-full border border-border bg-white p-0.5">
+      {options.map((opt) => (
+        <form key={opt.value} action="/radius" method="post">
+          {plz ? <input type="hidden" name="plz" value={plz} /> : null}
+          {q ? <input type="hidden" name="q" value={q} /> : null}
+          {cuisine ? <input type="hidden" name="cuisine" value={cuisine} /> : null}
+          <input type="hidden" name="km" value={opt.value} />
+          <button
+            type="submit"
+            className={`rounded-full px-3 py-1.5 text-[13px] font-medium sm:px-4 ${
+              opt.active ? "bg-primary text-white" : "text-text-secondary hover:text-ink"
+            }`}
+          >
+            {opt.label}
+          </button>
+        </form>
+      ))}
     </div>
   );
 }
