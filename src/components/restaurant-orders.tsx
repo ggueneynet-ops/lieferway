@@ -12,97 +12,16 @@ import { toast } from "sonner";
 import type { KitchenOrder } from "@/lib/restaurant-live";
 import { parsePrepMinutes, PREP_CHIPS } from "@/lib/prep";
 import { PrintBonButton } from "@/components/print-bon-button";
+import { playKitchenBell, startKeepAlive, stopKeepAlive, unlockKitchenBell } from "@/lib/kitchen-gong";
 
 const MUTE_KEY = "lw_kitchen_mute";
+const GONG_MS = 2600;
 
 type Snapshot = {
   orders: KitchenOrder[];
   incoming: number;
   restaurant?: { isOpen: boolean; name: string };
 };
-
-let audioCtx: AudioContext | null = null;
-
-function getAudioContext() {
-  if (typeof window === "undefined") return null;
-  const AC =
-    window.AudioContext ||
-    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AC) return null;
-  if (!audioCtx) audioCtx = new AC();
-  return audioCtx;
-}
-
-function unlockKitchenBell() {
-  const ctx = getAudioContext();
-  if (!ctx) return false;
-  if (ctx.state === "suspended") void ctx.resume();
-  return ctx.state === "running";
-}
-
-function playKitchenBell() {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  void ctx.resume();
-  const now = ctx.currentTime;
-  const dur = 1.05;
-
-  const master = ctx.createGain();
-  master.gain.value = 1;
-  const comp = ctx.createDynamicsCompressor();
-  comp.threshold.value = -10;
-  comp.knee.value = 6;
-  comp.ratio.value = 3.5;
-  comp.attack.value = 0.003;
-  comp.release.value = 0.18;
-  master.connect(comp);
-  comp.connect(ctx.destination);
-
-  const nLen = Math.floor(ctx.sampleRate * 0.07);
-  const noiseBuf = ctx.createBuffer(1, nLen, ctx.sampleRate);
-  const data = noiseBuf.getChannelData(0);
-  for (let i = 0; i < nLen; i++) {
-    data[i] = (Math.random() * 2 - 1) * (1 - i / nLen) ** 2;
-  }
-  const noise = ctx.createBufferSource();
-  noise.buffer = noiseBuf;
-  const nf = ctx.createBiquadFilter();
-  nf.type = "bandpass";
-  nf.frequency.value = 380;
-  nf.Q.value = 0.9;
-  const ng = ctx.createGain();
-  ng.gain.setValueAtTime(0.0001, now);
-  ng.gain.exponentialRampToValueAtTime(0.62, now + 0.006);
-  ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
-  noise.connect(nf);
-  nf.connect(ng);
-  ng.connect(master);
-  noise.start(now);
-
-  const partials: [number, number, number][] = [
-    [92, 0.62, dur],
-    [138, 0.36, 0.95],
-    [184, 0.24, 0.88],
-    [246, 0.16, 0.72],
-    [368, 0.11, 0.5],
-    [523, 0.07, 0.38],
-    [784, 0.045, 0.24],
-  ];
-  for (const [freq, gain, d] of partials) {
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(freq, now);
-    o.frequency.exponentialRampToValueAtTime(Math.max(40, freq * 0.982), now + d);
-    g.gain.setValueAtTime(0.0001, now);
-    g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
-    o.connect(g);
-    g.connect(master);
-    o.start(now);
-    o.stop(now + d + 0.04);
-  }
-}
 
 function orderTime(iso: string, locale: Locale) {
   return formatBerlinDateTime(iso, locale);
@@ -172,25 +91,43 @@ export function RestaurantOrders({
     .join(",");
   incomingKeyRef.current = incomingKey;
 
-  // Gong is ON unless the restaurant muted. Repeat while any ticket is PLACED.
   useEffect(() => {
-    if (!incomingKey || muted) return;
-    unlockKitchenBell();
-    playKitchenBell();
-    const second = window.setTimeout(() => {
-      if (!mutedRef.current && incomingKeyRef.current) playKitchenBell();
-    }, 1800);
-    const id = window.setInterval(() => {
+    if (!incomingKey || muted) stopKeepAlive();
+  }, [incomingKey, muted]);
+
+  // One scheduler for the kitchen page lifetime. Snapshot polls must not clear it
+  // (that was stopping the gong after ~2 hits). Keep-alive holds AudioContext open.
+  useEffect(() => {
+    let timer: number | undefined;
+    let stopped = false;
+
+    const strikeIfNeeded = () => {
+      if (stopped) return;
       if (!mutedRef.current && incomingKeyRef.current) {
         unlockKitchenBell();
+        startKeepAlive();
         playKitchenBell();
+      } else {
+        stopKeepAlive();
       }
-    }, 3500);
-    return () => {
-      window.clearTimeout(second);
-      window.clearInterval(id);
     };
-  }, [incomingKey, muted]);
+
+    const loop = () => {
+      if (stopped) return;
+      strikeIfNeeded();
+      const wait = !mutedRef.current && incomingKeyRef.current ? GONG_MS : 500;
+      timer = window.setTimeout(loop, wait);
+    };
+
+    strikeIfNeeded();
+    timer = window.setTimeout(loop, !mutedRef.current && incomingKeyRef.current ? GONG_MS : 500);
+
+    return () => {
+      stopped = true;
+      if (timer != null) window.clearTimeout(timer);
+      stopKeepAlive();
+    };
+  }, []);
 
   useEffect(() => {
     let stopped = false;
@@ -251,15 +188,14 @@ export function RestaurantOrders({
 
   useEffect(() => {
     const unlock = () => {
-      const ctx = getAudioContext();
-      const blocked = !ctx || ctx.state !== "running";
       unlockKitchenBell();
-      if (blocked && incomingKeyRef.current && !mutedRef.current) playKitchenBell();
+      startKeepAlive();
+      if (incomingKeyRef.current && !mutedRef.current) playKitchenBell();
     };
     unlockKitchenBell();
-    window.addEventListener("pointerdown", unlock);
-    window.addEventListener("keydown", unlock);
-    window.addEventListener("touchstart", unlock, { passive: true });
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    window.addEventListener("touchstart", unlock, { once: true, passive: true });
     return () => {
       window.removeEventListener("pointerdown", unlock);
       window.removeEventListener("keydown", unlock);
@@ -356,7 +292,12 @@ export function RestaurantOrders({
     const next = !muted;
     setMuted(next);
     window.localStorage.setItem(MUTE_KEY, next ? "1" : "0");
-    if (!next && incomingKeyRef.current) playKitchenBell();
+    if (next) {
+      stopKeepAlive();
+    } else {
+      startKeepAlive();
+      if (incomingKeyRef.current) playKitchenBell();
+    }
   }
 
   const incoming = orders
