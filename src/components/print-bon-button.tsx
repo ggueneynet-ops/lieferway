@@ -29,7 +29,7 @@ export function PrintBonButton({ orderId }: { orderId: string }) {
       w.focus();
       window.setTimeout(() => {
         w.print();
-      }, 300);
+      }, 500);
     } catch {
       toast.error(t.printBonFailed);
     }

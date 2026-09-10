@@ -1,10 +1,31 @@
+import fs from "node:fs";
+import path from "node:path";
 import { formatEUR } from "@/lib/money";
 import { formatBerlinBonDate } from "@/lib/datetime";
 import { interpolate, t as dict, type Dictionary, type Locale } from "@/lib/i18n";
+import { restaurantInitials, restaurantLogo } from "@/lib/media";
+
+const MIME: Record<string, string> = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+};
+
+export type BonRestaurant = {
+  name: string;
+  logoUrl?: string | null;
+  slug?: string | null;
+};
 
 export type BonOrder = {
   shortCode: string;
   restaurantName: string;
+  /** Data URI or absolute URL of the restaurant logo. Never the Lieferway site mark. */
+  logoSrc: string | null;
+  initials: string;
   createdAt: string | Date;
   paymentMethod: string;
   totalCents: number;
@@ -17,6 +38,51 @@ export type BonOrder = {
   items: { name: string; quantity: number }[];
   customer: { name: string; phone: string | null };
 };
+
+export function resolveBonBrand(restaurant: BonRestaurant): { logoSrc: string | null; initials: string } {
+  const initials = restaurantInitials(restaurant.name);
+  const src = restaurantLogo(restaurant.logoUrl, restaurant.slug ?? undefined);
+  if (!src) return { logoSrc: null, initials };
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return { logoSrc: src, initials };
+  }
+  if (src.startsWith("/")) {
+    const embedded = embedPublicFile(src);
+    return { logoSrc: embedded, initials };
+  }
+  return { logoSrc: null, initials };
+}
+
+/** Embed /public files as data URIs so Drucken/Bon works in about:blank popups. */
+export function embedPublicFile(urlPath: string): string | null {
+  const clean = urlPath.split("?")[0].split("#")[0];
+  if (!clean.startsWith("/") || clean.startsWith("//") || clean.includes("..")) return null;
+  const publicRoot = path.resolve(process.cwd(), "public");
+  const file = path.resolve(publicRoot, clean.replace(/^\//, ""));
+  const rel = path.relative(publicRoot, file);
+  if (rel.startsWith("..") || path.isAbsolute(rel)) return null;
+  try {
+    const buf = fs.readFileSync(file);
+    const ext = path.extname(file).toLowerCase();
+    const mime = MIME[ext] ?? "application/octet-stream";
+    return `data:${mime};base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
+export function buildBonOrder(
+  restaurant: BonRestaurant,
+  order: Omit<BonOrder, "restaurantName" | "logoSrc" | "initials">,
+): BonOrder {
+  const brand = resolveBonBrand(restaurant);
+  return {
+    ...order,
+    restaurantName: restaurant.name,
+    logoSrc: brand.logoSrc,
+    initials: brand.initials,
+  };
+}
 
 export function bonPayLabel(method: string, t: Dictionary) {
   if (method === "CASH") return t.payCash;
@@ -67,11 +133,38 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
       padding: 2mm 0 8mm;
       color: #000;
     }
+    .brand {
+      text-align: center;
+      margin: 0 0 8px;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 6px;
+      max-width: 42mm;
+      max-height: 28mm;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+    .initials {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22mm;
+      height: 22mm;
+      margin: 0 auto 6px;
+      background: #000;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
     h1 {
       font-size: 20px;
       font-weight: 700;
       margin: 0 0 6px;
       line-height: 1.15;
+      text-align: center;
     }
     .code {
       font-size: 28px;
@@ -115,7 +208,14 @@ export function bonHtml(order: BonOrder, locale: Locale = "de") {
     <button type="button" onclick="window.print()">${escapeHtml(t.printBon)}</button>
   </div>
   <article class="ticket">
-    <h1>${escapeHtml(order.restaurantName)}</h1>
+    <div class="brand">
+      ${
+        order.logoSrc
+          ? `<img class="logo" src="${escapeHtml(order.logoSrc)}" alt="" width="160" height="80" />`
+          : `<div class="initials">${escapeHtml(order.initials)}</div>`
+      }
+      <h1>${escapeHtml(order.restaurantName)}</h1>
+    </div>
     <p class="code">${escapeHtml(order.shortCode)}</p>
     <p class="when">${escapeHtml(when)}</p>
     <hr class="hr" />

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
 import { getCopy } from "@/lib/get-locale";
-import { bonHtml } from "@/lib/bon";
+import { bonHtml, buildBonOrder } from "@/lib/bon";
 import { BonPrintFrame } from "@/components/bon-print-frame";
 
 export const dynamic = "force-dynamic";
@@ -22,15 +22,14 @@ export default async function RestaurantBonPage({
     include: {
       items: { select: { name: true, quantity: true } },
       customer: { select: { name: true, phone: true } },
-      restaurant: { select: { id: true, name: true } },
+      restaurant: { select: { id: true, name: true, logoUrl: true, slug: true } },
     },
   });
   if (!order || order.restaurantId !== restaurant.id) notFound();
 
   const html = bonHtml(
-    {
+    buildBonOrder(order.restaurant, {
       shortCode: order.shortCode,
-      restaurantName: order.restaurant.name,
       createdAt: order.createdAt,
       paymentMethod: order.paymentMethod,
       totalCents: order.totalCents,
@@ -42,7 +41,7 @@ export default async function RestaurantBonPage({
       prepMinutes: order.prepMinutes,
       items: order.items,
       customer: order.customer,
-    },
+    }),
     locale,
   );
 
