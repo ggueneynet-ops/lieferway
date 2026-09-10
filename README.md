@@ -56,7 +56,7 @@ Marketplace layout follows common Turkish food-app patterns (location bar, cuisi
 
 Restaurant and dish photos stay compact left thumbnails.
 
-Restaurant cards and dishes use compact left thumbnails (not large hero photos).
+Marketplace restaurant cards use food photos plus name, cuisine, ETA, min order, delivery fee, rating or Neu, and badges (Beliebt, Liefert selbst). Demo-Modus is a single info chip — not a stamp on every photo.
 
 **Standort:** Default **Lieferung nach** is Frankfurt **60311** (Innenstadt). Tap it → **Aktueller Standort** (GPS only on that tap, as Safari requires). Success fills street + PLZ + city and filters the list. If GPS is denied, type an address. IP approx is used only when GPS times out and the IP is in the Frankfurt area — never a random German zip like 49661.
 

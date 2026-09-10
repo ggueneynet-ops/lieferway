@@ -1,5 +1,6 @@
 import {
   CUSTOMER_STATUS_FLOW,
+  FULFILLMENT_COOKIE,
   PICKUP_CUSTOMER_STATUS_FLOW,
   type FulfillmentType,
   type OrderStatus,
@@ -11,6 +12,24 @@ export function parseFulfillment(value: unknown): FulfillmentType {
 
 export function isPickup(value: unknown): boolean {
   return parseFulfillment(value) === "PICKUP";
+}
+
+/** Client-only: restaurant override, then market session, then cookie. */
+export function readClientFulfillment(restaurantId?: string): FulfillmentType {
+  if (typeof window === "undefined") return "DELIVERY";
+  try {
+    if (restaurantId) {
+      const stored = window.sessionStorage.getItem(`lw_fulfill_${restaurantId}`);
+      if (stored) return parseFulfillment(stored);
+    }
+    const global = window.sessionStorage.getItem("lw_fulfill");
+    if (global) return parseFulfillment(global);
+  } catch {
+    /* private mode */
+  }
+  const match = document.cookie.match(new RegExp(`(?:^|; )${FULFILLMENT_COOKIE}=([^;]*)`));
+  if (match?.[1]) return parseFulfillment(decodeURIComponent(match[1]));
+  return "DELIVERY";
 }
 
 export function customerStatusFlow(fulfillment?: unknown): OrderStatus[] {

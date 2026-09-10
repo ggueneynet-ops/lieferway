@@ -37,7 +37,7 @@ export function RadiusChips({
     <div
       role="radiogroup"
       aria-label={t.eta}
-      className="inline-flex h-8 items-center rounded-full bg-[#F3F4F6] p-0.5"
+      className="inline-flex h-9 items-center rounded-full bg-white p-0.5 shadow-[0_1px_3px_rgba(17,24,39,0.06)] ring-1 ring-[#E5E7EB]"
     >
       {options.map((opt) => (
         <button
@@ -46,8 +46,8 @@ export function RadiusChips({
           role="radio"
           aria-checked={opt.active}
           onClick={() => select(opt.value)}
-          className={`h-7 rounded-full px-2.5 text-[12px] font-medium whitespace-nowrap sm:px-3.5 ${
-            opt.active ? "bg-[#E91E63] text-white" : "text-[#6B7280] hover:text-[#111827]"
+          className={`h-8 rounded-full px-3 text-[13px] font-medium whitespace-nowrap sm:px-4 ${
+            opt.active ? "bg-[#E91E63] text-white shadow-sm" : "text-[#6B7280] hover:text-[#111827]"
           }`}
         >
           {opt.label}

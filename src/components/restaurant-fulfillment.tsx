@@ -8,7 +8,7 @@ import { useI18n } from "@/components/locale-provider";
 import { interpolate } from "@/lib/i18n";
 import { formatEUR } from "@/lib/money";
 import type { FulfillmentType } from "@/lib/constants";
-import { parseFulfillment } from "@/lib/fulfillment";
+import { parseFulfillment, readClientFulfillment } from "@/lib/fulfillment";
 
 function storageKey(restaurantId: string) {
   return `lw_fulfill_${restaurantId}`;
@@ -36,12 +36,7 @@ export function RestaurantFulfillment({
   const [mode, setMode] = useState<FulfillmentType>("DELIVERY");
 
   useEffect(() => {
-    try {
-      const stored = window.sessionStorage.getItem(storageKey(restaurantId));
-      if (stored) setMode(parseFulfillment(stored));
-    } catch {
-      /* ignore */
-    }
+    setMode(readClientFulfillment(restaurantId));
   }, [restaurantId]);
 
   useEffect(() => {

@@ -44,6 +44,7 @@ export type MarketplaceRestaurant = {
   lng: number | null;
   maxDeliveryKm: number | null;
   distanceKm: number | null;
+  pickupAllowed: boolean;
 };
 
 export async function listMarketplaceRestaurants(opts: {
@@ -52,6 +53,7 @@ export async function listMarketplaceRestaurants(opts: {
   plz?: string | null;
   km?: number | null;
   origin?: GeoOrigin | null;
+  pickupOnly?: boolean;
 }): Promise<MarketplaceRestaurant[]> {
   const plz = normalizePlz(opts.plz);
   const cuisine = opts.cuisine?.trim() ?? "";
@@ -63,6 +65,7 @@ export async function listMarketplaceRestaurants(opts: {
     where: {
       isActive: true,
       ...(cuisine ? { cuisine } : {}),
+      ...(opts.pickupOnly ? { pickupAllowed: true } : {}),
     },
     include: { serviceAreas: { select: { postalCode: true } } },
   });
@@ -95,6 +98,7 @@ export async function listMarketplaceRestaurants(opts: {
       lng: r.lng,
       maxDeliveryKm: r.maxDeliveryKm,
       distanceKm,
+      pickupAllowed: r.pickupAllowed !== false,
     });
   }
 

@@ -1,9 +1,16 @@
 import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { RestaurantCard } from "@/components/restaurant-card";
-import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
-import { DemoModeChip, HomeSectionTitle, TrustStrip } from "@/components/home-copy";
+import { restaurantCardCopy, RestaurantCard } from "@/components/restaurant-card";
+import {
+  FULFILLMENT_COOKIE,
+  LAT_COOKIE,
+  LNG_COOKIE,
+  PLZ_COOKIE,
+  RADIUS_COOKIE,
+  STREET_COOKIE,
+} from "@/lib/constants";
+import { DemoModeChip, HomeSectionTitle } from "@/components/home-copy";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
@@ -12,8 +19,14 @@ import { CuisineRow } from "@/components/cuisine-row";
 import { SplashIntro } from "@/components/splash-intro";
 import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { HeroSearch } from "@/components/hero-search";
+import { HeroCollage } from "@/components/hero-collage";
+import { HeroTrust } from "@/components/hero-trust";
+import { WhyLieferway } from "@/components/why-lieferway";
+import { PromoBand } from "@/components/promo-band";
 import { RadiusChips } from "@/components/radius-chips";
+import { MarketFulfillmentSwitch } from "@/components/market-fulfillment";
 import { SPLASH_COOKIE } from "@/lib/splash";
+import { parseFulfillment } from "@/lib/fulfillment";
 
 export const dynamic = "force-dynamic";
 
@@ -31,13 +44,18 @@ export default async function Home({
   const plz = sanitizeDemoPlz(rawPlz, Boolean(street));
   const km = resolveUserRadius(kmParam, jar.get(RADIUS_COOKIE)?.value);
   const splashDone = jar.get(SPLASH_COOKIE)?.value === "1";
+  const fulfillment = parseFulfillment(jar.get(FULFILLMENT_COOKIE)?.value);
+  const pickupOnly = fulfillment === "PICKUP";
   const useGps = Boolean(street && gps && rawPlz === plz);
   const origin = resolveOrigin({
     plz,
     lat: useGps && gps ? gps.lat : null,
     lng: useGps && gps ? gps.lng : null,
   });
-  const filtered = await listMarketplaceRestaurants({ q, cuisine, plz, km, origin });
+  const nearby = await listMarketplaceRestaurants({ plz, km, origin, pickupOnly });
+  const filtered = await listMarketplaceRestaurants({ q, cuisine, plz, km, origin, pickupOnly });
+  const openCount = nearby.filter((r) => r.isOpen).length;
+  const cardCopy = restaurantCardCopy(copy);
 
   return (
     <>
@@ -46,28 +64,53 @@ export default async function Home({
       <main className="flex-1 bg-[#FAFAFA]">
         <section className="lw-hero">
           <div className="lw-hero-wash" aria-hidden />
-          <div className="lw-wrap relative py-14 sm:py-20">
-            <p className="text-sm font-medium text-[#6B7280]">{copy.city}</p>
-            <h1 className="mt-3 max-w-2xl font-display text-[2.15rem] font-semibold leading-[1.12] tracking-tight text-[#111827] sm:text-5xl">
-              {copy.heroHeadline}
-            </h1>
-            <HeroSearch
-              initialPlz={plz ?? ""}
-              initialStreet={street}
-              q={q}
-              cuisine={cuisine}
-              km={km}
-            />
+          <div className="lw-wrap relative py-10 sm:py-16">
+            <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <div>
+                <p className="text-sm font-medium text-[#6B7280]">{copy.city}</p>
+                <h1 className="mt-3 max-w-2xl font-display text-[2.15rem] font-semibold leading-[1.12] tracking-tight text-[#111827] sm:text-5xl">
+                  {copy.heroHeadline}
+                </h1>
+                <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#6B7280] sm:text-base">
+                  {copy.heroSubtitle}
+                </p>
+                <div className="mt-5 sm:hidden">
+                  <MarketFulfillmentSwitch initial={fulfillment} compact />
+                </div>
+                <div className="mt-6">
+                  <HeroSearch
+                    initialPlz={plz ?? ""}
+                    initialStreet={street}
+                    q={q}
+                    cuisine={cuisine}
+                    km={km}
+                  />
+                </div>
+                <HeroTrust
+                  openCount={openCount}
+                  openLabel={copy.heroTrustOpen}
+                  directLabel={copy.heroTrustDirect}
+                  provisionLabel={copy.heroTrustProvision}
+                />
+              </div>
+              <HeroCollage />
+            </div>
           </div>
         </section>
 
-        <TrustStrip />
+        <WhyLieferway />
 
-        <div className="lw-wrap pt-10 pb-4">
-          {plz ? <RadiusChips plz={plz} q={q} cuisine={cuisine} km={km} /> : null}
-          <div className="mt-8">
-            <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
+        <section className="bg-[#FCE4EC]/25">
+          <div className="lw-wrap pt-8 pb-6">
+            {plz ? <RadiusChips plz={plz} q={q} cuisine={cuisine} km={km} /> : null}
+            <div className="mt-7">
+              <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
+            </div>
           </div>
+        </section>
+
+        <div className="pt-6">
+          <PromoBand />
         </div>
 
         <section id="restaurants" className="lw-wrap pt-8 pb-20">
@@ -76,7 +119,7 @@ export default async function Home({
             <DemoModeChip />
           </div>
           {filtered.length === 0 ? (
-            <div className="rounded-[20px] border border-[#E5E7EB] bg-white px-4 py-12 text-center">
+            <div className="rounded-[20px] border border-[#E5E7EB] bg-white px-4 py-12 text-center shadow-[0_8px_24px_rgba(17,24,39,0.04)]">
               <p className="text-[#6B7280]">
                 {plz && km != null
                   ? interpolate(copy.noDeliveryInRadius, { plz, km: String(km) })
@@ -87,16 +130,14 @@ export default async function Home({
               {plz ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
             </div>
           ) : (
-            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((r) => (
                 <RestaurantCard
                   key={r.id}
                   r={r}
-                  closedLabel={copy.closed}
                   cuisineLabel={cuisineName(locale, r.cuisine)}
-                  minLabel={copy.minOrder}
-                  demoLabel={`${copy.demoBadge} / ${copy.demoExample}`}
-                  feeLabel={copy.delivery}
+                  fulfillment={fulfillment}
+                  {...cardCopy}
                 />
               ))}
             </div>

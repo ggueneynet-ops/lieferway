@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { FulfillmentType } from "@/lib/constants";
-import { parseFulfillment } from "@/lib/fulfillment";
+import { parseFulfillment, readClientFulfillment } from "@/lib/fulfillment";
 
 export type CartLine = {
   menuItemId: string;
@@ -61,12 +61,7 @@ const KEY = "lw_cart";
 
 function preferredFulfillment(restaurantId: string, pickupAllowed: boolean): FulfillmentType {
   if (!pickupAllowed) return "DELIVERY";
-  try {
-    const stored = window.sessionStorage.getItem(`lw_fulfill_${restaurantId}`);
-    return parseFulfillment(stored);
-  } catch {
-    return "DELIVERY";
-  }
+  return readClientFulfillment(restaurantId);
 }
 
 function withFee(cart: Omit<CartState, "deliveryFeeCents">): CartState {
