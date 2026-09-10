@@ -26,10 +26,10 @@ export function PersonalOrderLink({
   }
 
   return (
-    <section className="rounded-2xl border border-[#E91E63]/20 bg-white p-4">
+    <section className="rounded-2xl border border-[#B72E57]/20 bg-white p-4">
       <h2 className="text-[15px] font-semibold text-[#111827]">{t.rpPersonalLink}</h2>
       <p className="mt-1 text-sm leading-relaxed text-[#6B7280]">{t.rpPersonalLinkHint}</p>
-      <p className="mt-3 break-all rounded-xl bg-[#FCE4EC] px-3 py-2.5 text-[13px] font-medium text-[#C2185B]">
+      <p className="mt-3 break-all rounded-xl bg-[#F7EBEF] px-3 py-2.5 text-[13px] font-medium text-[#922546]">
         {url}
       </p>
       <div className="mt-3 flex justify-center rounded-2xl border border-[#F3F4F6] bg-[#FAFAFA] p-3">

@@ -101,7 +101,7 @@ export default async function Home({
 
         <WhyLieferway />
 
-        <section className="bg-[#FCE4EC]/25">
+        <section className="bg-[#FAFAFA]">
           <div className="lw-wrap pt-6 pb-5">
             {plz ? <RadiusChips plz={plz} q={q} cuisine={cuisine} km={km} /> : null}
             <div className="mt-4">

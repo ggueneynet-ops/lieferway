@@ -94,7 +94,7 @@ export function RestaurantCard({
         )}
         <div className="absolute left-2 top-2 flex max-w-[86%] flex-wrap gap-1">
           {popular && popularLabel ? (
-            <span className="rounded-full bg-[#E91E63] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white shadow-[0_2px_8px_rgba(233,30,99,0.35)]">
+            <span className="rounded-full bg-[#B72E57] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white shadow-[0_2px_8px_rgba(183,46,87,0.35)]">
               {popularLabel}
             </span>
           ) : null}
@@ -104,12 +104,12 @@ export function RestaurantCard({
             </span>
           ) : null}
           {selfDeliveryLabel ? (
-            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#C2185B] shadow-[0_2px_8px_rgba(17,24,39,0.12)] ring-1 ring-[#F8BBD0]">
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#922546] shadow-[0_2px_8px_rgba(17,24,39,0.12)] ring-1 ring-[#E8C5D0]">
               {selfDeliveryLabel}
             </span>
           ) : null}
           {launchWeek && launchWeekLabel ? (
-            <span className="rounded-full bg-[#1A2744] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-[#1A1A1A] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
               {launchWeekLabel}
             </span>
           ) : null}
@@ -125,12 +125,12 @@ export function RestaurantCard({
           </h3>
           {hasReviews ? (
             <span className="mt-0.5 inline-flex shrink-0 items-center gap-0.5 text-[13px] font-semibold text-[#111827]">
-              <Star className="size-3.5 fill-[#E91E63] text-[#E91E63]" />
+              <Star className="size-3.5 fill-[#B72E57] text-[#B72E57]" />
               {r.rating.toFixed(1)}
               <span className="font-medium text-[#9CA3AF]">({r.reviewCount})</span>
             </span>
           ) : newLabel ? (
-            <span className="mt-0.5 shrink-0 rounded-full bg-[#FCE4EC] px-2 py-0.5 text-[11px] font-semibold text-[#C2185B]">
+            <span className="mt-0.5 shrink-0 rounded-full bg-[#F7EBEF] px-2 py-0.5 text-[11px] font-semibold text-[#922546]">
               {newLabel}
             </span>
           ) : null}
@@ -138,13 +138,13 @@ export function RestaurantCard({
         <p className="mt-0.5 truncate text-[13px] font-medium text-[#6B7280]">{cuisineLabel ?? r.cuisine}</p>
         <div className="mt-2.5 grid grid-cols-3 gap-1 rounded-[12px] bg-[#FAFAFA] px-2 py-1.5 text-center text-[11px] font-medium text-[#4B5563]">
           <span className="inline-flex items-center justify-center gap-1">
-            <Clock className="size-3 text-[#E91E63]" strokeWidth={2} />
+            <Clock className="size-3 text-[#B72E57]" strokeWidth={2} />
             {r.etaMin}–{r.etaMax} Min.
           </span>
           <span className="border-x border-[#EDEDED]">
             {minLabel} {formatEUR(r.minOrderCents)}
           </span>
-          <span className={`truncate ${free || pickup ? "font-semibold text-[#C2185B]" : ""}`}>
+          <span className={`truncate ${free || pickup ? "font-semibold text-[#922546]" : ""}`}>
             {pickup && pickupFeeLabel
               ? pickupFeeLabel
               : free && freeDeliveryLabel
@@ -153,7 +153,7 @@ export function RestaurantCard({
           </span>
         </div>
         {r.pickupAllowed && pickupLabel ? (
-          <p className="mt-1.5 text-[11px] font-medium text-[#C2185B]">{pickupLabel}</p>
+          <p className="mt-1.5 text-[11px] font-medium text-[#922546]">{pickupLabel}</p>
         ) : null}
       </div>
     </Link>

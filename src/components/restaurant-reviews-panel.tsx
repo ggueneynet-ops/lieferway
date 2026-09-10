@@ -95,8 +95,8 @@ export function RestaurantReviewsPanel({
                 {interpolate(t.reviewFromOrder, { code: r.orderShortCode })}
               </p>
               {r.reply ? (
-                <div className="mt-3 rounded-xl bg-[#FCE4EC] px-3 py-2.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#C2185B]">
+                <div className="mt-3 rounded-xl bg-[#F7EBEF] px-3 py-2.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#922546]">
                     {t.restaurantReply}
                   </p>
                   <p className="mt-1 text-sm">{r.reply}</p>

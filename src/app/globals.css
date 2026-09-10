@@ -40,14 +40,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-primary-pressed: #c2185b;
-  --color-primary-soft: #fce4ec;
+  --color-primary-pressed: #922546;
+  --color-primary-soft: #F7EBEF;
   --color-bg-muted: #f4f5f7;
   --color-surface: #ffffff;
   --color-success: #16a34a;
   --color-warning: #f59e0b;
   --color-danger: #dc2626;
-  --color-ink: #111827;
+  --color-ink: #1a1a1a;
   --color-text-secondary: #64748b;
   --color-text-inverse: #ffffff;
   --radius-sm: 8px;
@@ -59,17 +59,17 @@
   --radius-4xl: 24px;
 }
 
-/* Locked Lieferway tokens — DESIGN.md (Yemeksepeti-like pink, own logo) */
+/* Locked Lieferway tokens — DESIGN.md (bordo accent only) */
 :root {
-  --color-primary: #e91e63;
-  --color-primary-pressed: #c2185b;
-  --color-primary-soft: #fce4ec;
-  --color-secondary: #0f172a;
+  --color-primary: #B72E57;
+  --color-primary-pressed: #922546;
+  --color-primary-soft: #F7EBEF;
+  --color-secondary: #1a1a1a;
   --color-bg: #fafafa;
   --color-bg-muted: #f3f4f6;
   --color-surface: #ffffff;
   --color-border: #e5e7eb;
-  --color-text: #111827;
+  --color-text: #1a1a1a;
   --color-text-secondary: #6b7280;
   --color-text-inverse: #ffffff;
   --color-success: #16a34a;
@@ -118,18 +118,18 @@
   --card-foreground: #ffffff;
   --popover: #1e293b;
   --popover-foreground: #ffffff;
-  --primary: #e91e63;
+  --primary: #B72E57;
   --primary-foreground: #ffffff;
   --secondary: #1e293b;
   --secondary-foreground: #f8fafc;
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
   --accent: #3f1a2a;
-  --accent-foreground: #fce4ec;
+  --accent-foreground: #F7EBEF;
   --destructive: #dc2626;
   --border: #334155;
   --input: #334155;
-  --ring: #e91e63;
+  --ring: #B72E57;
 }
 
 @layer base {
@@ -176,9 +176,9 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 52% 88% at 94% -10%, rgba(233, 30, 99, 0.13), transparent 58%),
-    radial-gradient(ellipse 40% 58% at 4% 108%, rgba(252, 228, 236, 0.95), transparent 55%),
-    radial-gradient(ellipse 30% 42% at 72% 118%, rgba(15, 23, 42, 0.035), transparent 70%),
+    radial-gradient(ellipse 52% 88% at 94% -10%, rgba(183, 46, 87, 0.08), transparent 58%),
+    radial-gradient(ellipse 40% 58% at 4% 108%, rgba(247, 235, 239, 0.7), transparent 55%),
+    radial-gradient(ellipse 30% 42% at 72% 118%, rgba(42, 42, 42, 0.03), transparent 70%),
     linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
 }
 
@@ -190,10 +190,10 @@
   width: 22rem;
   height: 22rem;
   border-radius: 50%;
-  border: 1px solid rgba(233, 30, 99, 0.14);
+  border: 1px solid rgba(183, 46, 87, 0.14);
   box-shadow:
-    inset 0 0 0 2.4rem rgba(252, 228, 236, 0.45),
-    0 0 0 1.4rem rgba(233, 30, 99, 0.04);
+    inset 0 0 0 2.4rem rgba(247, 235, 239, 0.35),
+    0 0 0 1.4rem rgba(183, 46, 87, 0.03);
 }
 
 .lw-hero-wash::after {
@@ -205,7 +205,7 @@
   height: 17rem;
   border-radius: 50%;
   border: 1px solid rgba(15, 23, 42, 0.06);
-  background: radial-gradient(circle at 38% 38%, rgba(233, 30, 99, 0.07), transparent 62%);
+  background: radial-gradient(circle at 38% 38%, rgba(183, 46, 87, 0.07), transparent 62%);
 }
 
 .no-scrollbar {
@@ -236,7 +236,7 @@
   justify-content: center;
   border: 0;
   background: #ffffff;
-  color: #1a2744;
+  color: #1a1a1a;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -283,8 +283,8 @@
 }
 
 .lw-new-ticket {
-  border-color: #e91e63 !important;
-  background: #fce4ec;
+  border-color: #B72E57 !important;
+  background: #F7EBEF;
   animation: lw-order-pulse 1.05s ease-out 3;
 }
 
@@ -304,20 +304,20 @@
   }
   12%,
   38% {
-    background-color: #e91e63;
+    background-color: #B72E57;
   }
   24%,
   52% {
-    background-color: #fce4ec;
+    background-color: #F7EBEF;
   }
 }
 
 @keyframes lw-order-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.5);
+    box-shadow: 0 0 0 0 rgba(183, 46, 87, 0.5);
   }
   70% {
-    box-shadow: 0 0 0 12px rgba(233, 30, 99, 0);
+    box-shadow: 0 0 0 12px rgba(183, 46, 87, 0);
   }
 }
 
@@ -361,7 +361,7 @@
 }
 
 .lw-step-current {
-  box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.16);
+  box-shadow: 0 0 0 4px rgba(183, 46, 87, 0.16);
 }
 
 .lw-flow-enter {

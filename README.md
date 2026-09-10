@@ -52,7 +52,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout follows common Turkish food-app patterns (location bar, cuisine rail, dense list, sticky cart) with a Yemeksepeti-like **pink** `#E91E63`. Logo is the locked **pin + fork** mark (magenta pin, white fork, **Liefer** navy + **way** pink). Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Name stays **Lieferway**.
+Marketplace layout follows common food-app patterns (location bar, cuisine rail, dense list, sticky cart) with bordo accent `#B72E57` on white/off-white. Logo is the locked **pin + fork** mark (bordo pin, white fork, **Liefer** anthracite `#1A1A1A` + **way** bordo). Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Name stays **Lieferway**. Cache-bust logo assets with `?v=15`.
 
 Restaurant and dish photos stay compact left thumbnails.
 

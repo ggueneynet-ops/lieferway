@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 96" fill="none">
   <g transform="translate(0 8) scale(1)">
-    <path fill="#E91E63" d="M32 0C15.64 0 2.5 13.4 2.5 29.9 2.5 50.6 32 80 32 80s29.5-29.4 29.5-50.1C61.5 13.4 48.36 0 32 0z"/>
+    <path fill="#B72E57" d="M32 0C15.64 0 2.5 13.4 2.5 29.9 2.5 50.6 32 80 32 80s29.5-29.4 29.5-50.1C61.5 13.4 48.36 0 32 0z"/>
     <g fill="#fff">
       <rect x="21.4" y="15.2" width="3.7" height="18.2" rx="1.85"/>
       <rect x="27.25" y="15.2" width="3.7" height="18.2" rx="1.85"/>
@@ -10,6 +10,6 @@
     </g>
   </g>
   <text x="86" y="62" font-family="Inter, Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif" font-size="52" font-weight="800" letter-spacing="-1.2">
-    <tspan fill="#fff">Liefer</tspan><tspan fill="#E91E63">way</tspan>
+    <tspan fill="#fff">Liefer</tspan><tspan fill="#B72E57">way</tspan>
   </text>
 </svg>

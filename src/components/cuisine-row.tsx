@@ -38,8 +38,8 @@ export function CuisineRow({
           scroll={false}
           className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold transition ${
             item.active
-              ? "bg-[#E91E63] text-white shadow-[0_8px_18px_rgba(233,30,99,0.28)]"
-              : "bg-white text-[#111827] ring-1 ring-[#E5E7EB] hover:ring-[#F8BBD0]"
+              ? "bg-[#B72E57] text-white shadow-[0_8px_18px_rgba(183,46,87,0.28)]"
+              : "bg-white text-[#111827] ring-1 ring-[#E5E7EB] hover:ring-[#E8C5D0]"
           }`}
         >
           <CategoryIcon name={item.key} className="size-[18px]" />

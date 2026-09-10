@@ -66,7 +66,7 @@ export function ProfileCard({
     <section className="rounded-[24px] border border-[#E5E7EB] bg-white px-5 py-6 shadow-[0_8px_30px_rgba(17,24,39,0.04)]">
       <div className="flex flex-col items-center text-center">
         <span
-          className="flex size-20 items-center justify-center rounded-full bg-[#FCE4EC] font-display text-2xl font-semibold text-[#C2185B]"
+          className="flex size-20 items-center justify-center rounded-full bg-[#F7EBEF] font-display text-2xl font-semibold text-[#922546]"
           aria-hidden
         >
           {mark}

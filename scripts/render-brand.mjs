@@ -7,11 +7,11 @@ const PUBLIC = path.join(ROOT, "public");
 const MOBILE = path.join(ROOT, "mobile/assets");
 
 const markPink = fs.readFileSync(path.join(PUBLIC, "logo-mark.svg"), "utf8");
-const markWhite = markPink.replaceAll("#E91E63", "#FFFFFF");
+const markWhite = markPink.replaceAll("#B72E57", "#FFFFFF");
 fs.writeFileSync(path.join(PUBLIC, "logo-mark-white.svg"), markWhite);
 
 function lockup(fill, bg = null) {
-  const inner = markPink.replaceAll("#E91E63", fill).replace(
+  const inner = markPink.replaceAll("#B72E57", fill).replace(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 188" fill="none">',
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 188" fill="none" width="260" height="188">',
   );
@@ -26,7 +26,7 @@ function lockup(fill, bg = null) {
 </svg>`;
 }
 
-fs.writeFileSync(path.join(PUBLIC, "logo.svg"), lockup("#E91E63"));
+fs.writeFileSync(path.join(PUBLIC, "logo.svg"), lockup("#B72E57"));
 fs.writeFileSync(path.join(PUBLIC, "logo-white.svg"), lockup("#FFFFFF"));
 
 const whiteGroup = markWhite
@@ -41,7 +41,7 @@ function appIconSvg(size = 1024, radius = 224) {
   const ty = (size - vbH * scale) / 2;
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
-  <rect width="${size}" height="${size}" rx="${radius}" fill="#E91E63"/>
+  <rect width="${size}" height="${size}" rx="${radius}" fill="#B72E57"/>
   <g transform="translate(${tx} ${ty}) scale(${scale})">${whiteGroup}</g>
 </svg>`;
 }
@@ -61,7 +61,7 @@ async function raster(svg, file, width, height = width, background) {
 const ink = { r: 15, g: 23, b: 42, alpha: 1 };
 const pink = { r: 233, g: 30, b: 99, alpha: 1 };
 
-await raster(lockup("#E91E63"), path.join(PUBLIC, "logo.png"), 640, 600);
+await raster(lockup("#B72E57"), path.join(PUBLIC, "logo.png"), 640, 600);
 await raster(markPink, path.join(PUBLIC, "logo-mark.png"), 520, 376);
 await raster(markWhite, path.join(PUBLIC, "logo-mark-white.png"), 520, 376);
 await raster(lockup("#FFFFFF"), path.join(PUBLIC, "logo-white.png"), 640, 600);

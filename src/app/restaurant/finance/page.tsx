@@ -60,7 +60,7 @@ export default async function RestaurantFinancePage() {
           </div>
           <div className="flex items-baseline justify-between gap-3 border-t border-[#F3F4F6] pt-3">
             <dt className="text-base font-bold text-[#111827]">{t.rpPayoutToRestaurant}</dt>
-            <dd className="text-[1.65rem] font-bold tabular-nums text-[#E91E63]">{formatEUR(payout, locale)}</dd>
+            <dd className="text-[1.65rem] font-bold tabular-nums text-[#B72E57]">{formatEUR(payout, locale)}</dd>
           </div>
         </dl>
       </section>
@@ -91,7 +91,7 @@ export default async function RestaurantFinancePage() {
                 </span>
                 <a
                   href={`/api/invoices/commission?month=${key}`}
-                  className="inline-flex h-11 shrink-0 items-center rounded-xl bg-[#E91E63] px-4 text-sm font-semibold text-white hover:bg-[#C2185B]"
+                  className="inline-flex h-11 shrink-0 items-center rounded-xl bg-[#B72E57] px-4 text-sm font-semibold text-white hover:bg-[#922546]"
                 >
                   {t.downloadPdf}
                 </a>
@@ -100,7 +100,7 @@ export default async function RestaurantFinancePage() {
           })}
         </ul>
       </section>
-      <p className="mb-4 rounded-2xl border border-[#F8BBD0] bg-[#FCE4EC]/70 px-4 py-3 text-sm">
+      <p className="mb-4 rounded-2xl border border-[#E8C5D0] bg-[#F7EBEF]/70 px-4 py-3 text-sm">
         <span className="font-semibold text-[#111827]">{t.rpNextPayout}: </span>
         {next.isToday ? t.rpPayoutMonday : mondayLabel}
       </p>
