@@ -1,6 +1,11 @@
+import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendCustomerEmail } from "@/lib/mail";
 import { interpolate, parseLocale, STATUS_LABEL, t as dict } from "@/lib/i18n";
+
+function noticeId() {
+  return `c${randomBytes(12).toString("hex")}`;
+}
 
 const NOTIFY_STATUSES = new Set([
   "PLACED",
@@ -70,22 +75,25 @@ export async function notifyCustomerOfOrderStatus(orderId: string, status: strin
       html: `<p><strong>${escapeHtml(copy.title)}</strong></p><p>${escapeHtml(copy.body)}</p><p><a href="${link}">Bestellung ansehen</a></p>`,
     });
 
+    // Bound SQL: Prisma 6's long-lived Next worker can reject newer scalar
+    // fields on create() even after db push (same pattern as kitchen accept).
     try {
-      await prisma.customerNotice.create({
-        data: {
-          userId: order.customer.id,
-          orderId: order.id,
-          status,
-          title: copy.title,
-          body: copy.body,
-          emailTo: order.customer.email,
-          emailSent: mailed.ok,
-          emailChannel: mailed.channel,
-        },
-      });
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO "CustomerNotice" ("id","userId","orderId","status","title","body","emailTo","emailSent","emailChannel","createdAt") VALUES (?,?,?,?,?,?,?,?,?,?)`,
+        noticeId(),
+        order.customer.id,
+        order.id,
+        status,
+        copy.title,
+        copy.body,
+        order.customer.email,
+        mailed.ok ? 1 : 0,
+        mailed.channel,
+        new Date().toISOString(),
+      );
     } catch (createErr) {
-      const code = typeof createErr === "object" && createErr && "code" in createErr ? String(createErr.code) : "";
-      if (code !== "P2002") throw createErr;
+      const msg = createErr instanceof Error ? createErr.message : String(createErr);
+      if (!msg.includes("UNIQUE") && !msg.includes("unique")) throw createErr;
     }
   } catch (e) {
     console.error("notifyCustomerOfOrderStatus", e);
