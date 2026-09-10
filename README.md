@@ -52,11 +52,11 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout follows common food-app patterns (location bar, cuisine rail, dense list, sticky cart) with premium pink accent `#E91E63` on white (not Lieferando orange, not bordo). Logo is the locked **pin + fork** mark (pink pin, white fork, **Liefer** navy + **way** pink). Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Name stays **Lieferway**. Cache-bust logo assets with `?v=17`.
+Marketplace layout: short address bar, cuisine rail, **large food-photo cards**, sticky cart. UI accent is bordo `#922A49` on cream `#FFF8F0` / soft `#FAF3EA` (pink `#E91E63` retired for UI; logo rasters are owner-locked and left as-is). Header has no slogan; splash uses the full lockup with **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Name stays **Lieferway**.
 
-Restaurant and dish photos stay compact left thumbnails.
+Customer home shows food photos, prices, Mindestbestellwert, Liefergebühr, and Lieferzeit. Partnership copy (5 % Provision, Auszahlung montags) is on `/partner/anmelden` only.
 
-Marketplace restaurant cards use food photos plus name, cuisine, ETA, min order, delivery fee, rating or Neu, and badges (Beliebt, Liefert selbst). Demo-Modus is a single info chip — not a stamp on every photo.
+Marketplace restaurant cards use wide food photos plus name, cuisine, ETA, min order, delivery fee, rating or Neu, and badges (Beliebt, Restaurant liefert). Demo-Modus is a single info chip — not a stamp on every photo.
 
 **Standort:** Default **Lieferung nach** is Frankfurt **60311** (Innenstadt). Tap it → **Aktueller Standort** (GPS only on that tap, as Safari requires). Success fills street + PLZ + city and filters the list. If GPS is denied, type an address. IP approx is used only when GPS times out and the IP is in the Frankfurt area — never a random German zip like 49661.
 

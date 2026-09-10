@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     template: "%s · Lieferway",
   },
   description:
-    "Lieferway liefert Speisen in Frankfurt am Main. Fair 5 % Restaurant-Provision. Türkisch, hessisch, Pizza, Sushi.",
+    "Lieferway: Essen bestellen in Frankfurt am Main. Lokale Küchen, Lieferung durch das Restaurant.",
   icons: {
     icon: [
       { url: "/icon-pin-fork.svg?v=17", type: "image/svg+xml" },

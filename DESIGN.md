@@ -6,27 +6,26 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 ## Logo
 
-**Locked by owner/designer.** Premium pink map-pin with a white fork (`#E91E63`). Wordmark: **Liefer** navy `#0F172A` / ink `#0F172A` + **way** pink. No scooter, no cloche. **Not** Lieferando orange. **Not** bordo.
+**Locked by owner/designer.** Pin + fork lockup. Do not recreate or recolor logo rasters in-app. Header has no slogan; splash uses **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.**
 
-- Header / login / footer: `public/Lieferway-header-h64.png`, `h96`, `h128`, `h256` (`Lieferway-header.svg`, `Lieferway-header-from-owner.png`) — pin + wordmark, **no slogan**. Cache-bust `?v=17`.
-- Splash: `public/Lieferway-splash-lockup.png` / `OWNER-LOCKUP-FINAL.png` / `Lieferway-lockup.png` — pin + wordmark + slogan **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.**
-- App icon / favicon: `public/icon-pin-fork.svg` (also `favicon.svg`), `favicon-32.png`, `favicon-64.png`, `app-icon-1024.png`.
-- Source: `lieferway/brand-premium/logo/` (owner lock). Scooter lockup is retired. No serif, no bordo.
+- Header / login / footer: `public/Lieferway-header-h64.png`, `h96`, `h128`, `h256` (`Lieferway-header.svg`, `Lieferway-header-from-owner.png`) — pin + wordmark, **no slogan**.
+- Splash: `public/Lieferway-splash-lockup.png` / `OWNER-LOCKUP-FINAL.png` / `Lieferway-lockup.png`
+- App icon / favicon: `public/icon-pin-fork.svg` (also `favicon.svg`), `favicon-32.png`, `favicon-64.png`.
 
 ## Color tokens
 
-Premium **pink accent only** (`#E91E63`). Mix: ~70–75% white/light, 15–20% dark/neutral structure, 10–15% pink. Pink is for CTAs, active tabs/filters, key icons, small accents, and price/action emphasis — never large pink hero fills or playful pink slabs.
+UI accent is **bordo `#922A49`**. Pink `#E91E63` is retired for UI (logo files may still show the previous pin color until the designer pack is wired). Cream canvas, white cards, ink text. Accent only on CTAs, selected pills, badges, and small icons — no large accent slabs, no cold gray canvas, no Lieferando orange.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--color-primary` | `#E91E63` | Logo pin, CTAs, selected pills, links, badges, small icons |
-| `--color-primary-pressed` | `#C2185B` | Button hover / press |
-| `--color-primary-soft` | `#FFF5F8` | Tiny section wash only |
+| `--color-primary` | `#922A49` | CTAs, selected pills, links, badges, small icons |
+| `--color-primary-pressed` | `#7A2340` | Button hover / press |
+| `--color-primary-soft` | `#FAF3EA` | Soft wash, chips |
 | `--color-secondary` | `#0F172A` | Ink (headings, body) |
-| `--color-bg` | `#FFFFFF` | Customer canvas |
-| `--color-bg-muted` | `#F7F7F8` | Dashboard canvas, chips |
+| `--color-bg` | `#FFF8F0` | Customer canvas |
+| `--color-bg-muted` | `#FAF3EA` | Soft sections, chips |
 | `--color-surface` | `#FFFFFF` | Cards, header, sidebar |
-| `--color-border` | `#E8E8EC` | Hairlines |
+| `--color-border` | `#E8E2DC` | Hairlines |
 | `--color-text` | `#0F172A` | Body |
 | `--color-text-secondary` | `#64748B` | Meta, addresses, hints |
 | `--color-text-inverse` | `#FFFFFF` | On primary |
@@ -50,7 +49,7 @@ Customer cards **12–16px** (`rounded-xl` 12 / `rounded-2xl` 16). Soft shadows.
 ## Surfaces
 
 **Customer (marketplace)**  
-White canvas, dense food-app layout: sticky location/PLZ bar, cuisine pill rail, restaurant cards, sticky cart. Pink only on CTAs, active filters, ratings, location pin.
+Cream canvas `#FFF8F0`, white cards, short top so restaurant photos appear quickly. Large food-photo cards with ETA, min order, and delivery fee. Partner sales (5 % / Auszahlung) stay on `/partner/anmelden` only.
 
 **Restaurant panel**  
 `--color-bg-muted` page, white table/cards, compact type. **Primary only on CTAs**. Nav, filters, and toggles stay outline / ghost / ink.

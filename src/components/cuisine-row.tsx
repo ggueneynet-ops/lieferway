@@ -41,7 +41,7 @@ export function CuisineRow({
           <span
             className={`flex size-14 items-center justify-center rounded-full transition ${
               item.active
-                ? "bg-[#E91E63] text-white shadow-[0_8px_18px_rgba(233,30,99,0.22)]"
+                ? "bg-[#922A49] text-white shadow-[0_8px_18px_rgba(146,42,73,0.22)]"
                 : "bg-[#F7F7F8] text-[#0F172A] ring-1 ring-[#E8E8EC]"
             }`}
           >
@@ -49,7 +49,7 @@ export function CuisineRow({
           </span>
           <span
             className={`w-full truncate text-center text-[11px] font-semibold ${
-              item.active ? "text-[#E91E63]" : "text-[#0F172A]"
+              item.active ? "text-[#922A49]" : "text-[#0F172A]"
             }`}
           >
             {item.label}

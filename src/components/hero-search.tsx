@@ -72,21 +72,19 @@ export function HeroSearch({
 
   return (
     <div className="w-full max-w-xl">
-      <p className="text-[13px] font-semibold text-[#111827]">{t.heroWhere}</p>
-      <p className="mt-0.5 text-[12px] text-[#6B7280]">{t.heroAddressLabel}</p>
-      <div className="mt-3 w-full rounded-[22px] border border-black/[0.06] bg-white p-2 shadow-[0_16px_40px_rgba(17,24,39,0.08)] sm:flex sm:items-stretch sm:gap-2">
+      <div className="w-full rounded-[16px] border border-[#E8E2DC] bg-white p-1.5 shadow-[0_8px_24px_rgba(17,24,39,0.06)] sm:flex sm:items-stretch sm:gap-2">
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-[16px] bg-[#FAFAFA] px-4 text-left text-[15px] text-[#111827] sm:h-[3.65rem] sm:px-5"
+        className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-[12px] bg-[#FAF3EA] px-3.5 text-left text-[15px] text-[#0F172A] sm:h-12 sm:px-4"
       >
-        <MapPin className="size-5 shrink-0 text-[#E91E63]" strokeWidth={1.75} />
+        <MapPin className="size-5 shrink-0 text-[#922A49]" strokeWidth={1.75} />
         <span className={`truncate ${initialPlz ? "font-semibold" : "text-[#9CA3AF]"}`}>{label}</span>
       </button>
       <button
         type="button"
         onClick={find}
-        className="mt-2 h-14 w-full shrink-0 rounded-[16px] bg-[#E91E63] px-7 text-sm font-semibold text-white hover:bg-[#C2185B] sm:mt-0 sm:h-[3.65rem] sm:w-auto"
+        className="mt-1.5 h-12 w-full shrink-0 rounded-[12px] bg-[#922A49] px-5 text-sm font-semibold text-white hover:bg-[#7A2340] sm:mt-0 sm:w-auto"
       >
         {t.findRestaurants}
       </button>

@@ -24,7 +24,7 @@ export async function RestaurantAppShell({
 
   return (
     <div className="rp-app flex min-h-full flex-col bg-[#F7F2F4] text-[#111827]">
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#F8BBD0]/50 bg-white px-4 py-3">
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-[#E8C4CE]/50 bg-white px-4 py-3">
         <div className="min-w-0">
           <Logo size="sm" />
           <p className="mt-0.5 truncate text-[12px] text-[#6B7280]">
@@ -37,7 +37,7 @@ export async function RestaurantAppShell({
           <LocaleToggle />
         </div>
       </header>
-      <div className="hidden border-b border-[#F8BBD0]/40 bg-white px-4 py-2.5 md:block">
+      <div className="hidden border-b border-[#E8C4CE]/40 bg-white px-4 py-2.5 md:block">
         <p className="text-[15px] font-semibold text-[#111827]">{title}</p>
       </div>
       <main className="mx-auto w-full max-w-lg flex-1 px-3 pb-24 pt-3 md:max-w-2xl md:px-4">{children}</main>

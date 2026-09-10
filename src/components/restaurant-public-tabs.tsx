@@ -31,7 +31,7 @@ export function RestaurantPublicTabs({
             type="button"
             onClick={() => setTab(item.id)}
             className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition ${
-              tab === item.id ? "bg-white text-[#E91E63] shadow-sm" : "text-[#64748B]"
+              tab === item.id ? "bg-white text-[#922A49] shadow-sm" : "text-[#64748B]"
             }`}
           >
             {item.label}

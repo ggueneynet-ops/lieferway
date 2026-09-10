@@ -67,7 +67,7 @@ export function RestaurantFulfillment({
 
   if (!pickupAllowed) {
     return (
-      <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#FFF5F8] px-2.5 py-1 text-[11px] font-semibold text-[#C2185B]">
+      <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#FAF3EA] px-2.5 py-1 text-[11px] font-semibold text-[#7A2340]">
         <Bike className="size-3 shrink-0" strokeWidth={2} />
         {t.restaurantDelivers}
       </p>
@@ -79,8 +79,8 @@ export function RestaurantFulfillment({
     <div className="mt-3 space-y-2">
       <FulfillmentToggle pickupAllowed value={mode} onChange={choose} />
       {pickup ? (
-        <div className="rounded-2xl border border-[#E91E63]/20 bg-[#FFF5F8] px-3.5 py-3">
-          <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#C2185B]">
+        <div className="rounded-2xl border border-[#922A49]/20 bg-[#FAF3EA] px-3.5 py-3">
+          <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#7A2340]">
             <ShoppingBag className="size-3.5" strokeWidth={2} />
             {t.pickupAtCounter}
           </p>
@@ -93,7 +93,7 @@ export function RestaurantFulfillment({
           <p className="mt-1 text-[13px] text-[#6B7280]">{t.pickupHint}</p>
         </div>
       ) : (
-        <p className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF5F8] px-2.5 py-1 text-[11px] font-semibold text-[#C2185B]">
+        <p className="inline-flex items-center gap-1.5 rounded-full bg-[#FAF3EA] px-2.5 py-1 text-[11px] font-semibold text-[#7A2340]">
           <Bike className="size-3 shrink-0" strokeWidth={2} />
           {launchWeekFreeDelivery ? `${t.launchWeekBadge} · ${t.badgeFreeDelivery}` : t.restaurantDelivers}
         </p>

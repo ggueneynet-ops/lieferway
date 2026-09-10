@@ -122,20 +122,20 @@ export function DeliveryEtaForm({
           name="pickupAllowed"
           value="1"
           defaultChecked={pickupAllowed}
-          className="mt-1 size-4 accent-[#E91E63]"
+          className="mt-1 size-4 accent-[#922A49]"
         />
         <span>
           <span className="block text-sm font-semibold text-[#111827]">{t.pickupAllowed}</span>
           <span className="mt-0.5 block text-sm text-[#6B7280]">{t.pickupAllowedHint}</span>
         </span>
       </label>
-      <label className="mt-3 flex items-start gap-3 rounded-xl bg-[#FFF5F8]/70 px-3 py-3">
+      <label className="mt-3 flex items-start gap-3 rounded-xl bg-[#FAF3EA]/70 px-3 py-3">
         <input
           type="checkbox"
           name="launchWeekFreeDelivery"
           value="1"
           defaultChecked={launchWeekFreeDelivery}
-          className="mt-1 size-4 accent-[#E91E63]"
+          className="mt-1 size-4 accent-[#922A49]"
         />
         <span>
           <span className="block text-sm font-semibold text-[#111827]">{t.launchWeekToggle}</span>

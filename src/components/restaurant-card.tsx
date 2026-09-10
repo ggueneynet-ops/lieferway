@@ -84,9 +84,9 @@ export function RestaurantCard({
   return (
     <Link
       href={`/${r.slug}`}
-      className="group flex gap-3 rounded-[18px] border border-[#E8E8EC] bg-white p-2.5 shadow-[0_6px_20px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)] sm:block sm:overflow-hidden sm:p-0"
+      className="group block overflow-hidden rounded-[20px] border border-[#E8E2DC] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(15,23,42,0.09)]"
     >
-      <div className="relative h-[4.75rem] w-[4.75rem] shrink-0 overflow-hidden rounded-[14px] bg-[#F7F7F8] sm:aspect-[16/10] sm:h-auto sm:w-auto sm:rounded-none">
+      <div className="relative aspect-[16/10] overflow-hidden bg-[#FAF3EA]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={photo}
@@ -94,13 +94,13 @@ export function RestaurantCard({
           className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.03]"
         />
         {!r.isOpen && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-[11px] font-medium text-white sm:text-sm">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-medium text-white">
             {closedLabel}
           </div>
         )}
-        <div className="absolute left-1.5 top-1.5 hidden max-w-[86%] flex-wrap gap-1 sm:flex">
+        <div className="absolute left-2.5 top-2.5 flex max-w-[88%] flex-wrap gap-1">
           {popular && popularLabel ? (
-            <span className="rounded-full bg-[#E91E63] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-[#922A49] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
               {popularLabel}
             </span>
           ) : null}
@@ -109,48 +109,53 @@ export function RestaurantCard({
               {newLabel}
             </span>
           ) : null}
+          {launchWeek && launchWeekLabel ? (
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#922A49] shadow-sm ring-1 ring-[#E8E2DC]">
+              {launchWeekLabel}
+            </span>
+          ) : null}
           {selfDeliveryLabel ? (
-            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#C2185B] shadow-sm ring-1 ring-[#E8E8EC]">
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#7A2340] shadow-sm ring-1 ring-[#E8E2DC]">
               {selfDeliveryLabel}
             </span>
           ) : null}
         </div>
-        <span className="absolute bottom-1.5 left-1.5 hidden rounded-[11px] bg-white p-[2px] shadow-sm sm:block">
+        <span className="absolute bottom-2.5 left-2.5 rounded-[11px] bg-white p-[2px] shadow-sm">
           <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={34} />
         </span>
       </div>
-      <div className="min-w-0 flex-1 py-0.5 sm:px-3.5 sm:pb-3.5 sm:pt-2.5">
+      <div className="px-3.5 pb-3.5 pt-2.5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 truncate font-display text-[15px] font-semibold leading-snug tracking-tight text-[#0F172A] sm:text-[16px]">
+          <h3 className="min-w-0 truncate font-display text-[16px] font-semibold leading-snug tracking-tight text-[#0F172A]">
             {r.name}
           </h3>
           {hasReviews ? (
             <span className="mt-0.5 inline-flex shrink-0 items-center gap-0.5 text-[13px] font-semibold text-[#0F172A]">
-              <Star className="size-3.5 fill-[#E91E63] text-[#E91E63]" />
+              <Star className="size-3.5 fill-[#922A49] text-[#922A49]" />
               {r.rating.toFixed(1)}
               <span className="font-medium text-[#94A3B8]">({r.reviewCount})</span>
             </span>
           ) : newLabel ? (
-            <span className="mt-0.5 shrink-0 rounded-full bg-[#FFF5F8] px-2 py-0.5 text-[11px] font-semibold text-[#C2185B]">
+            <span className="mt-0.5 shrink-0 rounded-full bg-[#FAF3EA] px-2 py-0.5 text-[11px] font-semibold text-[#7A2340]">
               {newLabel}
             </span>
           ) : null}
         </div>
         <p className="mt-0.5 truncate text-[13px] font-medium text-[#64748B]">{cuisineLabel ?? r.cuisine}</p>
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-[#64748B] sm:mt-2.5 sm:grid sm:grid-cols-3 sm:gap-1 sm:rounded-[12px] sm:bg-[#F7F7F8] sm:px-2 sm:py-1.5 sm:text-center sm:text-[11px] sm:font-medium">
-          <span className="inline-flex items-center gap-1">
-            <Clock className="size-3 text-[#E91E63]" strokeWidth={2} />
+        <div className="mt-2.5 grid grid-cols-3 gap-1 rounded-[12px] bg-[#FAF3EA] px-2 py-1.5 text-center text-[11px] font-medium text-[#64748B]">
+          <span className="inline-flex items-center justify-center gap-1">
+            <Clock className="size-3 text-[#922A49]" strokeWidth={2} />
             {r.etaMin}–{r.etaMax} Min.
           </span>
-          <span className="hidden sm:inline">
+          <span className="tabular-nums">
             {minLabel} {formatEUR(r.minOrderCents)}
           </span>
-          <span className={`tabular-nums ${free || pickup ? "font-semibold text-[#C2185B]" : ""}`}>
+          <span className={`tabular-nums ${free || pickup ? "font-semibold text-[#7A2340]" : ""}`}>
             {feeText}
           </span>
         </div>
         {r.pickupAllowed && pickupLabel ? (
-          <p className="mt-1 hidden text-[11px] font-medium text-[#C2185B] sm:block">{pickupLabel}</p>
+          <p className="mt-1.5 text-[11px] font-medium text-[#7A2340]">{pickupLabel}</p>
         ) : null}
       </div>
     </Link>

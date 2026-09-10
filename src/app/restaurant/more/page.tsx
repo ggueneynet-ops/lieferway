@@ -32,7 +32,7 @@ export default async function RestaurantMorePage() {
         className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-[#E8E8EC] bg-white px-4 py-4 text-[#0F172A] shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
       >
         <span className="flex items-center gap-3">
-          <Wallet className="size-6 text-[#E91E63]" strokeWidth={1.75} />
+          <Wallet className="size-6 text-[#922A49]" strokeWidth={1.75} />
           <span>
             <span className="block text-[15px] font-semibold">{t.rpFinance}</span>
             <span className="block text-[12px] text-[#64748B]">{t.rpFinanceHint}</span>
@@ -44,7 +44,7 @@ export default async function RestaurantMorePage() {
         {links.map((l) => (
           <li key={l.href} className="border-b border-[#F3F4F6] last:border-0">
             <Link href={l.href} className="flex items-center gap-3 px-4 py-4 text-[15px] font-medium text-[#111827]">
-              <l.icon className="size-5 text-[#E91E63]" strokeWidth={1.75} />
+              <l.icon className="size-5 text-[#922A49]" strokeWidth={1.75} />
               {l.label}
             </Link>
           </li>

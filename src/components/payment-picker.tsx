@@ -70,7 +70,7 @@ export function PaymentPicker({
           type="button"
           onClick={() => onMethod("APPLE_PAY")}
           className={`flex h-12 items-center justify-center gap-2 rounded-xl bg-black text-[15px] font-medium text-white ${
-            method === "APPLE_PAY" ? "ring-2 ring-[#E91E63] ring-offset-2" : ""
+            method === "APPLE_PAY" ? "ring-2 ring-[#922A49] ring-offset-2" : ""
           }`}
         >
           <AppleMark />
@@ -80,7 +80,7 @@ export function PaymentPicker({
           type="button"
           onClick={() => onMethod("GOOGLE_PAY")}
           className={`flex h-12 items-center justify-center rounded-xl border border-[#DADCE0] bg-white ${
-            method === "GOOGLE_PAY" ? "ring-2 ring-[#E91E63] ring-offset-2" : ""
+            method === "GOOGLE_PAY" ? "ring-2 ring-[#922A49] ring-offset-2" : ""
           }`}
         >
           <GPayMark />
@@ -89,7 +89,7 @@ export function PaymentPicker({
           type="button"
           onClick={() => onMethod("CARD")}
           className={`flex h-12 items-center justify-between rounded-xl border px-4 text-left text-[15px] font-medium ${
-            method === "CARD" ? "border-[#E91E63] bg-[#FFF5F8]" : "border-[#E5E7EB] bg-white"
+            method === "CARD" ? "border-[#922A49] bg-[#FAF3EA]" : "border-[#E5E7EB] bg-white"
           }`}
         >
           <span>{t.payWithCard}</span>
@@ -99,7 +99,7 @@ export function PaymentPicker({
           type="button"
           onClick={() => onMethod("CASH")}
           className={`flex h-11 items-center justify-between rounded-xl px-4 text-left text-sm ${
-            method === "CASH" ? "bg-[#FFF5F8] font-medium text-[#111827]" : "text-[#6B7280]"
+            method === "CASH" ? "bg-[#FAF3EA] font-medium text-[#111827]" : "text-[#6B7280]"
           }`}
         >
           <span>{t.payCash}</span>
