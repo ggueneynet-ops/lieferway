@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/components/cart-provider";
 import { useI18n } from "@/components/locale-provider";
@@ -11,12 +12,15 @@ export function CartSheet() {
   const { sheetOpen, closeCart } = useCart();
   const { t } = useI18n();
   const path = usePathname();
+  const [mounted, setMounted] = useState(false);
   const hidden =
     isStaffArea(path) ||
     path.startsWith("/login") ||
     path.startsWith("/register") ||
     path.startsWith("/partner") ||
     path.startsWith("/cart");
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (hidden || !sheetOpen) return;
@@ -32,27 +36,31 @@ export function CartSheet() {
     };
   }, [hidden, sheetOpen, closeCart]);
 
-  if (hidden) return null;
+  if (!mounted || hidden) return null;
 
-  return (
-    <div className={sheetOpen ? "pointer-events-auto" : "pointer-events-none"} aria-hidden={!sheetOpen}>
+  return createPortal(
+    <div data-cart-root="" aria-hidden={!sheetOpen}>
       <button
         type="button"
         tabIndex={sheetOpen ? 0 : -1}
         aria-label={t.closeCart}
         onClick={closeCart}
-        className={`fixed inset-0 z-[70] bg-black/40 transition-opacity duration-300 ${
-          sheetOpen ? "opacity-100" : "opacity-0"
-        }`}
+        className="lw-cart-scrim"
+        style={{
+          pointerEvents: sheetOpen ? "auto" : "none",
+          opacity: sheetOpen ? 1 : 0,
+        }}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="lw-cart-title"
         data-cart-sheet="bottom"
-        className={`fixed inset-x-0 bottom-0 z-[80] mx-auto flex max-h-[90vh] w-full max-w-lg flex-col rounded-t-[28px] bg-white shadow-[0_-16px_48px_rgba(17,24,39,0.2)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          sheetOpen ? "translate-y-0" : "translate-y-full"
-        }`}
+        className="lw-cart-drawer"
+        style={{
+          transform: sheetOpen ? "translate3d(0,0,0)" : "translate3d(0,100%,0)",
+          pointerEvents: sheetOpen ? "auto" : "none",
+        }}
       >
         <div className="flex justify-center pt-2.5" aria-hidden>
           <span className="h-1.5 w-11 rounded-full bg-[#D1D5DB]" />
@@ -69,10 +77,11 @@ export function CartSheet() {
             {t.close}
           </button>
         </div>
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2">
           <CartPanel onCheckout={closeCart} compact />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
