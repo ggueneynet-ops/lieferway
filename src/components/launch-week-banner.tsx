@@ -22,7 +22,7 @@ export async function LaunchWeekBanner() {
           </h2>
           <p className="mt-0.5 truncate text-[12px] text-white/85">{t.launchWeekBannerSub}</p>
         </div>
-        <span className="inline-flex h-8 shrink-0 items-center rounded-full bg-[#E91E63] px-3 text-[12px] font-semibold text-white group-hover:bg-[#C2185B]">
+        <span className="inline-flex h-8 shrink-0 items-center rounded-full bg-[#922A49] px-3 text-[12px] font-semibold text-white group-hover:bg-[#7A2340]">
           {t.promoCta}
         </span>
       </div>

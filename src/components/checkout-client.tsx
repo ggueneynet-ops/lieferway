@@ -346,8 +346,8 @@ export function CheckoutClient() {
                   onClick={() => void applyCode(code)}
                   className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                     coupon?.code === code
-                      ? "bg-[#E91E63] text-white"
-                      : "bg-[#FCE4EC] text-[#C2185B]"
+                      ? "bg-[#922A49] text-white"
+                      : "bg-[#FAF3EA] text-[#7A2340]"
                   }`}
                 >
                   {code}

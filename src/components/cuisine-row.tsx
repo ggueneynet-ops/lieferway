@@ -42,7 +42,7 @@ export function CuisineRow({
         >
           <span
             className={`relative flex size-[3.35rem] items-center justify-center overflow-hidden rounded-full ${
-              item.active ? "ring-2 ring-[#E91E63] ring-offset-2" : "ring-1 ring-[#E8E8EC]"
+              item.active ? "ring-2 ring-[#922A49] ring-offset-2" : "ring-1 ring-[#E8E8EC]"
             }`}
           >
             {item.photo ? (
@@ -51,7 +51,7 @@ export function CuisineRow({
             ) : (
               <span
                 className={`flex size-full items-center justify-center ${
-                  item.active ? "bg-[#E91E63] text-white" : "bg-[#F7F7F8] text-[#0F172A]"
+                  item.active ? "bg-[#922A49] text-white" : "bg-[#F7F7F8] text-[#0F172A]"
                 }`}
               >
                 <CategoryIcon name={item.key} className="size-[22px]" />
@@ -60,7 +60,7 @@ export function CuisineRow({
           </span>
           <span
             className={`w-full truncate text-center text-[11px] font-semibold ${
-              item.active ? "text-[#E91E63]" : "text-[#0F172A]"
+              item.active ? "text-[#922A49]" : "text-[#0F172A]"
             }`}
           >
             {item.label}

@@ -26,7 +26,7 @@ export function HomeSearch({
           name="q"
           defaultValue={initialQ}
           placeholder="Restaurant oder Gericht suchen"
-          className="h-11 w-full rounded-full border border-[#E8E8EC] bg-[#F7F7F8] pl-10 pr-4 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#E91E63] focus:bg-white focus:ring-2 focus:ring-[#E91E63]/15"
+          className="h-11 w-full rounded-full border border-[#E8E8EC] bg-[#F7F7F8] pl-10 pr-4 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus:border-[#922A49] focus:bg-white focus:ring-2 focus:ring-[#922A49]/15"
         />
       </div>
     </form>

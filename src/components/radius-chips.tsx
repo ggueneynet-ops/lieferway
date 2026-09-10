@@ -47,7 +47,7 @@ export function RadiusChips({
           aria-checked={opt.active}
           onClick={() => select(opt.value)}
           className={`h-8 rounded-full px-3 text-[13px] font-medium whitespace-nowrap sm:px-4 ${
-            opt.active ? "bg-[#E91E63] text-white shadow-sm" : "text-[#6B7280] hover:text-[#111827]"
+            opt.active ? "bg-[#922A49] text-white shadow-sm" : "text-[#6B7280] hover:text-[#111827]"
           }`}
         >
           {opt.label}

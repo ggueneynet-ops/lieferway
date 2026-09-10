@@ -47,7 +47,7 @@ export default async function PartnerApplyPage({
             {[t.partnerPitchCommission, t.partnerPitchNoContract, t.partnerPitchSelfDelivery].map((pitch) => (
               <p
                 key={pitch}
-                className="inline-flex rounded-full bg-[#FCE4EC] px-3 py-1 text-[12px] font-semibold text-[#C2185B]"
+                className="inline-flex rounded-full bg-[#FAF3EA] px-3 py-1 text-[12px] font-semibold text-[#7A2340]"
               >
                 {pitch}
               </p>

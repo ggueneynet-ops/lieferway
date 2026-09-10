@@ -68,7 +68,7 @@ export default async function OrderDetailPage({
         <div>
           {order.status === "PLACED" || order.status === "PREPARING" ? (
             <div className="mb-8 rounded-[24px] border border-[#E8E8EC] bg-white px-6 py-8 text-center shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
-              <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#E91E63] text-white">
+              <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#922A49] text-white">
                 <Check className="size-8" strokeWidth={2.4} />
               </span>
               <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight text-[#0F172A]">
@@ -76,7 +76,7 @@ export default async function OrderDetailPage({
               </h1>
               <p className="mt-2 text-sm text-[#64748B]">{t.orderConfirmedLead}</p>
               <p className="mt-1 text-[13px] font-medium text-[#0F172A]">{order.shortCode}</p>
-              <Link href="/" className="mt-5 inline-flex text-sm font-semibold text-[#E91E63]">
+              <Link href="/" className="mt-5 inline-flex text-sm font-semibold text-[#922A49]">
                 {t.discoverRestaurants}
               </Link>
             </div>
