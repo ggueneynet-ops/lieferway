@@ -48,7 +48,7 @@ function playKitchenBell() {
   const dur = 1.05;
 
   const master = ctx.createGain();
-  master.gain.value = 0.9;
+  master.gain.value = 1;
   const comp = ctx.createDynamicsCompressor();
   comp.threshold.value = -10;
   comp.knee.value = 6;
@@ -132,6 +132,7 @@ export function RestaurantOrders({
   const seenRef = useRef<Set<string> | null>(null);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
+  const incomingKeyRef = useRef("");
   const { t, locale } = useI18n();
   const baseTitle = `${restaurantName} · ${t.restaurantOrders}`;
 
@@ -171,16 +172,19 @@ export function RestaurantOrders({
     .map((o) => o.id)
     .sort()
     .join(",");
+  incomingKeyRef.current = incomingKey;
 
+  // Repeat a loud gong while any ticket is still PLACED. Stops on Annehmen or Ablehnen
+  // (incomingKey becomes empty). Multiple NEW orders keep the loop going.
   useEffect(() => {
     if (!incomingKey || muted || !soundReady) return;
     playKitchenBell();
     const second = window.setTimeout(() => {
-      if (!mutedRef.current) playKitchenBell();
+      if (!mutedRef.current && incomingKeyRef.current) playKitchenBell();
     }, 1800);
     const id = window.setInterval(() => {
-      if (!mutedRef.current) playKitchenBell();
-    }, 4200);
+      if (!mutedRef.current && incomingKeyRef.current) playKitchenBell();
+    }, 3500);
     return () => {
       window.clearTimeout(second);
       window.clearInterval(id);
@@ -239,6 +243,7 @@ export function RestaurantOrders({
     const unlock = () => {
       unlockKitchenBell();
       setSoundReady(true);
+      if (incomingKeyRef.current && !mutedRef.current) playKitchenBell();
     };
     window.addEventListener("pointerdown", unlock, { once: true });
 
