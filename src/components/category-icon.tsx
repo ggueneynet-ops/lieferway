@@ -28,6 +28,8 @@ export function CategoryIcon({
 }) {
   const slug = categoryIconSlug(name);
   const raw = readFileSync(join(process.cwd(), "public/icons/categories", `${slug}.svg`), "utf8");
-  const svg = raw.replace("<svg ", `<svg class="${className}" `);
+  const svg = raw
+    .replace("<svg ", `<svg class="${className}" `)
+    .replace(/stroke-width="[^"]+"/, 'stroke-width="1.5"');
   return <span className="inline-flex text-inherit" aria-hidden dangerouslySetInnerHTML={{ __html: svg }} />;
 }

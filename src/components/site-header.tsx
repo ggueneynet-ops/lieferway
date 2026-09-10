@@ -31,7 +31,7 @@ export async function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:h-16 sm:gap-4">
+      <div className="lw-wrap flex h-14 items-center gap-2 sm:h-16 sm:gap-4">
         <Logo size="sm" className="shrink-0 sm:hidden" />
         <Logo size="md" className="hidden shrink-0 sm:inline-flex" />
         <PlzForm

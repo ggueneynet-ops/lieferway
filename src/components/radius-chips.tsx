@@ -25,17 +25,21 @@ export function RadiusChips({
   ];
 
   return (
-    <div className="inline-flex rounded-full border border-border bg-white p-0.5">
+    <div
+      role="group"
+      aria-label={t.maxDeliveryRadius}
+      className="inline-flex h-10 max-w-full items-stretch overflow-x-auto rounded-full bg-[#F3F4F6] p-1"
+    >
       {options.map((opt) => (
-        <form key={opt.value} action="/radius" method="post">
+        <form key={opt.value} action="/radius" method="post" className="flex">
           {plz ? <input type="hidden" name="plz" value={plz} /> : null}
           {q ? <input type="hidden" name="q" value={q} /> : null}
           {cuisine ? <input type="hidden" name="cuisine" value={cuisine} /> : null}
           <input type="hidden" name="km" value={opt.value} />
           <button
             type="submit"
-            className={`rounded-full px-3 py-1.5 text-[13px] font-medium sm:px-4 ${
-              opt.active ? "bg-primary text-white" : "text-text-secondary hover:text-ink"
+            className={`h-full min-w-[3.75rem] rounded-full px-3.5 text-[13px] font-medium whitespace-nowrap sm:min-w-[4.5rem] sm:px-5 ${
+              opt.active ? "bg-[#E91E63] text-white" : "bg-transparent text-[#6B7280] hover:text-[#111827]"
             }`}
           >
             {opt.label}

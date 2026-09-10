@@ -71,19 +71,19 @@ export function HeroSearch({
   }
 
   return (
-    <div className="mt-8 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:items-stretch">
+    <div className="mt-10 w-full max-w-2xl rounded-[20px] border border-black/[0.05] bg-white p-2 shadow-[0_12px_40px_rgba(17,24,39,0.07)] sm:flex sm:items-stretch sm:gap-2">
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-border bg-white px-4 text-left text-[15px] text-ink shadow-none"
+        className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-[14px] bg-[#FAFAFA] px-4 text-left text-[15px] text-[#111827] sm:h-16 sm:px-5"
       >
-        <MapPin className="size-5 shrink-0 text-primary" />
-        <span className={`truncate ${initialPlz ? "font-medium" : "text-text-secondary"}`}>{label}</span>
+        <MapPin className="size-5 shrink-0 text-[#E91E63]" strokeWidth={1.75} />
+        <span className={`truncate ${initialPlz ? "font-medium" : "text-[#9CA3AF]"}`}>{label}</span>
       </button>
       <button
         type="button"
         onClick={find}
-        className="h-14 shrink-0 rounded-2xl bg-primary px-6 text-sm font-semibold text-white hover:bg-primary-pressed"
+        className="mt-2 h-14 w-full shrink-0 rounded-[14px] bg-[#E91E63] px-7 text-sm font-semibold text-white hover:bg-[#C2185B] sm:mt-0 sm:h-16 sm:w-auto"
       >
         {t.findRestaurants}
       </button>

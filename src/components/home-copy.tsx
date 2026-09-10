@@ -21,9 +21,11 @@ export function HomeSectionTitle({
       : interpolate(t.resultsSub, { count: n, plz, km: String(km) });
 
   return (
-    <div className="mb-6">
-      <h2 className="font-display text-2xl font-semibold tracking-tight text-ink sm:text-[1.75rem]">{t.nearbyTitle}</h2>
-      <p className="mt-1 text-sm text-text-secondary">{sub}</p>
+    <div>
+      <h2 className="font-display text-[1.65rem] font-semibold tracking-tight text-[#111827] sm:text-3xl">
+        {t.nearbyTitle}
+      </h2>
+      <p className="mt-2 text-sm text-[#6B7280]">{sub}</p>
     </div>
   );
 }
@@ -31,11 +33,24 @@ export function HomeSectionTitle({
 export function TrustStrip() {
   const { t } = useI18n();
   return (
-    <section className="border-y border-border bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-5">
-        <p className="text-[13px] font-semibold tracking-tight text-ink">{t.whyLieferway}</p>
-        <p className="mt-1 text-[13px] leading-relaxed text-text-secondary">{t.trustStrip}</p>
+    <section className="pt-12 pb-2">
+      <div className="lw-wrap">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9CA3AF]">{t.whyLieferway}</p>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#6B7280]">{t.trustStrip}</p>
       </div>
     </section>
+  );
+}
+
+export function DemoModeChip() {
+  const { t } = useI18n();
+  return (
+    <span
+      title={t.demoMarketplaceNotice}
+      className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1 text-[12px] font-medium text-[#6B7280]"
+    >
+      <span className="size-1.5 rounded-full bg-[#E91E63]" aria-hidden />
+      {t.demoMode}
+    </span>
   );
 }

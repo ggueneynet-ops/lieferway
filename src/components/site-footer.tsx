@@ -6,7 +6,7 @@ export async function SiteFooter() {
   const { t } = await getCopy();
   return (
     <footer data-public-footer="legal" className="mt-auto border-t border-border bg-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 sm:flex-row sm:items-start sm:justify-between">
+      <div className="lw-wrap flex flex-col gap-8 py-10 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Logo size="sm" />
           <p className="mt-4 max-w-md text-sm leading-relaxed text-text-secondary">{t.footerLegal}</p>

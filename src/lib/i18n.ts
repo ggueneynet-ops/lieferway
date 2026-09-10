@@ -299,6 +299,7 @@ export const dictionaries = {
     trustStrip: "Lokale Restaurants · Faire Provision · Direkte Lieferung durch das Restaurant.",
     demoBadge: "Demo",
     demoExample: "Beispiel",
+    demoMode: "Demo-Modus",
     demoMarketplaceNotice:
       "Alle Betriebe hier sind Demo-/Beispiel-Restaurants – keine echten Geschäfte, keine echten Bestellungen.",
     restaurantDelivers: "Das Restaurant liefert selbst.",
@@ -617,6 +618,7 @@ export const dictionaries = {
     trustStrip: "Local restaurants · Fair commission · Direct delivery by the restaurant.",
     demoBadge: "Demo",
     demoExample: "Example",
+    demoMode: "Demo mode",
     demoMarketplaceNotice:
       "Every venue here is a demo / example restaurant — not a real business, and orders are not real.",
     restaurantDelivers: "The restaurant delivers itself.",
@@ -935,6 +937,7 @@ export const dictionaries = {
     trustStrip: "Yerel restoranlar · Adil komisyon · Teslimatı restoran kendisi yapar.",
     demoBadge: "Demo",
     demoExample: "Örnek",
+    demoMode: "Demo modu",
     demoMarketplaceNotice:
       "Buradaki tüm işletmeler demo / örnek restoranlardır — gerçek dükkân değil, siparişler gerçek değil.",
     restaurantDelivers: "Teslimatı restoran kendisi yapar.",

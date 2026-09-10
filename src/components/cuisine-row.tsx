@@ -30,35 +30,29 @@ export function CuisineRow({
   ];
 
   return (
-    <div className="no-scrollbar flex gap-4 overflow-x-auto py-1 sm:gap-5">
+    <div className="no-scrollbar flex gap-5 overflow-x-auto py-1" data-category-row="svg">
       {items.map((item) => (
-        <LinkCategory key={item.key} item={item} />
+        <Link
+          key={item.key}
+          href={item.href}
+          className="flex w-[4.5rem] shrink-0 flex-col items-center gap-2.5"
+        >
+          <span
+            className={`flex size-12 items-center justify-center rounded-2xl ${
+              item.active ? "bg-[#FCE4EC] text-[#E91E63]" : "bg-transparent text-[#0F172A]"
+            }`}
+          >
+            <CategoryIcon name={item.key} className="size-6" />
+          </span>
+          <span
+            className={`text-center text-[11px] leading-tight ${
+              item.active ? "font-semibold text-[#E91E63]" : "text-[#0F172A]/70"
+            }`}
+          >
+            {item.label}
+          </span>
+        </Link>
       ))}
     </div>
-  );
-}
-
-function LinkCategory({
-  item,
-}: {
-  item: { key: string; href: string; label: string; active: boolean };
-}) {
-  return (
-    <Link href={item.href} className="flex w-[4.25rem] shrink-0 flex-col items-center gap-2">
-      <span
-        className={`flex size-12 items-center justify-center rounded-2xl ${
-          item.active ? "bg-[#FCE4EC] text-[#E91E63]" : "bg-transparent text-[#0F172A]"
-        }`}
-      >
-        <CategoryIcon name={item.key} className="size-6" />
-      </span>
-      <span
-        className={`text-center text-[11px] leading-tight ${
-          item.active ? "font-semibold text-[#E91E63]" : "text-[#0F172A]/70"
-        }`}
-      >
-        {item.label}
-      </span>
-    </Link>
   );
 }

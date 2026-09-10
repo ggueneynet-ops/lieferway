@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
-import { HomeSectionTitle, TrustStrip } from "@/components/home-copy";
+import { DemoModeChip, HomeSectionTitle, TrustStrip } from "@/components/home-copy";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
@@ -42,10 +42,11 @@ export default async function Home({
       <SplashIntro />
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-[#FAFAFA]">
-        <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-            <p className="text-sm font-medium text-text-secondary">{copy.city}</p>
-            <h1 className="mt-2 max-w-2xl font-display text-[2rem] font-semibold leading-[1.15] tracking-tight text-ink sm:text-5xl">
+        <section className="lw-hero">
+          <div className="lw-hero-wash" aria-hidden />
+          <div className="lw-wrap relative py-14 sm:py-20">
+            <p className="text-sm font-medium text-[#6B7280]">{copy.city}</p>
+            <h1 className="mt-3 max-w-2xl font-display text-[2.15rem] font-semibold leading-[1.12] tracking-tight text-[#111827] sm:text-5xl">
               {copy.heroHeadline}
             </h1>
             <HeroSearch
@@ -57,31 +58,34 @@ export default async function Home({
             />
           </div>
         </section>
+
         <TrustStrip />
 
-        <div className="mx-auto max-w-6xl px-4 py-6">
+        <div className="lw-wrap pt-10 pb-4">
           {plz ? <RadiusChips plz={plz} q={q} cuisine={cuisine} km={km} /> : null}
-          <div className="mt-5">
+          <div className="mt-8">
             <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
           </div>
         </div>
 
-        <section id="restaurants" className="mx-auto max-w-6xl px-4 pb-16">
-          <p className="mb-6 text-[13px] leading-relaxed text-text-secondary">{copy.demoMarketplaceNotice}</p>
-          <HomeSectionTitle count={filtered.length} plz={plz} km={plz ? km : undefined} />
+        <section id="restaurants" className="lw-wrap pt-8 pb-20">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <HomeSectionTitle count={filtered.length} plz={plz} km={plz ? km : undefined} />
+            <DemoModeChip />
+          </div>
           {filtered.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-white px-4 py-12 text-center">
-              <p className="text-text-secondary">
+            <div className="rounded-[20px] border border-[#E5E7EB] bg-white px-4 py-12 text-center">
+              <p className="text-[#6B7280]">
                 {plz && km != null
                   ? interpolate(copy.noDeliveryInRadius, { plz, km: String(km) })
                   : plz
                     ? interpolate(copy.noDeliveryToPlz, { plz })
                     : copy.noResults}
               </p>
-              {plz ? <p className="mt-2 text-sm text-text-secondary">{copy.plzTryExamples}</p> : null}
+              {plz ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((r) => (
                 <RestaurantCard
                   key={r.id}
