@@ -6,14 +6,11 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 ## Logo
 
-**Locked by owner/designer.** Pink scooter + cloche only (`#E91E63`). No L+bag, no orange, no reconstructed wordmark next to the icon.
+**Locked by owner/designer.** Magenta map-pin with a white fork (`#E91E63`). Wordmark: **Liefer** navy + **way** pink. No scooter, no cloche.
 
-- Header / login / footer: **one lockup image** (`public/logo-header.png`, `logo-header-h64/96/128.png`). Icon + italic “Lieferway” are already in the file. Do not add HTML text beside it.
-- Splash / marketing: vertical **master A** (`public/logo-master-a.png`) — scooter above the wordmark, with speed lines. Single image, no extra “Lieferway” label.
-- Dark surfaces: white lockup (`public/logo-header-white.png`).
-- App icon / favicon: white scooter on pink (`public/favicon.svg`, `public/apple-touch-icon.png`).
-
-Canonical copies live in `lieferway/pink/locked/`.
+- Header / login / footer: `public/logo-header.png` (`logo-header-h64/96/128.png`, `Lieferway-header.svg`) — pin + wordmark, **no slogan**. Cache-bust `?v=13`.
+- Splash / marketing: `public/logo-master-a.png` / `Lieferway-lockup.svg` — pin + wordmark + slogan **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.**
+- App icon / favicon: `public/icon-pin-fork.svg`, `favicon-32.png`, `favicon-64.png`, `app-icon-1024.png`.
 
 ## Color tokens
 

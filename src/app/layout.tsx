@@ -36,10 +36,11 @@ export const metadata: Metadata = {
     "Lieferway liefert Speisen in Frankfurt am Main. Fair 5 % Restaurant-Provision. Türkisch, hessisch, Pizza, Sushi.",
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.svg?v=13", type: "image/svg+xml" },
+      { url: "/favicon-32.png?v=13", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-64.png?v=13", sizes: "64x64", type: "image/png" },
     ],
-    apple: "/apple-touch-icon.png",
+    apple: "/apple-touch-icon.png?v=13",
   },
 };
 
