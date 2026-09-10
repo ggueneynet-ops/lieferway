@@ -148,8 +148,8 @@ export function CheckoutClient() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       clear();
-      toast.success(t.orderPlaced);
       router.push(`/orders/${data.order.id}`);
+      toast.success(t.orderPlaced);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t.error);
     } finally {
@@ -158,7 +158,7 @@ export function CheckoutClient() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-10">
+    <main className="lw-flow-enter mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-10">
         <h1 className="font-display text-2xl font-semibold tracking-tight">{t.checkoutTitle}</h1>
         <p className="text-sm text-muted-foreground">{cart.restaurantName}</p>
         {authed === false && (

@@ -47,7 +47,7 @@ export default async function OrderDetailPage({
     <>
       <SiteHeader />
       <OrderPoller id={order.id} />
-      <main className="mx-auto grid w-full max-w-5xl flex-1 gap-8 px-4 py-10 lg:grid-cols-[1fr_320px]">
+      <main className="lw-flow-enter mx-auto grid w-full max-w-5xl flex-1 gap-8 px-4 py-10 lg:grid-cols-[1fr_320px]">
         <div>
           <p className="text-sm text-muted-foreground">{order.shortCode}</p>
           <div className="mt-1 flex flex-wrap items-center gap-3">
@@ -80,9 +80,6 @@ export default async function OrderDetailPage({
           <p>
             {payLabel} · {payStatus}
           </p>
-          {order.stripePaymentIntentId && (
-            <p className="break-all text-xs text-muted-foreground">{order.stripePaymentIntentId}</p>
-          )}
           <p className="flex justify-between">
             <span>{t.subtotal}</span>
             <span>{formatEUR(order.foodSubtotalCents)}</span>

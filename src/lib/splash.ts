@@ -22,8 +22,8 @@ export function notifySplashDone() {
   window.dispatchEvent(new Event(SPLASH_DONE_EVENT));
 }
 
-/** Wait until the homepage splash has faded (or been skipped) so iOS location UI is not on top of it. */
-export function waitForSplashIntro(maxMs = 2200): Promise<void> {
+/** Wait until the homepage splash is gone (or skipped) so iOS location UI is not on top of it. */
+export function waitForSplashIntro(maxMs = 1200): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
   if (splashAlreadyShown()) return Promise.resolve();

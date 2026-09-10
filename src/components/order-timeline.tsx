@@ -39,7 +39,7 @@ export function OrderTimeline({ status, locale = "de" }: { status: string; local
         const complete = delivered || idx > i;
         const isCurrent = !delivered && idx === i;
         return (
-          <li key={step} className="relative flex gap-3 pb-6 last:pb-0">
+          <li key={step} className="relative flex gap-3 pb-5 last:pb-0">
             {i < CUSTOMER_STATUS_FLOW.length - 1 ? (
               <span
                 className={`absolute start-[11px] top-7 h-[calc(100%-8px)] w-0.5 ${
@@ -101,7 +101,7 @@ export function OrderTracker({
     void tick();
     const id = window.setInterval(() => {
       void tick();
-    }, 1500);
+    }, 1200);
     return () => {
       stopped = true;
       window.clearInterval(id);

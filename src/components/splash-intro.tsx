@@ -4,8 +4,8 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/locale-provider";
 import { markSplashShown, notifySplashDone, splashAlreadyShown } from "@/lib/splash";
 
-const HOLD_MS = 1500;
-const FADE_MS = 350;
+/** Auto-hide after 1.1s. Tap/skip removes the overlay on the same frame. */
+const HOLD_MS = 1100;
 
 function prefersReducedMotion() {
   if (typeof window === "undefined") return true;
@@ -14,53 +14,41 @@ function prefersReducedMotion() {
 
 export function SplashIntro() {
   const { t } = useI18n();
-  const [phase, setPhase] = useState<"in" | "out" | "hidden">("in");
+  const [visible, setVisible] = useState(true);
   const holdTimer = useRef<number | null>(null);
-  const fadeTimer = useRef<number | null>(null);
+  const gone = useRef(false);
 
-  const dismiss = useCallback(() => {
+  const dismissNow = useCallback(() => {
+    if (gone.current) return;
+    gone.current = true;
+    if (holdTimer.current) window.clearTimeout(holdTimer.current);
     markSplashShown();
     notifySplashDone();
-    setPhase("out");
+    setVisible(false);
   }, []);
 
   useLayoutEffect(() => {
-    if (prefersReducedMotion()) {
+    if (prefersReducedMotion() || splashAlreadyShown()) {
+      gone.current = true;
       notifySplashDone();
-      setPhase("hidden");
+      setVisible(false);
       return;
     }
-    if (splashAlreadyShown()) {
-      notifySplashDone();
-      setPhase("hidden");
-      return;
-    }
-
-    holdTimer.current = window.setTimeout(dismiss, HOLD_MS);
+    holdTimer.current = window.setTimeout(dismissNow, HOLD_MS);
     return () => {
       if (holdTimer.current) window.clearTimeout(holdTimer.current);
     };
-  }, [dismiss]);
+  }, [dismissNow]);
 
-  useLayoutEffect(() => {
-    if (phase !== "out") return;
-    if (holdTimer.current) window.clearTimeout(holdTimer.current);
-    fadeTimer.current = window.setTimeout(() => setPhase("hidden"), FADE_MS);
-    return () => {
-      if (fadeTimer.current) window.clearTimeout(fadeTimer.current);
-    };
-  }, [phase]);
-
-  if (phase === "hidden") return null;
+  if (!visible) return null;
 
   return (
     <button
       type="button"
       aria-label={t.tapToSkip}
-      onClick={dismiss}
-      className={`lw-splash fixed inset-0 z-[80] flex flex-col items-center justify-center gap-5 px-6 ${
-        phase === "out" ? "lw-splash-out" : ""
-      }`}
+      onPointerDown={dismissNow}
+      onClick={dismissNow}
+      className="lw-splash fixed inset-0 z-[80] flex flex-col items-center justify-center gap-5 px-6"
     >
       <span className="lw-splash-mark">
         <img
@@ -72,9 +60,7 @@ export function SplashIntro() {
           className="mx-auto h-auto w-[min(68vw,260px)]"
         />
       </span>
-      <span className="text-center text-[13px] font-medium text-[#FCE4EC]">
-        {t.tagline}
-      </span>
+      <span className="text-center text-[13px] font-medium text-[#FCE4EC]">{t.tagline}</span>
       <span className="absolute bottom-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] text-[11px] font-medium text-white/70">
         {t.tapToSkip}
       </span>

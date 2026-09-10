@@ -38,7 +38,7 @@ export default async function AccountPage() {
             {t.phoneNumber}: {db.phone || "—"}
           </p>
         )}
-        <div className="mt-10">
+        <div className="mt-10 border-t border-[#E5E7EB] pt-6">
           <LogoutButton label={t.logout} />
         </div>
       </main>
