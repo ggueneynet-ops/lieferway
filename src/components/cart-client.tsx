@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
 import { useCart } from "@/components/cart-provider";
 import { useI18n } from "@/components/locale-provider";
 import { CartPanel } from "@/components/cart-panel";
@@ -24,14 +23,5 @@ export function CartClient() {
         </p>
       ) : null}
     </main>
-  );
-}
-
-export function CartPageShell() {
-  return (
-    <>
-      <SiteHeader />
-      <CartClient />
-    </>
   );
 }
