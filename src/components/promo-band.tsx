@@ -18,7 +18,7 @@ export async function PromoBand() {
         <img
           src="/media/restaurants/green-bowl.jpg"
           alt=""
-          className="absolute inset-y-0 right-0 hidden h-full w-[46%] object-cover opacity-70 sm:block"
+          className="absolute inset-y-0 right-0 h-full w-[38%] object-cover opacity-40 sm:w-[46%] sm:opacity-70"
         />
         <div className="relative max-w-xl px-5 py-7 sm:px-8 sm:py-9">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#FCE4EC]">{t.promoTitle}</p>

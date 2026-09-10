@@ -68,7 +68,7 @@ export default async function Home({
             <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
               <div>
                 <p className="text-sm font-medium text-[#6B7280]">{copy.city}</p>
-                <h1 className="mt-3 max-w-2xl font-display text-[2.15rem] font-semibold leading-[1.12] tracking-tight text-[#111827] sm:text-5xl">
+                <h1 className="mt-3 max-w-2xl text-balance font-display text-[2.15rem] font-semibold leading-[1.12] tracking-tight text-[#111827] sm:text-5xl">
                   {copy.heroHeadline}
                 </h1>
                 <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#6B7280] sm:text-base">
