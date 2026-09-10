@@ -16,7 +16,7 @@ export function QtyStepper({
   label: string;
 }) {
   return (
-    <div className="inline-flex h-9 items-center rounded-full border border-[#E5E7EB] bg-white">
+    <div className="inline-flex h-9 shrink-0 items-center rounded-full border border-[#E5E7EB] bg-white">
       <button
         type="button"
         aria-label="−"
