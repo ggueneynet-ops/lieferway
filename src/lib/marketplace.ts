@@ -30,6 +30,7 @@ export type MarketplaceRestaurant = {
   cuisine: string;
   description: string;
   imageUrl: string;
+  logoUrl: string | null;
   rating: number;
   reviewCount: number;
   deliveryFeeCents: number;
@@ -80,6 +81,7 @@ export async function listMarketplaceRestaurants(opts: {
       cuisine: r.cuisine,
       description: r.description,
       imageUrl: r.imageUrl,
+      logoUrl: r.logoUrl,
       rating: r.rating,
       reviewCount: r.reviewCount,
       deliveryFeeCents: r.deliveryFeeCents,

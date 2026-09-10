@@ -51,6 +51,7 @@ model Restaurant {
   lat               Float?
   lng               Float?
   imageUrl          String
+  logoUrl           String?
   rating            Float    @default(4.5)
   reviewCount       Int      @default(120)
   deliveryFeeCents  Int      @default(249)

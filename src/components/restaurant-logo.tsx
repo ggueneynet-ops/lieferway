@@ -1,15 +1,35 @@
-import { restaurantInitials } from "@/lib/media";
+import { restaurantInitials, restaurantLogo } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 export function RestaurantLogo({
   name,
+  logoUrl,
+  slug,
   size = 40,
   className,
 }: {
   name: string;
+  logoUrl?: string | null;
+  slug?: string;
   size?: number;
   className?: string;
 }) {
+  const src = restaurantLogo(logoUrl, slug);
+
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt=""
+        width={size}
+        height={size}
+        className={cn("shrink-0 rounded-[10px] bg-white object-cover", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <span
       className={cn(

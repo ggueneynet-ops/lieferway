@@ -46,6 +46,10 @@ prisma/dev.db
 prisma/dev.db-journal
 prisma/*.db
 
+# uploaded logos (seed logos live in /public/media/logos)
+/public/uploads/logos/*
+!/public/uploads/logos/.gitkeep
+
 # expo
 mobile/.expo
 mobile/dist

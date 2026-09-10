@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: {
     serverActions: {
+      bodySizeLimit: "4mb",
       allowedOrigins: [
         "*.trycloudflare.com",
         "*.lhr.life",

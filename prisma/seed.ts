@@ -673,6 +673,7 @@ async function main() {
         lng: geo?.lng,
         maxDeliveryKm: geo?.maxDeliveryKm ?? 8,
         imageUrl: `/media/restaurants/${r.slug}.jpg`,
+        logoUrl: `/media/logos/${r.slug}.png`,
         rating: r.rating,
         reviewCount: r.reviewCount,
         deliveryFeeCents: r.deliveryFeeCents,

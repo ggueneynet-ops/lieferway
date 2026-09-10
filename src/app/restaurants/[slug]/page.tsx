@@ -7,6 +7,7 @@ import { MenuClient } from "@/components/menu-client";
 import { Bike, Clock, MapPin, ShoppingBag, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
+import { RestaurantLogo } from "@/components/restaurant-logo";
 import { getCopy } from "@/lib/get-locale";
 import { cuisineName } from "@/lib/i18n";
 import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE } from "@/lib/constants";
@@ -78,7 +79,15 @@ export default async function RestaurantPage({
           <p className="text-[13px] text-[#6B7280]">
             {cuisineName(locale, restaurant.cuisine)} · {restaurant.postalCode} {restaurant.city}
           </p>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <span className="rounded-[14px] bg-white p-[3px] shadow-[0_2px_8px_rgba(17,24,39,0.08)] ring-1 ring-[#E5E7EB]">
+              <RestaurantLogo
+                name={restaurant.name}
+                logoUrl={restaurant.logoUrl}
+                slug={restaurant.slug}
+                size={56}
+              />
+            </span>
             <h1 className="font-display text-2xl font-semibold tracking-tight text-[#111827] sm:text-3xl">
               {restaurant.name}
             </h1>

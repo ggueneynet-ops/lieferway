@@ -28,6 +28,7 @@ export async function createRestaurantAction(formData: FormData) {
     ownerName: String(formData.get("ownerName") ?? ""),
     ownerEmail: String(formData.get("ownerEmail") ?? ""),
     commissionPercent: Number(formData.get("commissionPercent") ?? DEFAULT_COMMISSION_PERCENT),
+    logoUrl: String(formData.get("logoUrl") ?? ""),
   });
 
   if ("error" in result) {

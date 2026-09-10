@@ -112,7 +112,7 @@ export default async function AdminRestaurantReportPage({
           />
           <div>
             <p className="flex items-center gap-2 text-lg font-semibold text-ink">
-              <RestaurantLogo name={restaurant.name} size={28} />
+              <RestaurantLogo name={restaurant.name} logoUrl={restaurant.logoUrl} slug={restaurant.slug} size={28} />
               {restaurant.name}
             </p>
             <p className="text-sm text-text-secondary">

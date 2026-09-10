@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { DEFAULT_COMMISSION_PERCENT, DEFAULT_RESTAURANT_RADIUS_KM } from "@/lib/constants";
 import { CUISINE_RESTAURANT_PHOTO, DEFAULT_RESTAURANT_PHOTO } from "@/lib/media";
+import { parseLogoUrl } from "@/lib/logo-upload";
 import { DEFAULT_NEW_RESTAURANT_PLZS, lookupPlz } from "@/lib/plz";
 
 export function slugifyName(name: string) {
@@ -27,6 +28,7 @@ export type CreateRestaurantInput = {
   address?: string;
   postalCode?: string;
   city?: string;
+  logoUrl?: string;
 };
 
 export type CreateRestaurantResult =
@@ -95,6 +97,9 @@ export async function createRestaurantRecord(
       const city = (input.city ?? "").trim() || "Frankfurt am Main";
       const servicePlzs = Array.from(new Set([postalCode, ...DEFAULT_NEW_RESTAURANT_PLZS]));
 
+      const logoParsed = parseLogoUrl(input.logoUrl ?? "");
+      const logoUrl = logoParsed === "invalid" ? null : logoParsed;
+
       const restaurant = await tx.restaurant.create({
         data: {
           ownerId,
@@ -110,6 +115,7 @@ export async function createRestaurantRecord(
           lng: place?.lng ?? 8.6821,
           maxDeliveryKm: DEFAULT_RESTAURANT_RADIUS_KM,
           imageUrl: CUISINE_RESTAURANT_PHOTO[cuisine] ?? DEFAULT_RESTAURANT_PHOTO,
+          logoUrl,
           commissionPercent,
           isActive: true,
           isOpen: true,

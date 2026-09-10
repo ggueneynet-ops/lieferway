@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { RestaurantOrders } from "@/components/restaurant-orders";
+import { RestaurantLogoForm } from "@/components/restaurant-logo-form";
 import { getCopy } from "@/lib/get-locale";
 import { interpolate } from "@/lib/i18n";
 import { serializeKitchenOrder } from "@/lib/restaurant-live";
@@ -55,6 +56,12 @@ export default async function RestaurantHome({
       {q.ok === "radius" ? (
         <p className="mb-4 rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.radiusSaved}</p>
       ) : null}
+      {q.ok === "logo" ? (
+        <p className="mb-4 rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.logoSaved}</p>
+      ) : null}
+      {q.error ? (
+        <p className="mb-4 rounded-xl bg-danger/10 px-4 py-3 text-base text-danger">{q.error}</p>
+      ) : null}
       <details className="mb-4 rounded-xl border border-border bg-surface px-4 py-3">
         <summary className="cursor-pointer text-sm font-semibold text-ink">{t.deliverySettings}</summary>
         <p className="mt-1 text-sm text-text-secondary">{t.maxDeliveryRadiusHint}</p>
@@ -87,6 +94,22 @@ export default async function RestaurantHome({
         ) : (
           <p className="mt-2 text-xs text-muted-foreground">{t.unlimitedRadius}</p>
         )}
+      </details>
+      <details className="mb-4 rounded-xl border border-border bg-surface px-4 py-3">
+        <summary className="cursor-pointer text-sm font-semibold text-ink">{t.shopLogo}</summary>
+        <RestaurantLogoForm
+          restaurantId={r.id}
+          name={r.name}
+          slug={r.slug}
+          logoUrl={r.logoUrl}
+          action="/restaurant/logo"
+          labels={{
+            shopLogo: t.shopLogo,
+            shopLogoHint: t.shopLogoHint,
+            save: t.save,
+            photoOptional: t.logoUrlPlaceholder,
+          }}
+        />
       </details>
       <RestaurantOrders
         initial={orders.map(serializeKitchenOrder)}

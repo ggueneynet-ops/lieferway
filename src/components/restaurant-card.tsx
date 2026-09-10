@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Clock, Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
+import { RestaurantLogo } from "@/components/restaurant-logo";
 
 export type RestaurantCardData = {
   slug: string;
   name: string;
   cuisine: string;
   imageUrl: string;
+  logoUrl?: string | null;
   rating: number;
   reviewCount: number;
   deliveryFeeCents: number;
@@ -56,6 +58,9 @@ export function RestaurantCard({
             {demoLabel}
           </span>
         ) : null}
+        <span className="absolute bottom-3 left-3 rounded-[12px] bg-white p-[3px] shadow-[0_2px_8px_rgba(17,24,39,0.12)]">
+          <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={40} />
+        </span>
       </div>
       <div className="px-5 pb-5 pt-4">
         <div className="flex items-start justify-between gap-4">

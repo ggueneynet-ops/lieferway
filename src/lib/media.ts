@@ -107,6 +107,25 @@ function genericCuisineDish(url: string) {
   return Object.values(CUISINE_DISH_PHOTO).includes(url) || url === DEFAULT_DISH_PHOTO;
 }
 
+export const SEED_LOGOS: Record<string, string> = {
+  "anadolu-grill": "/media/logos/anadolu-grill.png",
+  "pasta-e-basta": "/media/logos/pasta-e-basta.png",
+  "mainhattan-burger": "/media/logos/mainhattan-burger.png",
+  "sakura-sushi": "/media/logos/sakura-sushi.png",
+  "apfelwein-stubb": "/media/logos/apfelwein-stubb.png",
+  "pho-saigon": "/media/logos/pho-saigon.png",
+  "green-bowl": "/media/logos/green-bowl.png",
+  "pizza-vesuvio": "/media/logos/pizza-vesuvio.png",
+};
+
+export function restaurantLogo(logoUrl?: string | null, slug?: string) {
+  if (logoUrl && (logoUrl.startsWith("/") || logoUrl.startsWith("https://") || logoUrl.startsWith("http://"))) {
+    return logoUrl;
+  }
+  if (slug && SEED_LOGOS[slug]) return SEED_LOGOS[slug];
+  return null;
+}
+
 export function restaurantInitials(name: string) {
   const parts = name
     .split(/\s+/)

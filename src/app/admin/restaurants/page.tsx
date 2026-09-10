@@ -8,6 +8,7 @@ import { getCopy } from "@/lib/get-locale";
 import { cuisineName, interpolate } from "@/lib/i18n";
 import { formatEUR } from "@/lib/money";
 import { restaurantSnapshotMap } from "@/lib/restaurant-reports";
+import { RestaurantLogoForm } from "@/components/restaurant-logo-form";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,9 @@ export default async function AdminRestaurantsPage({
         ) : null}
         {q.ok === "provision" ? (
           <p className="rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.provisionSaved}</p>
+        ) : null}
+        {q.ok === "logo" ? (
+          <p className="rounded-xl bg-success/10 px-4 py-3 text-base text-success">{t.logoSaved}</p>
         ) : null}
 
         <section className="rounded-2xl border border-border bg-surface p-5">
@@ -111,6 +115,18 @@ export default async function AdminRestaurantsPage({
                 {interpolate(t.commissionDefault, { percent: String(DEFAULT_COMMISSION_PERCENT) })}
               </p>
             </div>
+            <div>
+              <label htmlFor="logoUrl" className="text-base font-medium">
+                {t.shopLogo}
+              </label>
+              <input
+                id="logoUrl"
+                name="logoUrl"
+                className="mt-1 h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+                placeholder={t.logoUrlPlaceholder}
+              />
+              <p className="mt-1 text-sm text-text-secondary">{t.shopLogoHint}</p>
+            </div>
             <button type="submit" className="h-14 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed">
               {t.createRestaurant}
             </button>
@@ -134,7 +150,7 @@ export default async function AdminRestaurantsPage({
                 />
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-2 text-base font-medium text-ink">
-                    <RestaurantLogo name={r.name} size={28} />
+                    <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={28} />
                     {r.name}
                   </p>
                   <p className="text-sm text-text-secondary">
@@ -167,6 +183,19 @@ export default async function AdminRestaurantsPage({
                 </div>
               </dl>
               <p className="mt-1 text-center text-[11px] text-text-secondary">{t.snapshotHint}</p>
+              <RestaurantLogoForm
+                restaurantId={r.id}
+                name={r.name}
+                slug={r.slug}
+                logoUrl={r.logoUrl}
+                action="/admin/restaurants/logo"
+                labels={{
+                  shopLogo: t.shopLogo,
+                  shopLogoHint: t.shopLogoHint,
+                  save: t.save,
+                  photoOptional: t.logoUrlPlaceholder,
+                }}
+              />
               <form action="/admin/restaurants/commission" method="post" className="mt-3 space-y-2">
                 <input type="hidden" name="id" value={r.id} />
                 <div className="flex items-center gap-3">
