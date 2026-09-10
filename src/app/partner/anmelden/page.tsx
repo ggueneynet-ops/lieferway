@@ -131,6 +131,22 @@ export default async function PartnerApplyPage({
                   />
                 </div>
                 <div>
+                  <label htmlFor="desiredSlug" className="text-sm font-medium">
+                    {t.partnerDesiredSlug}
+                  </label>
+                  <div className="mt-1 flex items-center gap-0 overflow-hidden rounded-xl border border-border bg-background">
+                    <span className="shrink-0 border-r border-border px-3 text-sm text-muted-foreground">lieferway.de/</span>
+                    <input
+                      id="desiredSlug"
+                      name="desiredSlug"
+                      minLength={2}
+                      className="h-12 min-w-0 flex-1 bg-transparent px-3 text-base"
+                      placeholder="cafe-main"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{t.partnerDesiredSlugHint}</p>
+                </div>
+                <div>
                   <label htmlFor="cuisine" className="text-sm font-medium">
                     {t.cuisine}
                   </label>

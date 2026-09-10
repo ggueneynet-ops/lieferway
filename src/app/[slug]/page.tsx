@@ -1,8 +1,23 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { RestaurantPublicMenu } from "@/components/restaurant-public-menu";
-import { RESERVED_SLUGS } from "@/lib/slug";
+import { loadPublicRestaurant } from "@/lib/public-restaurant";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const restaurant = await loadPublicRestaurant(slug);
+  if (!restaurant) return { title: "Restaurant" };
+  return {
+    title: restaurant.name,
+    description: restaurant.description,
+  };
+}
 
 export default async function ShortRestaurantPage({
   params,
@@ -10,6 +25,7 @@ export default async function ShortRestaurantPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (RESERVED_SLUGS.has(slug)) notFound();
-  return <RestaurantPublicMenu slug={slug} />;
+  const restaurant = await loadPublicRestaurant(slug);
+  if (!restaurant) notFound();
+  return <RestaurantPublicMenu slug={restaurant.slug} />;
 }

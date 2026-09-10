@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     ownerEmail: String(formData.get("ownerEmail") ?? ""),
     commissionPercent: Number(formData.get("commissionPercent") ?? DEFAULT_COMMISSION_PERCENT),
     logoUrl: String(formData.get("logoUrl") ?? ""),
+    slug: String(formData.get("slug") ?? ""),
   });
 
   if ("error" in result) {

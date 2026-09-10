@@ -10,6 +10,8 @@ import { formatEUR } from "@/lib/money";
 import { restaurantSnapshotMap } from "@/lib/restaurant-reports";
 import { RestaurantLogoForm } from "@/components/restaurant-logo-form";
 import { updateSlugAction } from "./actions";
+import { publicOrigin } from "@/lib/public-origin";
+import { restaurantOrderUrl } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,7 @@ export default async function AdminRestaurantsPage({
 }) {
   const q = await searchParams;
   const { t, locale } = await getCopy();
+  const origin = await publicOrigin();
   const [restaurants, snapshots] = await Promise.all([
     prisma.restaurant.findMany({
       include: { owner: { select: { email: true, name: true } } },
@@ -127,6 +130,18 @@ export default async function AdminRestaurantsPage({
                 placeholder={t.logoUrlPlaceholder}
               />
               <p className="mt-1 text-sm text-text-secondary">{t.shopLogoHint}</p>
+            </div>
+            <div>
+              <label htmlFor="slug" className="text-base font-medium">
+                {t.adminSlug}
+              </label>
+              <input
+                id="slug"
+                name="slug"
+                className="mt-1 h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+                placeholder="anadolu-grill"
+              />
+              <p className="mt-1 text-sm text-text-secondary">{t.adminSlugHint}</p>
             </div>
             <button type="submit" className="h-14 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary-pressed">
               {t.createRestaurant}
@@ -251,7 +266,7 @@ export default async function AdminRestaurantsPage({
                   </button>
                 </div>
                 <p className="break-all text-xs text-primary">
-                  /{r.slug}
+                  {restaurantOrderUrl(origin, r.slug)}
                 </p>
               </form>
             </div>

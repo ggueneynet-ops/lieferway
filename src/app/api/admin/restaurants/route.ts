@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       ownerName: String(body?.ownerName ?? ""),
       ownerEmail: String(body?.ownerEmail ?? ""),
       commissionPercent: Number(body?.commissionPercent ?? DEFAULT_COMMISSION_PERCENT),
+      slug: String(body?.slug ?? ""),
     });
     if ("error" in result) return fail(result.error);
     return json({ restaurant: result.restaurant, password: result.password }, 201);

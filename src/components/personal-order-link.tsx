@@ -1,17 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, Download, QrCode } from "lucide-react";
+import { Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 export function PersonalOrderLink({
   slug,
@@ -23,7 +15,6 @@ export function PersonalOrderLink({
   const { t } = useI18n();
   const url = `${origin.replace(/\/$/, "")}/${slug}`;
   const qrSrc = `/api/restaurants/${encodeURIComponent(slug)}/qr`;
-  const [open, setOpen] = useState(false);
 
   async function copy() {
     try {
@@ -41,19 +32,14 @@ export function PersonalOrderLink({
       <p className="mt-3 break-all rounded-xl bg-[#FCE4EC] px-3 py-2.5 text-[13px] font-medium text-[#C2185B]">
         {url}
       </p>
-      <div className="mt-3 grid gap-2">
+      <div className="mt-3 flex justify-center rounded-2xl border border-[#F3F4F6] bg-[#FAFAFA] p-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={qrSrc} alt={t.rpQrAlt} width={200} height={200} className="size-[200px]" />
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
         <Button type="button" className="h-12 w-full text-sm font-semibold" onClick={copy}>
           <Copy className="size-4" strokeWidth={2} />
           {t.rpCopyLink}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className="h-12 w-full border-[#E91E63]/30 text-sm font-semibold text-[#C2185B]"
-          onClick={() => setOpen(true)}
-        >
-          <QrCode className="size-4" strokeWidth={2} />
-          {t.rpShowQr}
         </Button>
         <Button type="button" variant="outline" className="h-12 w-full text-sm font-semibold" asChild>
           <a href={`${qrSrc}?download=1`} download={`lieferway-${slug}.png`}>
@@ -62,24 +48,6 @@ export function PersonalOrderLink({
           </a>
         </Button>
       </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>{t.rpShowQr}</DialogTitle>
-            <DialogDescription>{url}</DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center rounded-2xl bg-white p-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={qrSrc} alt={t.rpQrAlt} width={280} height={280} className="size-[280px]" />
-          </div>
-          <Button type="button" className="h-12 w-full font-semibold" asChild>
-            <a href={`${qrSrc}?download=1`} download={`lieferway-${slug}.png`}>
-              {t.rpDownloadQr}
-            </a>
-          </Button>
-        </DialogContent>
-      </Dialog>
     </section>
   );
 }

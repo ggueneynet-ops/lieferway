@@ -22,6 +22,7 @@ export async function POST(req: Request) {
     phone: String(form.get("phone") ?? ""),
     website: String(form.get("website") ?? ""),
     message: String(form.get("message") ?? ""),
+    desiredSlug: String(form.get("desiredSlug") ?? ""),
   });
 
   if ("error" in result) {

@@ -3,27 +3,39 @@ import { prisma } from "@/lib/prisma";
 
 /** First-path segments that must never become a restaurant slug. */
 export const RESERVED_SLUGS = new Set([
-  "admin",
+  "about",
   "account",
+  "admin",
   "api",
+  "apply",
+  "apple-icon.png",
   "cart",
   "checkout",
   "courier",
   "datenschutz",
+  "favicon.ico",
+  "google",
+  "help",
   "hilfe",
+  "icons",
   "impressum",
   "login",
+  "logout",
   "media",
   "orders",
   "partner",
+  "plz",
+  "privacy",
+  "radius",
   "register",
   "restaurant",
   "restaurants",
   "robots.txt",
+  "sitemap.xml",
   "suchen",
   "ueber",
-  "favicon.ico",
-  "sitemap.xml",
+  "uploads",
+  "warenkorb",
   "_next",
 ]);
 
@@ -57,22 +69,34 @@ async function slugTaken(slug: string, excludeId?: string) {
   return found.id !== excludeId;
 }
 
+export async function assertUsableSlug(raw: string, excludeId?: string) {
+  const slug = parseSlugInput(raw);
+  if (!slug) return { ok: false as const, reason: "invalid" as const };
+  if (await slugTaken(slug, excludeId)) return { ok: false as const, reason: "taken" as const };
+  return { ok: true as const, slug };
+}
+
 /** kebab-case from the name; collisions get `-frankfurt`, then a short suffix. */
 export async function uniqueRestaurantSlug(
   name: string,
-  opts?: { city?: string; excludeId?: string },
+  opts?: { city?: string; excludeId?: string; preferred?: string | null },
 ) {
-  const base = slugifyName(name);
-  if (!(await slugTaken(base, opts?.excludeId))) return base;
+  const fromName = slugifyName(name);
+  const preferred = opts?.preferred ? parseSlugInput(opts.preferred) : null;
+  const bases = [...new Set([preferred, fromName].filter((s): s is string => Boolean(s)))];
 
-  const withCity = `${base}-frankfurt`.slice(0, 60);
-  if (!(await slugTaken(withCity, opts?.excludeId))) return withCity;
+  for (const base of bases) {
+    if (!(await slugTaken(base, opts?.excludeId))) return base;
+    const withCity = `${base}-frankfurt`.slice(0, 60);
+    if (!(await slugTaken(withCity, opts?.excludeId))) return withCity;
+  }
 
+  const fallback = bases[0] ?? "restaurant";
   for (let i = 0; i < 24; i++) {
-    const candidate = `${base}-${randomBytes(2).toString("hex")}`;
+    const candidate = `${fallback}-${randomBytes(2).toString("hex")}`;
     if (!(await slugTaken(candidate, opts?.excludeId))) return candidate;
   }
-  return `${base}-${Date.now().toString(36)}`;
+  return `${fallback}-${Date.now().toString(36)}`;
 }
 
 export function restaurantOrderPath(slug: string) {

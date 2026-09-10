@@ -6,7 +6,7 @@ import { requireSession } from "@/lib/auth";
 import { createRestaurantRecord } from "@/lib/create-restaurant";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_COMMISSION_PERCENT } from "@/lib/constants";
-import { parseSlugInput } from "@/lib/slug";
+import { assertUsableSlug } from "@/lib/slug";
 
 function finish(path: string): never {
   revalidatePath("/");
@@ -30,6 +30,7 @@ export async function createRestaurantAction(formData: FormData) {
     ownerEmail: String(formData.get("ownerEmail") ?? ""),
     commissionPercent: Number(formData.get("commissionPercent") ?? DEFAULT_COMMISSION_PERCENT),
     logoUrl: String(formData.get("logoUrl") ?? ""),
+    slug: String(formData.get("slug") ?? ""),
   });
 
   if ("error" in result) {
@@ -69,12 +70,8 @@ export async function updateSlugAction(formData: FormData) {
   }
 
   const id = String(formData.get("id") ?? "");
-  const parsed = parseSlugInput(String(formData.get("slug") ?? ""));
   if (!id) {
     finish("/admin/restaurants?error=" + encodeURIComponent("Restaurant fehlt."));
-  }
-  if (!parsed) {
-    finish("/admin/restaurants?error=" + encodeURIComponent("Bitte einen gültigen Slug (klein, Bindestriche)."));
   }
 
   const current = await prisma.restaurant.findUnique({ where: { id }, select: { id: true, slug: true } });
@@ -82,18 +79,23 @@ export async function updateSlugAction(formData: FormData) {
     finish("/admin/restaurants?error=" + encodeURIComponent("Restaurant nicht gefunden."));
   }
 
-  const clash = await prisma.restaurant.findUnique({ where: { slug: parsed }, select: { id: true } });
-  if (clash && clash.id !== id) {
-    finish("/admin/restaurants?error=" + encodeURIComponent("Dieser Slug ist schon vergeben."));
+  const check = await assertUsableSlug(String(formData.get("slug") ?? ""), id);
+  if (!check.ok) {
+    finish(
+      "/admin/restaurants?error=" +
+        encodeURIComponent(
+          check.reason === "taken" ? "Dieser Slug ist schon vergeben." : "Bitte einen gültigen Slug (klein, Bindestriche).",
+        ),
+    );
   }
 
   await prisma.restaurant.update({
     where: { id },
-    data: { slug: parsed },
+    data: { slug: check.slug },
   });
   revalidatePath(`/${current.slug}`);
   revalidatePath(`/restaurants/${current.slug}`);
-  revalidatePath(`/${parsed}`);
-  revalidatePath(`/restaurants/${parsed}`);
+  revalidatePath(`/${check.slug}`);
+  revalidatePath(`/restaurants/${check.slug}`);
   finish("/admin/restaurants?ok=slug");
 }

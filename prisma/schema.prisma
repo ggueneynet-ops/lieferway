@@ -262,6 +262,7 @@ model PartnerApplication {
   phone        String
   website      String?
   message      String?
+  desiredSlug  String?
   status       String    @default("PENDING")
   adminNote    String?
   restaurantId String?

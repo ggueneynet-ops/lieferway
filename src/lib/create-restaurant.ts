@@ -4,9 +4,9 @@ import { DEFAULT_COMMISSION_PERCENT, DEFAULT_RESTAURANT_RADIUS_KM } from "@/lib/
 import { CUISINE_RESTAURANT_PHOTO, DEFAULT_RESTAURANT_PHOTO } from "@/lib/media";
 import { parseLogoUrl } from "@/lib/logo-upload";
 import { DEFAULT_NEW_RESTAURANT_PLZS, lookupPlz } from "@/lib/plz";
-import { uniqueRestaurantSlug, slugifyName } from "@/lib/slug";
+import { uniqueRestaurantSlug, assertUsableSlug } from "@/lib/slug";
 
-export { slugifyName };
+export { slugifyName } from "@/lib/slug";
 
 export type CreateRestaurantInput = {
   name: string;
@@ -20,6 +20,7 @@ export type CreateRestaurantInput = {
   postalCode?: string;
   city?: string;
   logoUrl?: string;
+  slug?: string;
 };
 
 export type CreateRestaurantResult =
@@ -45,6 +46,21 @@ export async function createRestaurantRecord(
 
   if (name.length < 2) {
     return { error: "Bitte den Restaurantnamen ausfüllen." };
+  }
+
+  const requested = (input.slug ?? "").trim();
+  let slug: string | undefined;
+  if (requested) {
+    const check = await assertUsableSlug(requested);
+    if (!check.ok) {
+      return {
+        error:
+          check.reason === "taken"
+            ? "Dieser Slug ist schon vergeben."
+            : "Bitte einen gültigen Slug (klein, Bindestriche).",
+      };
+    }
+    slug = check.slug;
   }
 
   try {
@@ -90,13 +106,13 @@ export async function createRestaurantRecord(
 
       const logoParsed = parseLogoUrl(input.logoUrl ?? "");
       const logoUrl = logoParsed === "invalid" ? null : logoParsed;
-      const slug = await uniqueRestaurantSlug(name, { city });
+      const restaurantSlug = slug ?? (await uniqueRestaurantSlug(name, { city }));
 
       const restaurant = await tx.restaurant.create({
         data: {
           ownerId,
           name,
-          slug,
+          slug: restaurantSlug,
           description: `${name} in ${city}.`,
           cuisine,
           address,

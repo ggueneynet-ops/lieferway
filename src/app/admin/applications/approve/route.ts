@@ -19,7 +19,9 @@ export async function POST(req: Request) {
 
   const form = await req.formData();
   const id = String(form.get("id") ?? "");
-  const result = await approvePartnerApplication(id);
+  const result = await approvePartnerApplication(id, {
+    slug: String(form.get("slug") ?? ""),
+  });
   if ("error" in result) {
     return redirectTo(`/admin/applications?error=${encodeURIComponent(result.error ?? "error")}`);
   }

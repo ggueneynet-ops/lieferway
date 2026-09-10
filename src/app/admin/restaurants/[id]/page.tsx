@@ -16,6 +16,8 @@ import {
   type ReportPreset,
 } from "@/lib/restaurant-reports";
 import { updateSlugAction } from "../actions";
+import { publicOrigin } from "@/lib/public-origin";
+import { restaurantOrderUrl } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +62,7 @@ export default async function AdminRestaurantReportPage({
     include: { owner: { select: { email: true, name: true } } },
   });
   if (!restaurant) notFound();
+  const origin = await publicOrigin();
 
   const [totals, today, week, month, recent, betterRated] = await Promise.all([
     restaurantReportTotals(id, range),
@@ -157,7 +160,7 @@ export default async function AdminRestaurantReportPage({
               {t.save}
             </button>
           </div>
-          <p className="break-all text-sm text-primary">/{restaurant.slug}</p>
+          <p className="break-all text-sm text-primary">{restaurantOrderUrl(origin, restaurant.slug)}</p>
         </form>
 
         <div className="grid gap-3 sm:grid-cols-2">

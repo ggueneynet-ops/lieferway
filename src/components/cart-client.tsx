@@ -21,7 +21,7 @@ export function CartClient() {
         </div>
         {cart ? (
           <p className="mt-3 text-center text-sm text-[#6B7280]">
-            <Link href={`/restaurants/${cart.restaurantSlug}`} className="font-medium text-primary">
+            <Link href={`/${cart.restaurantSlug}`} className="font-medium text-primary">
               {cart.restaurantName}
             </Link>
           </p>

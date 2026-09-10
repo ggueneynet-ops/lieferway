@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCopy } from "@/lib/get-locale";
 import { interpolate } from "@/lib/i18n";
 import { cuisineName } from "@/lib/i18n";
+import { slugifyName } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,9 @@ export default async function AdminApplicationsPage({
                     {app.website ? (
                       <p className="truncate text-sm text-primary">{app.website}</p>
                     ) : null}
+                    {app.desiredSlug ? (
+                      <p className="mt-1 text-sm text-primary">/{app.desiredSlug}</p>
+                    ) : null}
                     {app.message ? <p className="mt-2 text-sm text-muted-foreground">{app.message}</p> : null}
                   </div>
                   <span className="shrink-0 rounded-full bg-bg-muted px-2.5 py-1 text-[11px] font-medium">
@@ -66,14 +70,26 @@ export default async function AdminApplicationsPage({
                 </div>
                 {open ? (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <form action="/admin/applications/approve" method="post">
+                    <form action="/admin/applications/approve" method="post" className="w-full space-y-2">
                       <input type="hidden" name="id" value={app.id} />
-                      <button
-                        type="submit"
-                        className="h-11 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary-pressed"
-                      >
-                        {t.adminApproveAccess}
-                      </button>
+                      <label className="block text-xs font-medium text-text-secondary" htmlFor={`slug-${app.id}`}>
+                        {t.adminSlug}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <span className="shrink-0 text-sm text-text-secondary">/</span>
+                        <input
+                          id={`slug-${app.id}`}
+                          name="slug"
+                          defaultValue={app.desiredSlug || slugifyName(app.businessName)}
+                          className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-sm"
+                        />
+                        <button
+                          type="submit"
+                          className="h-11 shrink-0 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary-pressed"
+                        >
+                          {t.adminApproveAccess}
+                        </button>
+                      </div>
                     </form>
                     {app.status === "PENDING" ? (
                       <form action="/admin/applications/status" method="post">

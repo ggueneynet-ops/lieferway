@@ -74,6 +74,8 @@ Partner onboarding is apply-then-review (not self-serve panel signup):
 3. Admin **Partneranfragen**: Approve (creates restaurant + owner, demo password `lieferway`, banner to pass on), mark contacted, or reject.
 4. Customers still register at `/register`. Admin **Restaurants** can still add a venue directly.
 
+Restaurant vanity URLs: `/{slug}` (also `/restaurants/{slug}`). Example: `/anadolu-grill`. Collision suffix is `-frankfurt`. Partners copy the link and download a QR from **Einstellungen** / **Mehr**. Admin can edit the slug; partner apply can suggest one.
+
 Existing public footer: Restaurant werden · Über Lieferway · Hilfe · Datenschutz · Impressum. Admin is only `/admin` (unlisted). There is no public courier signup.
 
 ## Google sign-in (customers)
