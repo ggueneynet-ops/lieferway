@@ -118,8 +118,6 @@ async function main() {
       postalCode: "60594",
       imageUrl:
         "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&q=80",
-      rating: 4.8,
-      reviewCount: 842,
       deliveryFeeCents: 199,
       minOrderCents: 1200,
       etaMin: 25,
@@ -194,8 +192,6 @@ async function main() {
       postalCode: "60322",
       imageUrl:
         "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=1200&q=80",
-      rating: 4.6,
-      reviewCount: 511,
       deliveryFeeCents: 249,
       minOrderCents: 1500,
       etaMin: 30,
@@ -248,8 +244,6 @@ async function main() {
       postalCode: "60313",
       imageUrl:
         "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80",
-      rating: 4.5,
-      reviewCount: 1204,
       deliveryFeeCents: 299,
       minOrderCents: 1000,
       etaMin: 20,
@@ -307,8 +301,6 @@ async function main() {
       postalCode: "60326",
       imageUrl:
         "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&q=80",
-      rating: 4.7,
-      reviewCount: 633,
       deliveryFeeCents: 349,
       minOrderCents: 1800,
       etaMin: 35,
@@ -361,8 +353,6 @@ async function main() {
       postalCode: "60594",
       imageUrl:
         "https://images.unsplash.com/photo-1432139509613-5c4255815697?w=1200&q=80",
-      rating: 4.4,
-      reviewCount: 390,
       deliveryFeeCents: 249,
       minOrderCents: 1400,
       etaMin: 30,
@@ -415,8 +405,6 @@ async function main() {
       postalCode: "60385",
       imageUrl:
         "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=1200&q=80",
-      rating: 4.7,
-      reviewCount: 721,
       deliveryFeeCents: 199,
       minOrderCents: 1200,
       etaMin: 25,
@@ -474,8 +462,6 @@ async function main() {
       postalCode: "60316",
       imageUrl:
         "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1200&q=80",
-      rating: 4.6,
-      reviewCount: 288,
       deliveryFeeCents: 249,
       minOrderCents: 1000,
       etaMin: 20,
@@ -528,8 +514,6 @@ async function main() {
       postalCode: "60487",
       imageUrl:
         "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&q=80",
-      rating: 4.8,
-      reviewCount: 956,
       deliveryFeeCents: 199,
       minOrderCents: 1100,
       etaMin: 25,
@@ -675,8 +659,7 @@ async function main() {
         maxDeliveryKm: geo?.maxDeliveryKm ?? 8,
         imageUrl: `/media/restaurants/${r.slug}.jpg`,
         logoUrl: `/media/logos/${r.slug}.png`,
-        rating: r.rating,
-        reviewCount: r.reviewCount,
+        rating: 0,
         deliveryFeeCents: r.deliveryFeeCents,
         minOrderCents: r.minOrderCents,
         etaMin: r.etaMin,

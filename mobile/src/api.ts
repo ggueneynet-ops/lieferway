@@ -43,6 +43,7 @@ export type Restaurant = {
   description: string;
   cuisine: string;
   rating: number;
+  reviewCount?: number;
   etaMin: number;
   etaMax: number;
   deliveryFeeCents: number;

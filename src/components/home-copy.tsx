@@ -41,16 +41,3 @@ export function TrustStrip() {
     </section>
   );
 }
-
-export function DemoModeChip() {
-  const { t } = useI18n();
-  return (
-    <span
-      title={t.demoMarketplaceNotice}
-      className="inline-flex items-center gap-2 rounded-full border border-[#F8BBD0] bg-[#FCE4EC]/70 px-3 py-1 text-[12px] font-medium text-[#C2185B]"
-    >
-      <span className="size-1.5 rounded-full bg-[#E91E63]" aria-hidden />
-      {t.demoMode}
-    </span>
-  );
-}

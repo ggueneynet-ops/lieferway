@@ -17,7 +17,6 @@ import { normalizePlz, sanitizeDemoPlz } from "@/lib/plz";
 import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { cuisineName } from "@/lib/i18n";
 import { parseFulfillment } from "@/lib/fulfillment";
-import { DemoModeChip } from "@/components/home-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +48,6 @@ export default async function SearchPage({
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">{t.navSearch}</h1>
-          <DemoModeChip />
         </div>
         <div className="mt-4">
           <HomeSearch initialQ={q ?? ""} plz={plz} km={km} action="/suchen" />

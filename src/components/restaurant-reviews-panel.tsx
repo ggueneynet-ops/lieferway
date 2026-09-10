@@ -66,10 +66,16 @@ export function RestaurantReviewsPanel({
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
-        <p className="text-3xl font-semibold tabular-nums">{rating.toFixed(1)}</p>
-        <p className="mt-1 text-sm text-[#6B7280]">
-          {interpolate(t.reviewCountLabel, { count: String(count) })}
-        </p>
+        {count > 0 ? (
+          <>
+            <p className="text-3xl font-semibold tabular-nums">{rating.toFixed(1)}</p>
+            <p className="mt-1 text-sm text-[#6B7280]">
+              {interpolate(t.reviewCountLabel, { count: String(count) })}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-[#6B7280]">{t.noReviewsYet}</p>
+        )}
       </div>
       {reviews.length === 0 ? (
         <p className="rounded-2xl border border-[#E5E7EB] bg-white p-4 text-sm text-[#6B7280]">{t.noReviewsYet}</p>

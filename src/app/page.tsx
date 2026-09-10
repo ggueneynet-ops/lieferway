@@ -10,7 +10,7 @@ import {
   RADIUS_COOKIE,
   STREET_COOKIE,
 } from "@/lib/constants";
-import { DemoModeChip, HomeSectionTitle } from "@/components/home-copy";
+import { HomeSectionTitle } from "@/components/home-copy";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
@@ -113,7 +113,6 @@ export default async function Home({
         <section id="restaurants" className="lw-wrap pt-6 pb-20">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <HomeSectionTitle count={filtered.length} plz={plz} km={plz ? km : undefined} />
-            <DemoModeChip />
           </div>
           {filtered.length === 0 ? (
             <div className="rounded-[20px] border border-[#E5E7EB] bg-white px-4 py-12 text-center shadow-[0_8px_24px_rgba(17,24,39,0.04)]">

@@ -236,7 +236,8 @@ export default function App() {
             <Pressable key={r.id} style={styles.card} onPress={() => openRestaurant(r.slug)}>
               <Text style={styles.cardTitle}>{r.name}</Text>
               <Text style={styles.muted}>
-                {r.cuisine} · {r.rating.toFixed(1)} · {r.etaMin}–{r.etaMax} Min. · {eur(r.deliveryFeeCents)}
+                {r.cuisine}
+                {r.reviewCount > 0 ? ` · ${r.rating.toFixed(1)} (${r.reviewCount})` : ""} · {r.etaMin}–{r.etaMax} Min. · {eur(r.deliveryFeeCents)}
               </Text>
             </Pressable>
           ))}

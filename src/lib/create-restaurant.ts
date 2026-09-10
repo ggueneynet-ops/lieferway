@@ -124,6 +124,8 @@ export async function createRestaurantRecord(
           maxDeliveryKm: DEFAULT_RESTAURANT_RADIUS_KM,
           imageUrl: CUISINE_RESTAURANT_PHOTO[cuisine] ?? DEFAULT_RESTAURANT_PHOTO,
           logoUrl,
+          rating: 0,
+          reviewCount: 0,
           commissionPercent,
           isActive: true,
           isOpen: true,

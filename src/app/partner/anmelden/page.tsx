@@ -54,6 +54,9 @@ export default async function PartnerApplyPage({
             ))}
           </div>
           <p className="mt-3 text-sm font-semibold text-ink">{t.partnerPitchLine}</p>
+          <p className="mt-4 rounded-2xl border border-[#F8BBD0] bg-[#FCE4EC] px-4 py-3 text-[15px] font-semibold leading-snug text-[#111827]">
+            {t.partnerPrinterBenefit}
+          </p>
           <p className="mt-5 text-sm text-text-secondary">
             {t.partnerStep1} · {t.partnerStep2} · {t.partnerStep3}
           </p>

@@ -68,8 +68,9 @@ export function RestaurantCard({
   fulfillment?: FulfillmentType;
 }) {
   const photo = restaurantPhoto(r.imageUrl, r.cuisine, r.slug);
-  const popular = r.reviewCount >= 700;
-  const isNew = r.reviewCount < 350;
+  const hasReviews = r.reviewCount > 0;
+  const popular = r.reviewCount >= 10;
+  const isNew = !hasReviews;
   const pickup = fulfillment === "PICKUP" && r.pickupAllowed !== false;
   const launchWeek = Boolean(r.launchWeekFreeDelivery);
   const free = !pickup && (r.deliveryFeeCents === 0 || launchWeek);
@@ -122,11 +123,17 @@ export function RestaurantCard({
           <h3 className="min-w-0 truncate font-display text-[16px] font-semibold leading-snug tracking-tight text-[#111827]">
             {r.name}
           </h3>
-          <span className="mt-0.5 inline-flex shrink-0 items-center gap-0.5 text-[13px] font-semibold text-[#111827]">
-            <Star className="size-3.5 fill-[#E91E63] text-[#E91E63]" />
-            {r.rating.toFixed(1)}
-            <span className="font-medium text-[#9CA3AF]">({r.reviewCount})</span>
-          </span>
+          {hasReviews ? (
+            <span className="mt-0.5 inline-flex shrink-0 items-center gap-0.5 text-[13px] font-semibold text-[#111827]">
+              <Star className="size-3.5 fill-[#E91E63] text-[#E91E63]" />
+              {r.rating.toFixed(1)}
+              <span className="font-medium text-[#9CA3AF]">({r.reviewCount})</span>
+            </span>
+          ) : newLabel ? (
+            <span className="mt-0.5 shrink-0 rounded-full bg-[#FCE4EC] px-2 py-0.5 text-[11px] font-semibold text-[#C2185B]">
+              {newLabel}
+            </span>
+          ) : null}
         </div>
         <p className="mt-0.5 truncate text-[13px] font-medium text-[#6B7280]">{cuisineLabel ?? r.cuisine}</p>
         <div className="mt-2.5 grid grid-cols-3 gap-1 rounded-[12px] bg-[#FAFAFA] px-2 py-1.5 text-center text-[11px] font-medium text-[#4B5563]">

@@ -54,8 +54,8 @@ model Restaurant {
   lng               Float?
   imageUrl          String
   logoUrl           String?
-  rating            Float    @default(4.5)
-  reviewCount       Int      @default(120)
+  rating            Float    @default(0)
+  reviewCount       Int      @default(0)
   deliveryFeeCents          Int      @default(249)
   minOrderCents             Int      @default(1000)
   etaMin                    Int      @default(25)
