@@ -137,7 +137,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const { notifyRestaurantOrders } = await import("@/lib/order-events");
     notifyRestaurantOrders(updated.restaurantId);
 
-    return json({ order: updated });
+    return json({
+      order: JSON.parse(
+        JSON.stringify(updated, (_k, v) => (v instanceof Date ? v.toISOString() : v)),
+      ),
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);

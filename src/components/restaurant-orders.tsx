@@ -84,6 +84,7 @@ export function RestaurantOrders({
   const [live, setLive] = useState(false);
   const [pending, setPending] = useState<Set<string>>(new Set());
   const [picking, setPicking] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const seenRef = useRef<Set<string> | null>(null);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
@@ -196,19 +197,36 @@ export function RestaurantOrders({
       out: "OUT_FOR_DELIVERY",
       deliver: "DELIVERED",
     };
+    setActionError(null);
     setPending((cur) => new Set(cur).add(id));
     try {
-      const res = await fetch(`/api/orders/${id}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ action, prepMinutes }),
-      });
-      const data = (await res.json().catch(() => null)) as
-        | { error?: string; message?: string; order?: KitchenOrder }
-        | null;
+      const isAccept = action === "accept" || action === "preparing";
+      const res = isAccept
+        ? await fetch("/api/restaurant/orders/accept", {
+            method: "POST",
+            credentials: "include",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ orderId: id, prepMinutes }),
+          })
+        : await fetch(`/api/orders/${id}`, {
+            method: "PATCH",
+            credentials: "include",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ action, prepMinutes }),
+          });
+      const raw = await res.text();
+      let data: { error?: string; message?: string; order?: KitchenOrder } | null = null;
+      try {
+        data = raw ? (JSON.parse(raw) as { error?: string; message?: string; order?: KitchenOrder }) : null;
+      } catch {
+        data = null;
+      }
       if (!res.ok) {
-        toast.error(apiErrorMessage(res, data, t.error));
+        const msg = apiErrorMessage(res, data, t.acceptFailed);
+        setActionError(msg);
+        toast.error(msg);
         return;
       }
       const status = data?.order?.status ?? nextStatus[action];
@@ -218,6 +236,7 @@ export function RestaurantOrders({
           o.id === id
             ? {
                 ...o,
+                ...(data?.order ?? {}),
                 status,
                 prepMinutes: data?.order?.prepMinutes ?? prepMinutes ?? o.prepMinutes,
               }
@@ -230,7 +249,10 @@ export function RestaurantOrders({
         return n;
       });
     } catch (err) {
-      toast.error(err instanceof Error && err.message ? err.message : t.error);
+      const msg =
+        err instanceof Error && err.message ? `${t.acceptFailed} ${err.message}` : t.acceptFailed;
+      setActionError(msg);
+      toast.error(msg);
     } finally {
       setPending((cur) => {
         const n = new Set(cur);
@@ -337,9 +359,14 @@ export function RestaurantOrders({
               >
                 {picking === o.id ? (
                   <PrepTimePicker
+                    id={`prep-${o.id}`}
                     disabled={pending.has(o.id)}
+                    error={actionError}
                     onPick={(min) => act(o.id, "accept", min)}
-                    onBack={() => setPicking(null)}
+                    onBack={() => {
+                      setPicking(null);
+                      setActionError(null);
+                    }}
                     t={t}
                   />
                 ) : (
@@ -395,7 +422,9 @@ export function RestaurantOrders({
               ) : null}
               {o.status === "ACCEPTED" && (
                 <PrepTimePicker
+                  id={`prep-${o.id}`}
                   disabled={pending.has(o.id)}
+                  error={actionError}
                   onPick={(min) => act(o.id, "preparing", min)}
                   t={t}
                 />
@@ -530,17 +559,21 @@ function apiErrorMessage(
 }
 
 function PrepTimePicker({
+  id,
   disabled,
   onPick,
   onBack,
+  error,
   t,
 }: {
+  id: string;
   disabled: boolean;
   onPick: (mins: number) => void;
   onBack?: () => void;
+  error?: string | null;
   t: {
     rpPrepTime: string;
-    rpCustomMin: string;
+    rpManual: string;
     rpPrepPlaceholder: string;
     accept: string;
     prepMinutesInvalid: string;
@@ -560,28 +593,32 @@ function PrepTimePicker({
   return (
     <div className="w-full space-y-2">
       <p className="text-sm font-medium text-[#111827]">{t.rpPrepTime}</p>
-      <div className="grid grid-cols-5 gap-2">
+      <div className="flex flex-wrap gap-2">
         {PREP_CHIPS.map((min) => (
           <button
             key={min}
             type="button"
             disabled={disabled}
             onClick={() => onPick(min)}
-            className="h-12 touch-manipulation rounded-xl bg-primary text-sm font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
+            className="h-12 min-w-[3.25rem] flex-1 touch-manipulation rounded-xl bg-primary px-2 text-sm font-semibold text-white hover:bg-primary-pressed disabled:opacity-50"
           >
             {min}
           </button>
         ))}
       </div>
+      <label className="block text-sm font-medium text-[#111827]" htmlFor={id}>
+        {t.rpManual}
+      </label>
       <div className="flex gap-2">
         <input
-          type="number"
+          id={id}
+          type="text"
           inputMode="numeric"
-          min={5}
-          max={180}
-          step={1}
+          pattern="[0-9]*"
+          enterKeyHint="done"
+          autoComplete="off"
           value={custom}
-          onChange={(e) => setCustom(e.target.value)}
+          onChange={(e) => setCustom(e.target.value.replace(/[^\d]/g, ""))}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -589,7 +626,7 @@ function PrepTimePicker({
             }
           }}
           placeholder={t.rpPrepPlaceholder}
-          aria-label={t.rpCustomMin}
+          aria-label={t.rpManual}
           className="h-12 min-w-0 flex-1 rounded-xl border border-[#E5E7EB] px-3 text-base tabular-nums"
         />
         <button
@@ -601,6 +638,7 @@ function PrepTimePicker({
           {t.accept}
         </button>
       </div>
+      {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
       {onBack ? (
         <button type="button" className="text-sm text-[#6B7280]" onClick={onBack}>
           ←
