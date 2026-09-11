@@ -18,6 +18,8 @@ const nextConfig: NextConfig = {
         "*.loca.lt",
         "127.0.0.1:43123",
         "localhost:43123",
+        "app.lieferway.de",
+        "*.vercel.app",
       ],
     },
   },

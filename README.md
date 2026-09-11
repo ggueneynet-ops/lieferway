@@ -42,6 +42,27 @@ npx expo start
 On a physical device, use your machine LAN IP instead of `127.0.0.1`.  
 `npx expo start --web` also works for a quick browser check.
 
+## Production (Vercel)
+
+Target origin: **https://app.lieferway.de**. Framework defaults — no `vercel.json`.
+
+**Do not deploy until the database is Postgres.** Local `DATABASE_URL=file:./dev.db` is SQLite on disk. Vercel serverless has no persistent filesystem, so that file is lost (or never shared) across requests. Next.js API routes and Prisma can run on Vercel once `DATABASE_URL` is a hosted Postgres URL (Neon or Vercel Postgres). The Prisma provider switch is not done in this repo yet.
+
+Required env on Vercel:
+
+| Variable | Production value |
+| --- | --- |
+| `DATABASE_URL` | Postgres connection string (not `file:./dev.db`) |
+| `AUTH_SECRET` | long random string (`openssl rand -base64 32`) |
+| `NEXT_PUBLIC_APP_URL` | `https://app.lieferway.de` |
+| `EXPO_PUBLIC_API_URL` | `https://app.lieferway.de` |
+
+Optional: `MAIL_FROM`, `RESEND_API_KEY` / `SMTP_*` / `MAIL_WEBHOOK_URL`, `LIEFERWAY_LEGAL_*`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+
+Owner steps after Vercel Sign Up: Import this Git repo → Framework Preset **Next.js** → paste the env vars → Deploy. Then Project → Settings → Domains → add `app.lieferway.de`. DNS: **CNAME** `app` → `cname.vercel-dns.com`.
+
+Full checklist: [docs/vercel.md](docs/vercel.md).
+
 ## What is in v1
 
 - Customer: browse seeded Frankfurt restaurants, menu, cart, checkout, live status. **In-app toasts** + order page polling when logged in. **Email** on placed / accepted (with prep ETA) / rejected / out for delivery / delivered — Resend, SMTP, or webhook; otherwise a clear demo log. After checkout, a **PDF Rechnung** (Bestellbeleg) is generated, attached to the placed email, and downloadable on the order page. Inbox on **Konto**.
