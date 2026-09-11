@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lieferway
+      POSTGRES_PASSWORD: lieferway
+      POSTGRES_DB: lieferway
+    ports:
+      - "5432:5432"
+    volumes:
+      - lieferway_pg:/var/lib/postgresql/data
+
+volumes:
+  lieferway_pg:

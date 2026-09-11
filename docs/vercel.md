@@ -1,8 +1,29 @@
 # Deploy Lieferway to Vercel (`app.lieferway.de`)
 
-Customer UI, GPS, and PLZ logic stay as on `main` (v33). This file is deploy prep only.
+Customer UI, GPS, and PLZ logic stay as on `main` (v33). Prisma uses **PostgreSQL**.
 
 There is no `vercel.json`. Next.js on Vercel uses framework defaults (`npm run build` → `prisma generate && next build`).
+
+## DATABASE_URL (one line)
+
+```
+postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require
+```
+
+| Source | What to paste |
+| --- | --- |
+| **Neon** | Dashboard → Connection string. Use the **direct** (non-`pooler`) host for `prisma migrate`. Example: `postgresql://USER:PASSWORD@ep-XXXX.REGION.aws.neon.tech/neondb?sslmode=require` |
+| **Vercel Postgres** | Project → Storage → `.env.local` tab → `DATABASE_URL` |
+| **Local** | `docker compose up -d` then `postgresql://lieferway:lieferway@127.0.0.1:5432/lieferway` |
+
+Do not use `file:./dev.db`. After the first Postgres database exists, apply schema + optional demo rows **once**:
+
+```bash
+npx prisma migrate deploy
+npx prisma db seed
+```
+
+(`npm run setup` runs both.) Later deploys only need `migrate deploy` when there are new migration folders. Seed is optional after the first time (it wipes and recreates demo accounts).
 
 ## (a) Readiness checklist
 
@@ -10,44 +31,33 @@ Do this in Vercel after Sign Up (this environment cannot create the project — 
 
 1. Put the app in a Git host Vercel can import (GitHub / GitLab / Bitbucket). Then **Add New → Project → Import**.
 2. Framework Preset: **Next.js**. Root directory: `/`. Build command: leave default (`prisma generate && next build` from `package.json`).
-3. Set **Production** environment variables (see below). Do **not** leave `DATABASE_URL` as `file:./dev.db`.
-4. Deploy. Confirm `https://<project>.vercel.app` loads.
-5. **Settings → Domains** → add `app.lieferway.de`.
-6. At the DNS host for `lieferway.de`, add a **CNAME** for `app` → `cname.vercel-dns.com` (Vercel shows the exact target if it differs).
-7. Google OAuth (if used): add `https://app.lieferway.de/api/auth/google/callback` as an authorized redirect URI.
-8. Point Expo / QR / partner links at `https://app.lieferway.de` via `NEXT_PUBLIC_APP_URL` and `EXPO_PUBLIC_API_URL`.
+3. Create Neon or Vercel Postgres. Set **Production** env vars, including `DATABASE_URL` (format above).
+4. From a machine with that `DATABASE_URL`: `npx prisma migrate deploy` then optionally `npx prisma db seed`.
+5. Deploy. Confirm `https://<project>.vercel.app` loads.
+6. **Settings → Domains** → add `app.lieferway.de`.
+7. At the DNS host for `lieferway.de`, add a **CNAME** for `app` → `cname.vercel-dns.com` (Vercel shows the exact target if it differs).
+8. Google OAuth (if used): add `https://app.lieferway.de/api/auth/google/callback` as an authorized redirect URI.
+9. Point Expo / QR / partner links at `https://app.lieferway.de` via `NEXT_PUBLIC_APP_URL` and `EXPO_PUBLIC_API_URL`.
 
 Local demo stays `npm run dev` on `http://127.0.0.1:43123`. Do not hardcode Cloudflare tunnel URLs in env examples.
 
-## (b) DB / backend blocker
+## Backend on Vercel
 
-**Current database is local SQLite** (`prisma/schema.prisma` `provider = "sqlite"`, `.env.example` `DATABASE_URL="file:./dev.db"`).
-
-| Piece | On Vercel today |
+| Piece | On Vercel |
 | --- | --- |
-| Next.js App Router + API routes | Yes — serverless, as-is |
-| Prisma Client (`postinstall` / `build` generate) | Yes, once `DATABASE_URL` is set at build |
-| SQLite file DB | **No** — ephemeral disk, not shared between lambdas |
-| Invoice PDFs (`data/invoices`) | Ephemeral — PDFs vanish after the instance recycles |
-| Restaurant logo uploads (`public/uploads/logos`) | Same — uploads are not durable |
+| Next.js App Router + API routes | Yes |
+| Prisma Client (`postinstall` / `build` generate) | Yes, with `DATABASE_URL` at runtime |
+| PostgreSQL (Neon / Vercel Postgres) | Yes — required |
+| Invoice PDFs (`data/invoices`) | **Ephemeral disk** — files vanish after the instance recycles. Follow-up: store PDFs in **Vercel Blob** (or S3) and save the URL in `Invoice.pdfPath`. Does not block the Prisma switch. |
+| Restaurant logo uploads (`public/uploads/logos`) | Same ephemeral disk. Follow-up: **Vercel Blob**. Seed logos under `/public/media/logos` are fine (git). |
 | Kitchen SSE (`/api/restaurant/orders/stream`) | Often flaky on serverless; the panel already has a poll fallback |
-
-**Smallest production DB path (not implemented until asked):**
-
-1. Create a Postgres database (Neon or Vercel Postgres).
-2. Change Prisma `datasource.provider` from `"sqlite"` to `"postgresql"`.
-3. Set `DATABASE_URL` (and usually `DIRECT_URL` for migrations) to the pooled/direct URLs.
-4. Run `prisma migrate deploy` (or `db push` once) against that database, then seed if you want demo accounts.
-5. Optionally store invoice PDFs and logos on object storage (Blob / S3) later — not required to boot the app.
-
-Do not ship SQLite to `app.lieferway.de`. A deploy with `file:./dev.db` will look like it builds and then lose orders, sessions, and restaurants between requests.
 
 ## Environment variables
 
 Required:
 
 ```
-DATABASE_URL=           # Postgres in production; file:./dev.db is local only
+DATABASE_URL=           # postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require
 AUTH_SECRET=            # openssl rand -base64 32
 NEXT_PUBLIC_APP_URL=https://app.lieferway.de
 EXPO_PUBLIC_API_URL=https://app.lieferway.de
@@ -81,7 +91,7 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
 
-## (d) DNS
+## DNS
 
 Once the Vercel project exists and `app.lieferway.de` is added as a domain:
 

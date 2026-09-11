@@ -179,7 +179,7 @@ export async function POST(req: Request) {
       },
     });
     await prisma.$executeRawUnsafe(
-      `UPDATE "Order" SET "fulfillmentType" = ?, "deliveryFeeCents" = ?, "totalCents" = ?, "street" = ?, "city" = ?, "postalCode" = ? WHERE "id" = ?`,
+      `UPDATE "Order" SET "fulfillmentType" = $1, "deliveryFeeCents" = $2, "totalCents" = $3, "street" = $4, "city" = $5, "postalCode" = $6 WHERE "id" = $7`,
       fulfillment,
       deliveryFeeCents,
       totals.totalCents,

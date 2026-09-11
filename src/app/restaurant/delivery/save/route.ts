@@ -55,8 +55,8 @@ export async function POST(req: Request) {
           "etaMax" = ${etaMax},
           "minOrderCents" = ${minOrderCents},
           "deliveryFeeCents" = ${deliveryFeeCents},
-          "pickupAllowed" = ${pickupAllowed ? 1 : 0},
-          "launchWeekFreeDelivery" = ${launchWeekFreeDelivery ? 1 : 0}
+          "pickupAllowed" = ${pickupAllowed},
+          "launchWeekFreeDelivery" = ${launchWeekFreeDelivery}
       WHERE "id" = ${id}
     `;
 

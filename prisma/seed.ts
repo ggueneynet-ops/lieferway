@@ -25,6 +25,9 @@ function addDays(d: Date, n: number) {
 }
 
 async function main() {
+  await prisma.invoice.deleteMany();
+  await prisma.customerNotice.deleteMany();
+  await prisma.review.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.payout.deleteMany();

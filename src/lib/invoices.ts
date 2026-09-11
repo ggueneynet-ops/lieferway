@@ -73,7 +73,7 @@ async function insertInvoice(data: StoredInvoice) {
     const msg = e instanceof Error ? e.message : String(e);
     if (msg.includes("UNIQUE") || msg.includes("unique")) throw e;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO "Invoice" ("id","type","status","number","orderId","restaurantId","customerId","periodStart","periodEnd","pdfPath","totalCents","locale","createdAt") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      `INSERT INTO "Invoice" ("id","type","status","number","orderId","restaurantId","customerId","periodStart","periodEnd","pdfPath","totalCents","locale","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
       data.id,
       data.type,
       data.status,
@@ -81,12 +81,12 @@ async function insertInvoice(data: StoredInvoice) {
       data.orderId,
       data.restaurantId,
       data.customerId,
-      data.periodStart ? data.periodStart.toISOString() : null,
-      data.periodEnd ? data.periodEnd.toISOString() : null,
+      data.periodStart,
+      data.periodEnd,
       data.pdfPath,
       data.totalCents,
       data.locale,
-      data.createdAt.toISOString(),
+      data.createdAt,
     );
   }
 }
@@ -97,7 +97,7 @@ async function findCustomerInvoice(orderId: string): Promise<StoredInvoice | nul
     return row ? rowToInvoice(row) : null;
   } catch {
     const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-      `SELECT * FROM "Invoice" WHERE "orderId" = ? AND "type" = ? LIMIT 1`,
+      `SELECT * FROM "Invoice" WHERE "orderId" = $1 AND "type" = $2 LIMIT 1`,
       orderId,
       INVOICE_CUSTOMER,
     );
@@ -111,7 +111,7 @@ async function findInvoiceByNumber(number: string): Promise<StoredInvoice | null
     return row ? rowToInvoice(row) : null;
   } catch {
     const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-      `SELECT * FROM "Invoice" WHERE "number" = ? LIMIT 1`,
+      `SELECT * FROM "Invoice" WHERE "number" = $1 LIMIT 1`,
       number,
     );
     return rows[0] ? rowToInvoice(rows[0]) : null;
@@ -124,7 +124,7 @@ export async function findInvoiceById(id: string): Promise<StoredInvoice | null>
     return row ? rowToInvoice(row) : null;
   } catch {
     const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-      `SELECT * FROM "Invoice" WHERE "id" = ? LIMIT 1`,
+      `SELECT * FROM "Invoice" WHERE "id" = $1 LIMIT 1`,
       id,
     );
     return rows[0] ? rowToInvoice(rows[0]) : null;
@@ -141,8 +141,8 @@ export async function listCommissionInvoices(restaurantId?: string): Promise<Sto
     return rows.map((r) => rowToInvoice(r));
   } catch {
     const sql = restaurantId
-      ? `SELECT * FROM "Invoice" WHERE "type" = ? AND "restaurantId" = ? ORDER BY "periodStart" DESC LIMIT 24`
-      : `SELECT * FROM "Invoice" WHERE "type" = ? ORDER BY "periodStart" DESC LIMIT 24`;
+      ? `SELECT * FROM "Invoice" WHERE "type" = $1 AND "restaurantId" = $2 ORDER BY "periodStart" DESC LIMIT 24`
+      : `SELECT * FROM "Invoice" WHERE "type" = $1 ORDER BY "periodStart" DESC LIMIT 24`;
     const rows = restaurantId
       ? await prisma.$queryRawUnsafe<Record<string, unknown>[]>(sql, INVOICE_COMMISSION, restaurantId)
       : await prisma.$queryRawUnsafe<Record<string, unknown>[]>(sql, INVOICE_COMMISSION);
@@ -173,7 +173,7 @@ async function updateInvoice(id: string, data: { status: string; pdfPath: string
     });
   } catch {
     await prisma.$executeRawUnsafe(
-      `UPDATE "Invoice" SET "status" = ?, "pdfPath" = ?, "totalCents" = ? WHERE "id" = ?`,
+      `UPDATE "Invoice" SET "status" = $1, "pdfPath" = $2, "totalCents" = $3 WHERE "id" = $4`,
       data.status,
       data.pdfPath,
       data.totalCents,

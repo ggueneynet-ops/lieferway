@@ -25,11 +25,11 @@ export async function acceptKitchenOrder(opts: {
   const isAdmin = opts.role === "ADMIN";
   if (!isOwner && !isAdmin) return { error: "Keine Berechtigung.", status: 403 };
 
-  const now = new Date().toISOString();
+  const now = new Date();
   const alreadyInKitchen = order.status === "PREPARING" || order.status === "ACCEPTED";
   if (order.status === "PLACED" || alreadyInKitchen) {
     await prisma.$executeRawUnsafe(
-      `UPDATE "Order" SET "status" = ?, "prepMinutes" = ?, "acceptedAt" = COALESCE("acceptedAt", ?), "updatedAt" = ? WHERE "id" = ?`,
+      `UPDATE "Order" SET "status" = $1, "prepMinutes" = $2, "acceptedAt" = COALESCE("acceptedAt", $3), "updatedAt" = $4 WHERE "id" = $5`,
       "PREPARING",
       mins,
       now,

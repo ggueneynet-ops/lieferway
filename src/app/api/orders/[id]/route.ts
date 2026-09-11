@@ -121,13 +121,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     // Prisma 6's update() validator in the long-lived Next worker rejects scalar
     // FKs and sometimes newer columns (prepMinutes). Write via bound SQL, then read.
     await prisma.$executeRawUnsafe(
-      `UPDATE "Order" SET "status" = ?, "prepMinutes" = ?, "acceptedAt" = ?, "deliveredAt" = ?, "courierId" = ?, "updatedAt" = ? WHERE "id" = ?`,
+      `UPDATE "Order" SET "status" = $1, "prepMinutes" = $2, "acceptedAt" = $3, "deliveredAt" = $4, "courierId" = $5, "updatedAt" = $6 WHERE "id" = $7`,
       status,
       prepMinutes,
-      acceptedAt ? acceptedAt.toISOString() : null,
-      deliveredAt ? deliveredAt.toISOString() : null,
+      acceptedAt,
+      deliveredAt,
       courierId,
-      new Date().toISOString(),
+      new Date(),
       id,
     );
 

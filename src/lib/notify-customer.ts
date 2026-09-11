@@ -108,7 +108,7 @@ export async function notifyCustomerOfOrderStatus(orderId: string, status: strin
     // fields on create() even after db push (same pattern as kitchen accept).
     try {
       await prisma.$executeRawUnsafe(
-        `INSERT INTO "CustomerNotice" ("id","userId","orderId","status","title","body","emailTo","emailSent","emailChannel","createdAt") VALUES (?,?,?,?,?,?,?,?,?,?)`,
+        `INSERT INTO "CustomerNotice" ("id","userId","orderId","status","title","body","emailTo","emailSent","emailChannel","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         noticeId(),
         order.customer.id,
         order.id,
@@ -116,9 +116,9 @@ export async function notifyCustomerOfOrderStatus(orderId: string, status: strin
         copy.title,
         copy.body,
         order.customer.email,
-        mailed.ok ? 1 : 0,
+        mailed.ok,
         mailed.channel,
-        new Date().toISOString(),
+        new Date(),
       );
     } catch (createErr) {
       const msg = createErr instanceof Error ? createErr.message : String(createErr);

@@ -4,7 +4,7 @@ Germany-focused food delivery for Frankfurt am Main. Customers pay the **platfor
 
 Web: Next.js App Router · TypeScript · Tailwind · shadcn/ui  
 Mobile: Expo (React Native) against the same API  
-Data: Prisma + SQLite
+Data: Prisma + PostgreSQL (Neon / Vercel Postgres in production; Docker Postgres locally)
 
 ## Demo logins
 
@@ -22,12 +22,18 @@ Coupons: `START5` (5 € ab 20 € Speisen), `LOCAL5` (5 % auf Speisen), `WILLKO
 
 ## Run locally
 
+Postgres is required (SQLite is gone).
+
 ```bash
+docker compose up -d    # local Postgres on :5432
 cp .env.example .env
+# set DATABASE_URL="postgresql://lieferway:lieferway@127.0.0.1:5432/lieferway"
 npm install
-npm run setup          # prisma generate + db push + seed
+npm run setup          # prisma generate + migrate deploy + seed
 npm run dev            # http://127.0.0.1:43123
 ```
+
+Or point `DATABASE_URL` at a Neon/Vercel Postgres URL instead of Docker. Format: `postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require`.
 
 ### Expo customer app
 
@@ -44,15 +50,28 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 ## Production (Vercel)
 
-Target origin: **https://app.lieferway.de**. Framework defaults — no `vercel.json`.
+Target origin: **https://app.lieferway.de**. Framework defaults — no `vercel.json`. Prisma provider is **postgresql**.
 
-**Do not deploy until the database is Postgres.** Local `DATABASE_URL=file:./dev.db` is SQLite on disk. Vercel serverless has no persistent filesystem, so that file is lost (or never shared) across requests. Next.js API routes and Prisma can run on Vercel once `DATABASE_URL` is a hosted Postgres URL (Neon or Vercel Postgres). The Prisma provider switch is not done in this repo yet.
+Set `DATABASE_URL` to a hosted Postgres URL (Neon or Vercel Postgres):
+
+```
+postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require
+```
+
+After the first database is created, apply migrations and (optionally) demo seed **once**:
+
+```bash
+npx prisma migrate deploy
+npx prisma db seed
+```
+
+Invoice PDFs (`data/invoices`) and restaurant logo uploads (`public/uploads/logos`) still use local disk — they will not persist on Vercel. Follow-up is Vercel Blob; it does not block this Prisma switch.
 
 Required env on Vercel:
 
 | Variable | Production value |
 | --- | --- |
-| `DATABASE_URL` | Postgres connection string (not `file:./dev.db`) |
+| `DATABASE_URL` | `postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require` |
 | `AUTH_SECRET` | long random string (`openssl rand -base64 32`) |
 | `NEXT_PUBLIC_APP_URL` | `https://app.lieferway.de` |
 | `EXPO_PUBLIC_API_URL` | `https://app.lieferway.de` |
