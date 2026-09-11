@@ -38,11 +38,12 @@ export default function PlzForm({
   );
 
   const live = loc.place;
+  const picking = loc.sheetOpen;
   const summary =
-    loc.status === "locating"
-      ? t.geoLocating
-      : loc.status === "need-pick" || !live
-        ? t.chooseLocation
+    picking || loc.status === "need-pick" || !live
+      ? t.chooseLocation
+      : loc.status === "locating"
+        ? t.geoLocating
         : formatLocationChip({
             postalCode: live.postalCode,
             city: live.city,

@@ -1,4 +1,4 @@
-import { haversineKm, isFrankfurtServicePlz, isNearFrankfurt, lookupPlz, nearestPlz, normalizePlz } from "@/lib/plz";
+import { isFrankfurtServicePlz, isNearFrankfurt, lookupPlz, normalizePlz } from "@/lib/plz";
 import { searchLocalStreets, type DeliveryPlace } from "@/lib/place";
 
 const NOMINATIM_REVERSE = "https://nominatim.openstreetmap.org/reverse";
@@ -113,60 +113,85 @@ export async function reverseGeocodePlz(lat: number, lng: number): Promise<Omit<
   };
 }
 
+function searchPlaceKey(p: DeliveryPlace) {
+  return `${p.postalCode}|${p.city.trim().toLowerCase()}|${p.street.trim().toLowerCase()}`;
+}
+
+/** Germany-wide Nominatim search. No Frankfurt viewbox — PLZ/city results need no street. */
+async function nominatimPlaces(query: string): Promise<DeliveryPlace[]> {
+  const url = new URL(NOMINATIM_SEARCH);
+  url.searchParams.set("q", query);
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("countrycodes", "de");
+  url.searchParams.set("limit", "8");
+  url.searchParams.set("accept-language", "de");
+  const res = await fetch(url, {
+    headers: { Accept: "application/json", "User-Agent": UA },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) return [];
+  const rows = (await res.json()) as { lat: string; lon: string; address?: OsmAddress }[];
+  const places: DeliveryPlace[] = [];
+  for (const row of rows) {
+    const lat = Number(row.lat);
+    const lng = Number(row.lon);
+    const place = placeFromOsm(row.address ?? {}, lat, lng);
+    if (!place) continue;
+    places.push(place);
+  }
+  return places;
+}
+
 export async function searchAddresses(q: string): Promise<DeliveryPlace[]> {
   const query = q.trim();
   const local = searchLocalStreets(query);
-  const seen = new Set(local.map((p) => `${p.postalCode}|${p.street.toLowerCase()}`));
+  const seen = new Set(local.map(searchPlaceKey));
   const out: DeliveryPlace[] = [...local];
   const typedPlz = germanPlz(query);
+
   if (typedPlz && isFrankfurtServicePlz(typedPlz)) {
     const known = lookupPlz(typedPlz);
     if (known) {
-      const key = `${known.plz}|`;
+      const demo: DeliveryPlace = {
+        street: "",
+        postalCode: known.plz,
+        city: "Frankfurt am Main",
+        lat: known.lat,
+        lng: known.lng,
+      };
+      const key = searchPlaceKey(demo);
       if (!seen.has(key)) {
         seen.add(key);
-        out.unshift({
-          street: "",
-          postalCode: known.plz,
-          city: "Frankfurt am Main",
-          lat: known.lat,
-          lng: known.lng,
-        });
+        out.unshift(demo);
       }
     }
   }
 
-  if (query.length < 3) return out.slice(0, 8);
+  if (query.length < 3 && !typedPlz) return out.slice(0, 8);
 
   try {
-    const url = new URL(NOMINATIM_SEARCH);
-    url.searchParams.set("q", query);
-    url.searchParams.set("format", "jsonv2");
-    url.searchParams.set("addressdetails", "1");
-    url.searchParams.set("countrycodes", "de");
-    url.searchParams.set("limit", "8");
-    url.searchParams.set("accept-language", "de");
-    url.searchParams.set("viewbox", "8.47,50.22,8.80,50.01");
-    const res = await fetch(url, {
-      headers: { Accept: "application/json", "User-Agent": UA },
-      cache: "no-store",
-      signal: AbortSignal.timeout(6000),
-    });
-    if (res.ok) {
-      const rows = (await res.json()) as { lat: string; lon: string; address?: OsmAddress }[];
-      for (const row of rows) {
-        const lat = Number(row.lat);
-        const lng = Number(row.lon);
-        const place = placeFromOsm(row.address ?? {}, lat, lng);
-        if (!place || !place.street) continue;
-        const key = `${place.postalCode}|${place.street.toLowerCase()}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push(place);
-      }
+    const remote = await nominatimPlaces(typedPlz && query === typedPlz ? typedPlz : query);
+    for (const place of remote) {
+      const key = searchPlaceKey(place);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(place);
     }
   } catch {
-    /* local catalog is enough */
+    /* keep local / demo catalog hits */
+  }
+
+  if (typedPlz) {
+    out.sort((a, b) => {
+      const rank = (p: DeliveryPlace) => {
+        if (p.postalCode === typedPlz && !p.street.trim()) return 0;
+        if (p.postalCode === typedPlz) return 1;
+        return 2;
+      };
+      return rank(a) - rank(b);
+    });
   }
 
   return out.slice(0, 8);

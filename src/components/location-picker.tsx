@@ -47,6 +47,8 @@ export function LocationPicker({
 }) {
   const { t, locale } = useI18n();
   const loc = useLocation();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<DeliveryPlace[]>([]);
@@ -60,23 +62,35 @@ export function LocationPicker({
   const [hereError, setHereError] = useState("");
   const [hereHint, setHereHint] = useState("");
   const gpsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const gpsLock = useRef(false);
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
-    setQ("");
-    setHits([]);
-    setEditingRecent(false);
-    setRecent(loadRecent());
-    setHereError("");
-    setHereHint("");
-    setHere(null);
-    gpsRef.current = null;
+    if (!open) {
+      wasOpen.current = false;
+      document.body.style.overflow = "";
+      return;
+    }
+    const justOpened = !wasOpen.current;
+    wasOpen.current = true;
+    if (justOpened) {
+      setQ("");
+      setHits([]);
+      setEditingRecent(false);
+      setRecent(loadRecent());
+      setHereError("");
+      setHereHint("");
+      setHere(null);
+      setHereBusy(false);
+      gpsLock.current = false;
+      gpsRef.current = null;
+    }
     const tId = window.setTimeout(() => {
       if (variant !== "sheet") inputRef.current?.focus();
     }, 50);
     document.body.style.overflow = "hidden";
 
-    if (variant !== "sheet") {
+    if (justOpened && variant !== "sheet") {
       void (async () => {
         const res = await fetch("/api/addresses");
         if (res.ok) {
@@ -89,15 +103,14 @@ export function LocationPicker({
     }
 
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     }
     window.addEventListener("keydown", onKey);
     return () => {
       window.clearTimeout(tId);
-      document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose, variant]);
+  }, [open, variant]);
 
   useEffect(() => {
     if (!open) return;
@@ -152,16 +165,20 @@ export function LocationPicker({
     return true;
   }
 
-  function onCurrentLocationClick() {
+  function onCurrentLocationClick(e?: { stopPropagation?: () => void; preventDefault?: () => void }) {
+    e?.stopPropagation?.();
+    if (gpsLock.current) return;
+    gpsLock.current = true;
+    // Start GPS in this user-gesture turn (Safari). Do not await first.
+    const resultPromise = requestDeviceCoords({ force: true });
     setHereBusy(true);
     setHereError("");
     setHereHint("");
     setHere(null);
     gpsRef.current = null;
-    const resultPromise = requestDeviceCoords({ force: true });
     void (async () => {
-      const result = await resultPromise;
       try {
+        const result = await resultPromise;
         if (result.ok) {
           await applyCoords(result.lat, result.lng, true);
           return;
@@ -172,6 +189,7 @@ export function LocationPicker({
         setHereError(t.geoFailed);
         loc.rejectGps();
       } finally {
+        gpsLock.current = false;
         setHereBusy(false);
       }
     })();
@@ -214,6 +232,8 @@ export function LocationPicker({
 
   function rowTitle(p: DeliveryPlace) {
     if (p.street.trim()) return p.street;
+    const city = p.city.trim();
+    if (city && p.postalCode) return `${city}, ${p.postalCode}`;
     return (
       formatLocationChip({
         postalCode: p.postalCode,
@@ -226,9 +246,13 @@ export function LocationPicker({
   const gpsButton = (
     <button
       type="button"
+      onPointerDown={(e) => {
+        if (e.button !== 0) return;
+        onCurrentLocationClick(e);
+      }}
       onClick={onCurrentLocationClick}
-      disabled={hereBusy}
-      className="flex w-full items-start gap-3 py-3 text-left disabled:opacity-70"
+      aria-busy={hereBusy}
+      className="relative z-10 flex w-full cursor-pointer items-start gap-3 py-3 text-left touch-manipulation"
     >
       <Navigation className="mt-0.5 size-5 shrink-0 text-ink" />
       <span className="min-w-0 flex-1">
