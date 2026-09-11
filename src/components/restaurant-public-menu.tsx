@@ -106,13 +106,13 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
               </span>
             ) : null}
             {restaurant.reviewCount === 0 ? (
-              <span
-                className={`rounded-full px-2 py-0.5 font-medium text-[#64748B] ring-1 ring-[#EEEFF2] ${
-                  restaurant.launchWeekFreeDelivery ? "text-[9px]" : "text-[10px] font-semibold text-[#0F172A]"
-                }`}
-              >
-                {t.badgeNew}
-              </span>
+              restaurant.launchWeekFreeDelivery ? (
+                <span className="text-[10px] font-medium text-[#94A3B8]">{t.badgeNew}</span>
+              ) : (
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-[#0F172A] ring-1 ring-[#EEEFF2]">
+                  {t.badgeNew}
+                </span>
+              )
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold text-[#111827] ring-1 ring-[#E5E7EB]">
                 <Star className="size-3 fill-[#E91E63] text-[#E91E63]" />

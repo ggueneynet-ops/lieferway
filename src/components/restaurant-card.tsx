@@ -108,13 +108,15 @@ export function RestaurantCard({
             </span>
           ) : null}
           {showNew ? (
-            <span
-              className={`rounded-full bg-white/90 px-1.5 py-[2px] font-medium text-[#64748B] shadow-sm ${
-                launchWeek ? "text-[9px]" : "px-2 py-[3px] text-[10px] font-semibold text-[#0F172A]"
-              }`}
-            >
-              {newLabel}
-            </span>
+            launchWeek ? (
+              <span className="rounded-full bg-black/30 px-1.5 py-px text-[8px] font-medium leading-tight text-white/90">
+                {newLabel}
+              </span>
+            ) : (
+              <span className="rounded-full bg-white/90 px-2 py-[3px] text-[10px] font-semibold text-[#0F172A] shadow-sm">
+                {newLabel}
+              </span>
+            )
           ) : null}
           {popular && popularLabel ? (
             <span className="rounded-full bg-[#E91E63] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">

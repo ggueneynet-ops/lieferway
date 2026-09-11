@@ -18,6 +18,7 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
+  const query = (q ?? "").trim();
   const { locale, t } = await getCopy();
   const jar = await cookies();
   const street = (jar.get(STREET_COOKIE)?.value ?? "").trim();
@@ -29,30 +30,40 @@ export default async function SearchPage({
     lat: street && gps ? gps.lat : null,
     lng: street && gps ? gps.lng : null,
   });
-  const filtered = await listMarketplaceRestaurants({ q, plz, km, origin });
+  const filtered = query ? await listMarketplaceRestaurants({ q: query, plz, km, origin }) : [];
   const cardCopy = restaurantCardCopy(t);
 
   return (
     <>
-      <SiteHeader plz={plz} q={q} km={km} />
+      <SiteHeader plz={plz} q={query} km={km} />
       <main className="lw-wrap flex-1 pb-6 pt-3">
         <h1 className="font-display text-[22px] font-semibold tracking-tight text-[#0F172A]">{t.navSearch}</h1>
         <div className="mt-3">
-          <HomeSearch initialQ={q ?? ""} plz={plz} km={km} action="/suchen" autoFocus />
+          <HomeSearch initialQ={query} plz={plz} km={km} action="/suchen" autoFocus={!query} />
         </div>
-        <p className="mt-5 text-[13px] font-medium text-[#64748B]">
-          {filtered.length} {t.restaurants}
-        </p>
-        <div className="mt-3.5 grid w-full grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((r) => (
-            <RestaurantCard
-              key={r.id}
-              r={r}
-              cuisineLabel={cuisineName(locale, r.cuisine)}
-              {...cardCopy}
-            />
-          ))}
-        </div>
+        {query ? (
+          <>
+            <p className="mt-5 text-[13px] font-medium text-[#64748B]">
+              {filtered.length} {t.restaurants}
+            </p>
+            {filtered.length === 0 ? (
+              <p className="mt-8 text-center text-[15px] text-[#64748B]">{t.noResults}</p>
+            ) : (
+              <div className="mt-3.5 grid w-full grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+                {filtered.map((r) => (
+                  <RestaurantCard
+                    key={r.id}
+                    r={r}
+                    cuisineLabel={cuisineName(locale, r.cuisine)}
+                    {...cardCopy}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="mt-10 text-center text-[15px] leading-snug text-[#64748B]">{t.searchEmptyHint}</p>
+        )}
       </main>
       <SiteFooter compact />
     </>
