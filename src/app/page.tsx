@@ -2,14 +2,7 @@ import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { restaurantCardCopy, RestaurantCard } from "@/components/restaurant-card";
-import {
-  FULFILLMENT_COOKIE,
-  LAT_COOKIE,
-  LNG_COOKIE,
-  PLZ_COOKIE,
-  RADIUS_COOKIE,
-  STREET_COOKIE,
-} from "@/lib/constants";
+import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
@@ -21,9 +14,7 @@ import { HomeSearch } from "@/components/home-search";
 import { AddressFirst } from "@/components/address-first";
 import { LaunchWeekBanner } from "@/components/launch-week-banner";
 import { RadiusFilter } from "@/components/radius-filter";
-import { MarketFulfillmentSwitch } from "@/components/market-fulfillment";
 import { SPLASH_COOKIE } from "@/lib/splash";
-import { parseFulfillment } from "@/lib/fulfillment";
 
 export const dynamic = "force-dynamic";
 
@@ -42,8 +33,6 @@ export default async function Home({
   const plz = hasAddress ? sanitizeDemoPlz(chosenPlz, Boolean(street)) : null;
   const km = resolveUserRadius(kmParam, jar.get(RADIUS_COOKIE)?.value);
   const splashDone = jar.get(SPLASH_COOKIE)?.value === "1";
-  const fulfillment = parseFulfillment(jar.get(FULFILLMENT_COOKIE)?.value);
-  const pickupOnly = fulfillment === "PICKUP";
   const useGps = Boolean(street && gps && chosenPlz === plz);
   const origin = resolveOrigin({
     plz,
@@ -51,7 +40,7 @@ export default async function Home({
     lng: useGps && gps ? gps.lng : null,
   });
   const filtered = hasAddress
-    ? await listMarketplaceRestaurants({ q, cuisine, plz, km, origin, pickupOnly })
+    ? await listMarketplaceRestaurants({ q, cuisine, plz, km, origin })
     : [];
   const cardCopy = restaurantCardCopy(copy);
 
@@ -61,11 +50,8 @@ export default async function Home({
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-[#FFFFFF]">
         <section className="lw-wrap pt-3 pb-2">
-          <MarketFulfillmentSwitch initial={fulfillment} compact />
           {hasAddress ? (
-            <div className="mt-3">
-              <HomeSearch initialQ={q ?? ""} plz={plz} cuisine={cuisine} km={km} />
-            </div>
+            <HomeSearch initialQ={q ?? ""} plz={plz} cuisine={cuisine} km={km} />
           ) : null}
         </section>
 
@@ -102,7 +88,6 @@ export default async function Home({
                       key={r.id}
                       r={r}
                       cuisineLabel={cuisineName(locale, r.cuisine)}
-                      fulfillment={fulfillment}
                       {...cardCopy}
                     />
                   ))}
