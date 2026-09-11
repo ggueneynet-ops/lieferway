@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { requestDeviceCoords } from "@/lib/browser-geo";
+import { requestDeviceCoords, isSafariBrowser, wipeStaleGeoDenial } from "@/lib/browser-geo";
 import {
   CITY_COOKIE,
   GEO_LIVE_COOKIE,
@@ -162,6 +162,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   }, [applyCoords, rejectGps]);
 
   useEffect(() => {
+    wipeStaleGeoDenial();
     const restorable = readRestorablePlace();
     setHydrated(true);
     if (restorable) {
@@ -170,6 +171,12 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     if (!shouldAutoLocate(path)) {
+      setStatus("need-pick");
+      return;
+    }
+    // Safari: a page-load getCurrentPosition often returns code 1 even when
+    // Settings are Allow. Chrome keeps the existing auto-locate path.
+    if (isSafariBrowser()) {
       setStatus("need-pick");
       return;
     }
@@ -189,6 +196,26 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     })();
     // Run once on marketplace mount — not on every client navigation.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    function resetDenialUi() {
+      wipeStaleGeoDenial();
+    }
+    function onPageShow() {
+      resetDenialUi();
+    }
+    function onVisibility() {
+      if (document.visibilityState === "visible") resetDenialUi();
+    }
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", resetDenialUi);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", resetDenialUi);
+    };
   }, []);
 
   const value = useMemo(

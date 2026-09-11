@@ -7,7 +7,7 @@ import { useI18n } from "@/components/locale-provider";
 import { formatDistanceShort, haversineKm, lookupPlz, DEMO_PLZ_CHIPS } from "@/lib/plz";
 import { formatLocationChip, formatPlaceLine, placeKey, type DeliveryPlace } from "@/lib/place";
 import { useLocation } from "@/components/location-provider";
-import { geoErrorMessage, requestDeviceCoords } from "@/lib/browser-geo";
+import { formatGeoPositionError, getCurrentPositionFromTap, wipeStaleGeoDenial } from "@/lib/browser-geo";
 import type { GeoSource } from "@/lib/persist-place";
 
 const RECENT_KEY = "lw_recent_places";
@@ -62,7 +62,7 @@ export function LocationPicker({
   const [hereError, setHereError] = useState("");
   const [hereHint, setHereHint] = useState("");
   const gpsRef = useRef<{ lat: number; lng: number } | null>(null);
-  const gpsLock = useRef(false);
+  const gpsInFlight = useRef(false);
   const wasOpen = useRef(false);
 
   useEffect(() => {
@@ -82,7 +82,6 @@ export function LocationPicker({
       setHereHint("");
       setHere(null);
       setHereBusy(false);
-      gpsLock.current = false;
       gpsRef.current = null;
     }
     const tId = window.setTimeout(() => {
@@ -111,6 +110,33 @@ export function LocationPicker({
       window.removeEventListener("keydown", onKey);
     };
   }, [open, variant]);
+
+  useEffect(() => {
+    function resetSafariGpsUi(kind: "pageshow" | "visibility" | "focus") {
+      wipeStaleGeoDenial();
+      if (gpsInFlight.current) return;
+      if (kind === "focus") return;
+      setHereError("");
+      setHereBusy(false);
+    }
+    function onPageShow() {
+      resetSafariGpsUi("pageshow");
+    }
+    function onVisibility() {
+      if (document.visibilityState === "visible") resetSafariGpsUi("visibility");
+    }
+    function onFocus() {
+      resetSafariGpsUi("focus");
+    }
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -165,12 +191,11 @@ export function LocationPicker({
     return true;
   }
 
-  function onCurrentLocationClick(e?: { stopPropagation?: () => void; preventDefault?: () => void }) {
+  function onCurrentLocationClick(e?: { stopPropagation?: () => void }) {
     e?.stopPropagation?.();
-    if (gpsLock.current) return;
-    gpsLock.current = true;
-    // Start GPS in this user-gesture turn (Safari). Do not await first.
-    const resultPromise = requestDeviceCoords({ force: true });
+    // Direct getCurrentPosition in this tap — never skip because of a prior deny.
+    const resultPromise = getCurrentPositionFromTap();
+    gpsInFlight.current = true;
     setHereBusy(true);
     setHereError("");
     setHereHint("");
@@ -180,16 +205,18 @@ export function LocationPicker({
       try {
         const result = await resultPromise;
         if (result.ok) {
+          wipeStaleGeoDenial();
           await applyCoords(result.lat, result.lng, true);
           return;
         }
-        setHereError(geoErrorMessage(result.error, t));
+        setHereError(formatGeoPositionError(result.code, result.message));
         loc.rejectGps();
-      } catch {
-        setHereError(t.geoFailed);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setHereError(formatGeoPositionError(-1, message || t.geoFailed));
         loc.rejectGps();
       } finally {
-        gpsLock.current = false;
+        gpsInFlight.current = false;
         setHereBusy(false);
       }
     })();
@@ -246,10 +273,6 @@ export function LocationPicker({
   const gpsButton = (
     <button
       type="button"
-      onPointerDown={(e) => {
-        if (e.button !== 0) return;
-        onCurrentLocationClick(e);
-      }}
       onClick={onCurrentLocationClick}
       aria-busy={hereBusy}
       className="relative z-10 flex w-full cursor-pointer items-start gap-3 py-3 text-left touch-manipulation"

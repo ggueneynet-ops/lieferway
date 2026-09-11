@@ -9,7 +9,8 @@ import {
   isActiveDeliveryLocation,
   isTrustedGeoSource,
 } from "@/lib/constants";
-import { GEO_ATTEMPTED_KEY, PLZ_STORAGE_KEY } from "@/lib/geo";
+import { PLZ_STORAGE_KEY } from "@/lib/geo";
+import { wipeStaleGeoDenial } from "@/lib/browser-geo";
 import type { DeliveryPlace } from "@/lib/place";
 
 export type GeoSource = "gps" | "manual";
@@ -32,10 +33,10 @@ function clearCookie(name: string) {
 function wipeLocalLocation() {
   try {
     window.localStorage.removeItem(PLZ_STORAGE_KEY);
-    window.localStorage.removeItem(GEO_ATTEMPTED_KEY);
   } catch {
     /* ignore */
   }
+  wipeStaleGeoDenial();
 }
 
 /** Writes GPS/manual place over any leftover Frankfurt cookies + `lw_plz` localStorage. */
@@ -53,10 +54,10 @@ export function persistDeliveryPlace(place: DeliveryPlace | null, source: GeoSou
   }
   try {
     window.localStorage.setItem(PLZ_STORAGE_KEY, place.postalCode);
-    window.localStorage.removeItem(GEO_ATTEMPTED_KEY);
   } catch {
     /* private mode */
   }
+  wipeStaleGeoDenial();
   setCookie(PLZ_COOKIE, place.postalCode);
   setCookie(LAT_COOKIE, String(place.lat));
   setCookie(LNG_COOKIE, String(place.lng));
