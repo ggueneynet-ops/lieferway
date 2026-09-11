@@ -121,6 +121,23 @@ export async function searchAddresses(q: string): Promise<DeliveryPlace[]> {
   const local = searchLocalStreets(query);
   const seen = new Set(local.map((p) => `${p.postalCode}|${p.street.toLowerCase()}`));
   const out: DeliveryPlace[] = [...local];
+  const typedPlz = germanPlz(query);
+  if (typedPlz && isFrankfurtServicePlz(typedPlz)) {
+    const known = lookupPlz(typedPlz);
+    if (known) {
+      const key = `${known.plz}|`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.unshift({
+          street: "",
+          postalCode: known.plz,
+          city: "Frankfurt am Main",
+          lat: known.lat,
+          lng: known.lng,
+        });
+      }
+    }
+  }
 
   if (query.length < 3) return out.slice(0, 8);
 

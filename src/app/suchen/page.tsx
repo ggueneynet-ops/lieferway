@@ -27,8 +27,8 @@ export default async function SearchPage({
   const gps = parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value);
   const origin = resolveOrigin({
     plz,
-    lat: street && gps ? gps.lat : null,
-    lng: street && gps ? gps.lng : null,
+    lat: gps?.lat ?? null,
+    lng: gps?.lng ?? null,
   });
   const filtered = query ? await listMarketplaceRestaurants({ q: query, plz, km, origin }) : [];
   const cardCopy = restaurantCardCopy(t);

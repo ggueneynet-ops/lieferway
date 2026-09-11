@@ -2,59 +2,12 @@
 
 import { useI18n } from "@/components/locale-provider";
 import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
-import { PLZ_STORAGE_KEY } from "@/lib/geo";
-import { defaultDemoPlace, lookupPlz, sanitizeDemoPlz } from "@/lib/plz";
+import { lookupPlz } from "@/lib/plz";
 import { markSplashShown } from "@/lib/splash";
-import { formatPlaceLine, type DeliveryPlace } from "@/lib/place";
-import { CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
+import { formatLocationChip, formatPlaceLine, type DeliveryPlace } from "@/lib/place";
+import { goMarketplace, persistDeliveryPlace } from "@/lib/persist-place";
 import { ChevronDown, MapPin } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-
-function setCookie(name: string, value: string) {
-  document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=31536000;SameSite=Lax`;
-}
-
-function clearCookie(name: string) {
-  document.cookie = `${name}=;path=/;max-age=0;SameSite=Lax`;
-}
-
-function persistPlace(place: DeliveryPlace | null) {
-  if (!place) {
-    try {
-      window.localStorage.removeItem(PLZ_STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
-    clearCookie(PLZ_COOKIE);
-    clearCookie(LAT_COOKIE);
-    clearCookie(LNG_COOKIE);
-    clearCookie(STREET_COOKIE);
-    clearCookie(CITY_COOKIE);
-    return;
-  }
-  try {
-    window.localStorage.setItem(PLZ_STORAGE_KEY, place.postalCode);
-  } catch {
-    /* private mode */
-  }
-  setCookie(PLZ_COOKIE, place.postalCode);
-  setCookie(LAT_COOKIE, String(place.lat));
-  setCookie(LNG_COOKIE, String(place.lng));
-  setCookie(STREET_COOKIE, place.street);
-  setCookie(CITY_COOKIE, place.city);
-}
-
-function goMarketplace(place: DeliveryPlace | null, q: string, cuisine: string, km: number | null) {
-  const params = new URLSearchParams();
-  if (place) {
-    params.set("plz", place.postalCode);
-    params.set("km", km == null ? "all" : String(km));
-  }
-  if (q) params.set("q", q);
-  if (cuisine) params.set("cuisine", cuisine);
-  const qs = params.toString();
-  window.location.assign(qs ? `/?${qs}` : "/");
-}
+import { useCallback, useState } from "react";
 
 export default function PlzForm({
   initialPlz,
@@ -63,7 +16,6 @@ export default function PlzForm({
   q,
   cuisine,
   km = 5,
-  autoDetect = false,
   compact = false,
 }: {
   initialPlz: string;
@@ -72,7 +24,6 @@ export default function PlzForm({
   q: string;
   cuisine: string;
   km?: number | null;
-  autoDetect?: boolean;
   compact?: boolean;
 }) {
   const { t } = useI18n();
@@ -82,58 +33,20 @@ export default function PlzForm({
   const applyPlace = useCallback(
     (place: DeliveryPlace) => {
       markSplashShown();
-      persistPlace(place);
+      persistDeliveryPlace(place);
       saveRecentPlace(place);
       goMarketplace(place, q, cuisine, km);
     },
     [cuisine, km, q],
   );
 
-  useEffect(() => {
-    if (!autoDetect) return;
-    const hasStreet = Boolean(initialStreet.trim());
-    const next = sanitizeDemoPlz(initialPlz, hasStreet);
-    if (next === initialPlz) {
-      try {
-        window.localStorage.setItem(PLZ_STORAGE_KEY, next);
-      } catch {
-        /* ignore */
-      }
-      return;
-    }
-    const demo = defaultDemoPlace();
-    persistPlace({
-      street: "",
-      postalCode: demo.postalCode,
-      city: demo.city,
-      lat: demo.lat,
-      lng: demo.lng,
-    });
-    goMarketplace(
-      {
-        street: "",
-        postalCode: demo.postalCode,
-        city: demo.city,
-        lat: demo.lat,
-        lng: demo.lng,
-      },
-      q,
-      cuisine,
-      km,
-    );
-  }, [autoDetect, cuisine, initialPlz, initialStreet, km, q]);
-
-  const summary = initialStreet.trim()
-    ? initialStreet.trim()
-    : initialPlz
-      ? `${initialPlz}${placeMeta ? ` · ${placeMeta.district}` : ""}`
-      : t.enterLocation;
-
-  const subtitle = initialStreet
-    ? `${initialPlz}${initialCity ? ` ${initialCity}` : ""}`
-    : initialPlz
-      ? t.deliverTo
-      : t.fullAddress;
+  const summary =
+    formatLocationChip({
+      postalCode: initialPlz,
+      city: initialCity || "Frankfurt am Main",
+      district: placeMeta?.district,
+      street: initialStreet,
+    }) || t.enterLocation;
 
   if (compact) {
     return (
@@ -148,7 +61,7 @@ export default function PlzForm({
           <span className="min-w-0 truncate text-[15px] font-bold tracking-tight">{summary}</span>
           <ChevronDown className="size-4 shrink-0 text-[#94A3B8]" strokeWidth={2} />
         </button>
-        <LocationPicker open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
+        <LocationPicker variant="sheet" open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
       </div>
     );
   }
@@ -167,15 +80,14 @@ export default function PlzForm({
             {t.deliverTo}
           </span>
           <span className="block truncate text-sm font-semibold text-ink">{summary}</span>
-          {initialStreet ? (
-            <span className="block truncate text-[11px] text-text-secondary">{subtitle}</span>
-          ) : null}
         </span>
         <ChevronDown className="size-4 shrink-0 text-text-secondary" />
       </button>
 
       <LocationPicker open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
-      <span className="sr-only">{formatPlaceLine({ street: initialStreet, postalCode: initialPlz || "", city: initialCity || "" })}</span>
+      <span className="sr-only">
+        {formatPlaceLine({ street: initialStreet, postalCode: initialPlz || "", city: initialCity || "" })}
+      </span>
     </div>
   );
 }

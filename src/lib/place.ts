@@ -42,6 +42,33 @@ export function formatPlaceLine(p: { street?: string; postalCode: string; city: 
   return `${p.postalCode} ${p.city}`;
 }
 
+export function shortCityName(city?: string | null) {
+  const raw = (city ?? "").trim();
+  if (!raw) return "Frankfurt";
+  return raw.replace(/\s+am\s+Main$/i, "").trim() || raw;
+}
+
+/** Compact header chip: `60311 · Frankfurt` or `Frankfurt · Innenstadt`. */
+export function formatLocationChip(opts: {
+  postalCode?: string | null;
+  city?: string | null;
+  district?: string | null;
+  street?: string | null;
+}) {
+  const plz = (opts.postalCode ?? "").trim();
+  const city = shortCityName(opts.city);
+  const district = (opts.district ?? "").trim();
+  const street = (opts.street ?? "").trim();
+  const streetIsDistrict = Boolean(street && district && street.toLowerCase() === district.toLowerCase());
+  const hasRealStreet = Boolean(street && !streetIsDistrict);
+  if (plz && city && (hasRealStreet || !district)) return `${plz} · ${city}`;
+  if (city && district) return `${city} · ${district}`;
+  if (plz && city) return `${plz} · ${city}`;
+  if (plz && district) return `${plz} · ${district}`;
+  if (plz) return plz;
+  return city && city !== "Frankfurt" ? city : "";
+}
+
 export function coordsForPostal(postalCode: string): { lat: number; lng: number } | null {
   const hit = FRANKFURT_STREETS.find((s) => s.postalCode === postalCode);
   if (hit) return { lat: hit.lat, lng: hit.lng };

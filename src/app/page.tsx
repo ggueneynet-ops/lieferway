@@ -13,6 +13,7 @@ import { SplashIntro } from "@/components/splash-intro";
 import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { HomeSearch } from "@/components/home-search";
 import { AddressFirst } from "@/components/address-first";
+import { GeoOnOpen } from "@/components/geo-on-open";
 import { LaunchWeekBanner } from "@/components/launch-week-banner";
 import { RadiusFilter } from "@/components/radius-filter";
 import { SPLASH_COOKIE } from "@/lib/splash";
@@ -34,11 +35,10 @@ export default async function Home({
   const plz = hasAddress ? sanitizeDemoPlz(chosenPlz, Boolean(street)) : null;
   const km = resolveUserRadius(kmParam, jar.get(RADIUS_COOKIE)?.value);
   const splashDone = jar.get(SPLASH_COOKIE)?.value === "1";
-  const useGps = Boolean(street && gps && chosenPlz === plz);
   const origin = resolveOrigin({
     plz,
-    lat: useGps && gps ? gps.lat : null,
-    lng: useGps && gps ? gps.lng : null,
+    lat: gps?.lat ?? null,
+    lng: gps?.lng ?? null,
   });
   const filtered = hasAddress
     ? await listMarketplaceRestaurants({ q, cuisine, plz, km, origin })
@@ -48,6 +48,7 @@ export default async function Home({
   return (
     <>
       {splashDone ? null : <SplashIntro />}
+      <GeoOnOpen q={q ?? ""} cuisine={cuisine ?? ""} km={km} />
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-[#FFFFFF]">
         {hasAddress ? (

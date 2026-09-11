@@ -3,29 +3,11 @@
 import { MapPin } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
 import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
-import { PLZ_STORAGE_KEY } from "@/lib/geo";
+import { persistDeliveryPlace } from "@/lib/persist-place";
 import { DEMO_PLZ_CHIPS, lookupPlz } from "@/lib/plz";
 import { markSplashShown } from "@/lib/splash";
-import { CITY_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, STREET_COOKIE } from "@/lib/constants";
 import type { DeliveryPlace } from "@/lib/place";
 import { useCallback, useState } from "react";
-
-function setCookie(name: string, value: string) {
-  document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=31536000;SameSite=Lax`;
-}
-
-function persistPlace(place: DeliveryPlace) {
-  try {
-    window.localStorage.setItem(PLZ_STORAGE_KEY, place.postalCode);
-  } catch {
-    /* private mode */
-  }
-  setCookie(PLZ_COOKIE, place.postalCode);
-  setCookie(LAT_COOKIE, String(place.lat));
-  setCookie(LNG_COOKIE, String(place.lng));
-  setCookie(STREET_COOKIE, place.street);
-  setCookie(CITY_COOKIE, place.city);
-}
 
 export function AddressFirst({
   q,
@@ -42,7 +24,7 @@ export function AddressFirst({
   const go = useCallback(
     (place: DeliveryPlace) => {
       markSplashShown();
-      persistPlace(place);
+      persistDeliveryPlace(place);
       saveRecentPlace(place);
       const params = new URLSearchParams();
       params.set("plz", place.postalCode);

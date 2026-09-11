@@ -51,10 +51,11 @@ function watchOnce(options: PositionOptions, waitMs: number): Promise<Geolocatio
  * Must be called directly from a tap/click (Safari). Starts GPS in the same turn —
  * do not await anything before calling this.
  */
-export function requestDeviceCoords(): Promise<GeoResult> {
+export function requestDeviceCoords(opts?: { allowWatch?: boolean }): Promise<GeoResult> {
   if (typeof window === "undefined") return Promise.resolve({ ok: false, error: "unavailable" });
   if (!window.isSecureContext) return Promise.resolve({ ok: false, error: "insecure" });
   if (!navigator.geolocation) return Promise.resolve({ ok: false, error: "unsupported" });
+  const allowWatch = opts?.allowWatch !== false;
 
   return (async () => {
     try {
@@ -78,6 +79,8 @@ export function requestDeviceCoords(): Promise<GeoResult> {
     } catch (err) {
       if (kindFromError(err) === "denied") return { ok: false, error: "denied" };
     }
+
+    if (!allowWatch) return { ok: false, error: "unavailable" };
 
     try {
       const pos = await watchOnce(

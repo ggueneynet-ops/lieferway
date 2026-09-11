@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Clock, MapPin, Navigation, Search, X } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
-import { formatDistanceShort, haversineKm, lookupPlz } from "@/lib/plz";
-import { formatPlaceLine, placeKey, type DeliveryPlace } from "@/lib/place";
+import { formatDistanceShort, haversineKm, isFrankfurtServicePlz, isNearFrankfurt, lookupPlz, DEMO_PLZ_CHIPS } from "@/lib/plz";
+import { formatLocationChip, formatPlaceLine, placeKey, type DeliveryPlace } from "@/lib/place";
 import { geoErrorMessage, requestDeviceCoords } from "@/lib/browser-geo";
 
 const RECENT_KEY = "lw_recent_places";
@@ -53,10 +53,12 @@ export function LocationPicker({
   open,
   onClose,
   onPick,
+  variant = "full",
 }: {
   open: boolean;
   onClose: () => void;
   onPick: (place: DeliveryPlace) => void;
+  variant?: "full" | "sheet";
 }) {
   const { t, locale } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -83,18 +85,22 @@ export function LocationPicker({
     setHereHint("");
     setHere(null);
     gpsRef.current = null;
-    const tId = window.setTimeout(() => inputRef.current?.focus(), 50);
+    const tId = window.setTimeout(() => {
+      if (variant !== "sheet") inputRef.current?.focus();
+    }, 50);
     document.body.style.overflow = "hidden";
 
-    void (async () => {
-      const res = await fetch("/api/addresses");
-      if (res.ok) {
-        const data = (await res.json()) as { addresses?: SavedAddress[] };
-        setSaved(
-          (data.addresses ?? []).filter((a) => a.lat != null && a.lng != null) as SavedAddress[],
-        );
-      }
-    })();
+    if (variant !== "sheet") {
+      void (async () => {
+        const res = await fetch("/api/addresses");
+        if (res.ok) {
+          const data = (await res.json()) as { addresses?: SavedAddress[] };
+          setSaved(
+            (data.addresses ?? []).filter((a) => a.lat != null && a.lng != null) as SavedAddress[],
+          );
+        }
+      })();
+    }
 
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -105,7 +111,7 @@ export function LocationPicker({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose]);
+  }, [open, onClose, variant]);
 
   useEffect(() => {
     if (!open) return;
@@ -149,6 +155,13 @@ export function LocationPicker({
     const res = await fetch(`/api/geo/plz?lat=${lat}&lng=${lng}`);
     const data = (await res.json()) as { place?: DeliveryPlace | null };
     if (!data.place) {
+      setHereError(t.geoFailed);
+      return false;
+    }
+    if (
+      !isFrankfurtServicePlz(data.place.postalCode) &&
+      !isNearFrankfurt(data.place.lat, data.place.lng)
+    ) {
       setHereError(t.geoFailed);
       return false;
     }
@@ -245,17 +258,74 @@ export function LocationPicker({
       ? `${formatPlaceLine(here)}${hereHint ? ` · ${hereHint}` : ""}`
       : hereError || t.geoTapHint;
 
+  const sheet = variant === "sheet";
+
+  function rowTitle(p: DeliveryPlace) {
+    if (p.street.trim()) return p.street;
+    return (
+      formatLocationChip({
+        postalCode: p.postalCode,
+        city: p.city,
+        district: lookupPlz(p.postalCode)?.district,
+      }) || p.postalCode
+    );
+  }
+
+  const gpsButton = (
+    <button
+      type="button"
+      onClick={onCurrentLocationClick}
+      disabled={hereBusy}
+      className="flex w-full items-start gap-3 py-3 text-left disabled:opacity-70"
+    >
+      <Navigation className="mt-0.5 size-5 shrink-0 text-ink" />
+      <span className="min-w-0 flex-1">
+        <span className="block font-semibold text-ink">{t.currentLocation}</span>
+        <span className="block text-sm text-text-secondary">{hereSubtitle}</span>
+      </span>
+    </button>
+  );
+
+  const searchField = (
+    <label className="relative block">
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-secondary" />
+      <input
+        ref={inputRef}
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder={sheet ? t.plzOrAddress : t.fullAddress}
+        autoComplete="street-address"
+        enterKeyHint="search"
+        className="h-12 w-full rounded-xl border border-border bg-background pl-10 pr-10 text-base outline-none ring-primary focus:border-primary focus:ring-2"
+      />
+      {q ? (
+        <button
+          type="button"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-text-secondary hover:bg-bg-muted"
+          onClick={() => setQ("")}
+          aria-label={t.cancel}
+        >
+          <X className="size-4" />
+        </button>
+      ) : null}
+    </label>
+  );
+
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/40 sm:items-center sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="lw-loc-title"
-        className="flex max-h-[100dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl bg-white sm:max-h-[min(720px,92vh)] sm:rounded-2xl"
+        className={`flex w-full max-w-lg flex-col overflow-hidden rounded-t-2xl bg-white sm:rounded-2xl ${
+          sheet
+            ? "max-h-[min(88dvh,640px)] sm:max-h-[min(640px,92vh)]"
+            : "max-h-[100dvh] sm:max-h-[min(720px,92vh)]"
+        }`}
       >
         <header className="relative flex items-center justify-center px-4 py-3">
           <h2 id="lw-loc-title" className="text-base font-semibold text-ink">
-            {t.enterLocation}
+            {sheet ? t.locationTitle : t.enterLocation}
           </h2>
           <button
             type="button"
@@ -266,31 +336,16 @@ export function LocationPicker({
           </button>
         </header>
 
-        <div className="px-4 pb-2">
-          <label className="relative block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-secondary" />
-            <input
-              ref={inputRef}
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t.fullAddress}
-              autoComplete="street-address"
-              className="h-12 w-full rounded-xl border border-border bg-background pl-10 pr-10 text-base outline-none ring-primary focus:border-primary focus:ring-2"
-            />
-            {q ? (
-              <button
-                type="button"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-text-secondary hover:bg-bg-muted"
-                onClick={() => setQ("")}
-                aria-label={t.cancel}
-              >
-                <X className="size-4" />
-              </button>
-            ) : null}
-          </label>
-        </div>
+        {sheet ? (
+          <>
+            <div className="px-4">{gpsButton}</div>
+            <div className="px-4 pb-2">{searchField}</div>
+          </>
+        ) : (
+          <div className="px-4 pb-2">{searchField}</div>
+        )}
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {typing ? (
             <div className="mt-1">
               {searching ? <p className="py-3 text-sm text-muted-foreground">{t.geoLocating}</p> : null}
@@ -301,7 +356,7 @@ export function LocationPicker({
                   {list.map((p) => (
                     <PlaceRow
                       key={placeKey(p)}
-                      title={p.street}
+                      title={rowTitle(p)}
                       subtitle={`${p.postalCode} ${p.city}`}
                       badge={distBadge(p)}
                       onClick={() => pick(p)}
@@ -310,20 +365,32 @@ export function LocationPicker({
                 </ul>
               )}
             </div>
+          ) : sheet ? (
+            <div className="mt-1 flex flex-wrap gap-2 pb-2">
+              {DEMO_PLZ_CHIPS.map((chip) => (
+                <button
+                  key={chip.plz}
+                  type="button"
+                  onClick={() => {
+                    const meta = lookupPlz(chip.plz);
+                    if (!meta) return;
+                    pick({
+                      street: "",
+                      postalCode: meta.plz,
+                      city: "Frankfurt am Main",
+                      lat: meta.lat,
+                      lng: meta.lng,
+                    });
+                  }}
+                  className="rounded-full border border-[#E8E8EC] bg-white px-3 py-1.5 text-[12px] font-medium text-[#0F172A]"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={onCurrentLocationClick}
-                disabled={hereBusy}
-                className="flex w-full items-start gap-3 py-3 text-left disabled:opacity-70"
-              >
-                <Navigation className="mt-0.5 size-5 shrink-0 text-ink" />
-                <span className="min-w-0 flex-1">
-                  <span className="block font-semibold text-ink">{t.currentLocation}</span>
-                  <span className="block text-sm text-text-secondary">{hereSubtitle}</span>
-                </span>
-              </button>
+              {gpsButton}
 
               {saved.length > 0 ? (
                 <section className="mt-2">
@@ -372,7 +439,7 @@ export function LocationPicker({
                     {recent.map((p) => (
                       <li key={placeKey(p)} className="flex items-center gap-1">
                         <PlaceRow
-                          title={p.street}
+                          title={rowTitle(p)}
                           subtitle={`${p.postalCode} ${p.city}`}
                           badge={distBadge(p)}
                           icon="clock"
