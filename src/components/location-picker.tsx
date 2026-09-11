@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Clock, MapPin, Navigation, Search, X } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
 import { formatDistanceShort, haversineKm, isFrankfurtServicePlz, isNearFrankfurt, lookupPlz, DEMO_PLZ_CHIPS } from "@/lib/plz";
@@ -311,7 +312,7 @@ export function LocationPicker({
     </label>
   );
 
-  return (
+  const ui = (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/40 sm:items-center sm:p-4">
       <div
         role="dialog"
@@ -319,7 +320,7 @@ export function LocationPicker({
         aria-labelledby="lw-loc-title"
         className={`flex w-full max-w-lg flex-col overflow-hidden rounded-t-2xl bg-white sm:rounded-2xl ${
           sheet
-            ? "max-h-[min(88dvh,640px)] sm:max-h-[min(640px,92vh)]"
+            ? "max-h-[min(70dvh,520px)]"
             : "max-h-[100dvh] sm:max-h-[min(720px,92vh)]"
         }`}
       >
@@ -345,7 +346,11 @@ export function LocationPicker({
           <div className="px-4 pb-2">{searchField}</div>
         )}
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <div
+          className={`overflow-y-auto px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] ${
+            sheet ? "" : "min-h-0 flex-1"
+          }`}
+        >
           {typing ? (
             <div className="mt-1">
               {searching ? <p className="py-3 text-sm text-muted-foreground">{t.geoLocating}</p> : null}
@@ -467,6 +472,8 @@ export function LocationPicker({
       </div>
     </div>
   );
+
+  return createPortal(ui, document.body);
 }
 
 function PlaceRow({
