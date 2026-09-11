@@ -52,7 +52,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout: compact address row, prominent search, food-photo category circles, **large hero restaurant cards**. UI accent is pink `#E91E63` on white. Logo rasters are the locked pink pin+fork. Cache `?v=32`. Partnership copy stays on `/partner/anmelden` only.
+Marketplace layout: compact address row, prominent search, food-photo category circles, **large hero restaurant cards**. UI accent is pink `#E91E63` on white. Logo rasters are the locked pink pin+fork. Cache `?v=33`. Partnership copy stays on `/partner/anmelden` only.
 
 Customer home shows food photos, prices, Mindestbestellwert, Liefergebühr, and Lieferzeit. Partnership copy (5 % Provision, Auszahlung montags) is on `/partner/anmelden` only.
 
@@ -65,7 +65,7 @@ Marketplace restaurant cards use wide food photos plus name, cuisine, ETA, min o
 1. Open the **public HTTPS** Cloudflare URL (Safari only allows GPS in a secure context).
 2. Allow location when prompted, or tap the header chip → **Aktueller Standort**. A GPS fix overwrites any leftover Frankfurt cookie. The chip shows `{Stadt} · {PLZ}`.
 3. If Safari blocks GPS, the chip is **Standort wählen** — type a PLZ or address. Tapping **Aktueller Standort** asks again (it does not remember a prior denial forever).
-4. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row. Pull to refresh if an old layout is cached (`?v=32`).
+4. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row. Pull to refresh if an old layout is cached (`?v=33`).
 
 Partner onboarding is apply-then-review (not self-serve panel signup):
 

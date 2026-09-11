@@ -1,5 +1,6 @@
 import { isFrankfurtServicePlz, isNearFrankfurt, lookupPlz, normalizePlz } from "@/lib/plz";
 import { searchLocalStreets, type DeliveryPlace } from "@/lib/place";
+import { canonicalizePlaceGemeinde, cleanGemeindeName, lookupCanonicalPlzPlaces } from "@/lib/german-plz";
 
 const NOMINATIM_REVERSE = "https://nominatim.openstreetmap.org/reverse";
 const NOMINATIM_SEARCH = "https://nominatim.openstreetmap.org/search";
@@ -38,27 +39,42 @@ export function germanPlz(raw?: string | null) {
   return plz;
 }
 
+function isAdminBucket(name: string) {
+  return /^(VVG|GVV|VG)\b/i.test(name) || /verbandsgemeinde|verwaltungsverband|samtgemeinde/i.test(name);
+}
+
 function streetFromOsm(addr: OsmAddress) {
   const road = addr.road ?? addr.pedestrian ?? addr.footway ?? addr.square ?? addr.residential ?? "";
   const hn = addr.house_number ?? "";
   return `${road} ${hn}`.trim();
 }
 
-function cityFromOsm(addr: OsmAddress) {
-  return (
-    addr.city ??
-    addr.town ??
-    addr.village ??
-    addr.municipality ??
-    addr.suburb ??
-    addr.city_district ??
-    ""
-  );
+/** Gemeinde/Stadt for chips. Village/suburb only as last resort (Ortsteil). */
+function canonicalCityFromOsm(addr: OsmAddress) {
+  const city = (addr.city ?? "").trim();
+  const town = (addr.town ?? "").trim();
+  const muni = cleanGemeindeName((addr.municipality ?? "").trim());
+  const muniOk = muni && !isAdminBucket(muni);
+  const village = (addr.village ?? "").trim();
+  const suburb = (addr.suburb ?? addr.city_district ?? "").trim();
+  return city || town || (muniOk ? muni : "") || village || suburb;
 }
 
-function placeFromOsm(addr: OsmAddress, lat: number, lng: number): DeliveryPlace | null {
+/** Full address: Ortsteil (village/suburb) may be shown. */
+function addressCityFromOsm(addr: OsmAddress) {
+  const village = (addr.village ?? "").trim();
+  const suburb = (addr.suburb ?? addr.city_district ?? "").trim();
+  return village || suburb || canonicalCityFromOsm(addr);
+}
+
+function placeFromOsm(
+  addr: OsmAddress,
+  lat: number,
+  lng: number,
+  mode: "canonical" | "address" = "canonical",
+): DeliveryPlace | null {
   const postalCode = germanPlz(addr.postcode);
-  const city = cityFromOsm(addr);
+  const city = mode === "address" ? addressCityFromOsm(addr) : canonicalCityFromOsm(addr);
   if (!postalCode && !city) return null;
   const street = streetFromOsm(addr);
   return {
@@ -90,8 +106,10 @@ export async function reverseGeocodeAddress(lat: number, lng: number): Promise<D
     if (!res.ok) throw new Error(`nominatim ${res.status}`);
     const data = (await res.json()) as { address?: OsmAddress; lat?: string; lon?: string };
     const addr = data.address ?? {};
-    const place = placeFromOsm(addr, lat, lng);
-    if (place && (place.postalCode || place.city)) return place;
+    const place = placeFromOsm(addr, lat, lng, "canonical");
+    if (place && (place.postalCode || place.city)) {
+      return canonicalizePlaceGemeinde(place);
+    }
   } catch {
     /* do not snap to Frankfurt */
   }
@@ -118,7 +136,7 @@ function searchPlaceKey(p: DeliveryPlace) {
 }
 
 /** Germany-wide Nominatim search. No Frankfurt viewbox — PLZ/city results need no street. */
-async function nominatimPlaces(query: string): Promise<DeliveryPlace[]> {
+async function nominatimPlaces(query: string, mode: "canonical" | "address"): Promise<DeliveryPlace[]> {
   const url = new URL(NOMINATIM_SEARCH);
   url.searchParams.set("q", query);
   url.searchParams.set("format", "jsonv2");
@@ -137,7 +155,7 @@ async function nominatimPlaces(query: string): Promise<DeliveryPlace[]> {
   for (const row of rows) {
     const lat = Number(row.lat);
     const lng = Number(row.lon);
-    const place = placeFromOsm(row.address ?? {}, lat, lng);
+    const place = placeFromOsm(row.address ?? {}, lat, lng, mode);
     if (!place) continue;
     places.push(place);
   }
@@ -146,33 +164,31 @@ async function nominatimPlaces(query: string): Promise<DeliveryPlace[]> {
 
 export async function searchAddresses(q: string): Promise<DeliveryPlace[]> {
   const query = q.trim();
-  const local = searchLocalStreets(query);
-  const seen = new Set(local.map(searchPlaceKey));
-  const out: DeliveryPlace[] = [...local];
   const typedPlz = germanPlz(query);
 
-  if (typedPlz && isFrankfurtServicePlz(typedPlz)) {
-    const known = lookupPlz(typedPlz);
-    if (known) {
-      const demo: DeliveryPlace = {
-        street: "",
-        postalCode: known.plz,
-        city: "Frankfurt am Main",
-        lat: known.lat,
-        lng: known.lng,
-      };
-      const key = searchPlaceKey(demo);
-      if (!seen.has(key)) {
-        seen.add(key);
-        out.unshift(demo);
-      }
+  if (typedPlz && query === typedPlz) {
+    try {
+      const canonical = await lookupCanonicalPlzPlaces(typedPlz);
+      if (canonical.length > 0) return canonical;
+    } catch {
+      /* fall through to Nominatim using Gemeinde, not Ortsteil */
+    }
+    try {
+      const remote = await nominatimPlaces(typedPlz, "canonical");
+      if (remote.length > 0) return remote;
+    } catch {
+      /* continue */
     }
   }
+
+  const local = typedPlz && query === typedPlz ? [] : searchLocalStreets(query);
+  const seen = new Set(local.map(searchPlaceKey));
+  const out: DeliveryPlace[] = [...local];
 
   if (query.length < 3 && !typedPlz) return out.slice(0, 8);
 
   try {
-    const remote = await nominatimPlaces(typedPlz && query === typedPlz ? typedPlz : query);
+    const remote = await nominatimPlaces(query, "address");
     for (const place of remote) {
       const key = searchPlaceKey(place);
       if (seen.has(key)) continue;
@@ -181,17 +197,6 @@ export async function searchAddresses(q: string): Promise<DeliveryPlace[]> {
     }
   } catch {
     /* keep local / demo catalog hits */
-  }
-
-  if (typedPlz) {
-    out.sort((a, b) => {
-      const rank = (p: DeliveryPlace) => {
-        if (p.postalCode === typedPlz && !p.street.trim()) return 0;
-        if (p.postalCode === typedPlz) return 1;
-        return 2;
-      };
-      return rank(a) - rank(b);
-    });
   }
 
   return out.slice(0, 8);
