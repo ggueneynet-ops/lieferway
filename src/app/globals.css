@@ -179,9 +179,9 @@
 .lw-card-photo {
   position: relative;
   width: 100%;
-  height: 16.5rem;
-  min-height: 16.5rem;
-  max-height: 16.5rem;
+  height: 19.5rem;
+  min-height: 19.5rem;
+  max-height: 19.5rem;
   overflow: hidden;
   background: #f7f7f8;
 }

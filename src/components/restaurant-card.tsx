@@ -80,7 +80,7 @@ export function RestaurantCard({
         : `${formatEUR(r.deliveryFeeCents)} ${feeLabel ?? ""}`.trim();
 
   const stats = [
-    hasReviews ? `${r.rating.toFixed(1)} (${r.reviewCount})` : newLabel,
+    hasReviews ? `${r.rating.toFixed(1)} (${r.reviewCount})` : null,
     feeText,
     `${minLabel} ${formatEUR(r.minOrderCents)}`,
     `${r.etaMin}–${r.etaMax} Min.`,
@@ -106,6 +106,11 @@ export function RestaurantCard({
           </div>
         )}
         <div className="absolute left-2.5 top-2.5 flex max-w-[88%] flex-wrap gap-1">
+          {!hasReviews && newLabel ? (
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#0F172A] shadow-sm">
+              {newLabel}
+            </span>
+          ) : null}
           {popular && popularLabel ? (
             <span className="rounded-full bg-[#E91E63] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
               {popularLabel}
@@ -117,8 +122,8 @@ export function RestaurantCard({
             </span>
           ) : null}
         </div>
-        <span className="absolute bottom-2.5 left-2.5 rounded-[12px] bg-white p-[3px] shadow-[0_4px_12px_rgba(15,23,42,0.12)]">
-          <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={40} />
+        <span className="absolute bottom-2.5 left-2.5 rounded-[11px] bg-white p-[3px] shadow-[0_6px_16px_rgba(15,23,42,0.18)]">
+          <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={36} />
         </span>
       </div>
       <div className="px-3.5 pb-3.5 pt-3">

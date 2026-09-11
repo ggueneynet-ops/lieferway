@@ -90,7 +90,7 @@ export default async function Home({
                   {plz ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
                 </div>
               ) : (
-                <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+                <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
                   {filtered.map((r) => (
                     <RestaurantCard
                       key={r.id}

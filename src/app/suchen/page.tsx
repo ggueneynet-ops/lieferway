@@ -43,7 +43,7 @@ export default async function SearchPage({
         <p className="mt-5 text-[13px] font-medium text-[#64748B]">
           {filtered.length} {t.restaurants}
         </p>
-        <div className="mt-3.5 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-3.5 grid w-full grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {filtered.map((r) => (
             <RestaurantCard
               key={r.id}

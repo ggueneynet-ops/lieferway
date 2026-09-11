@@ -32,16 +32,16 @@ export function CuisineRow({
   ];
 
   return (
-    <div className="no-scrollbar -mx-1 flex gap-3.5 overflow-x-auto px-1 py-1" data-category-row="circles">
+    <div className="no-scrollbar -mx-4 flex gap-3.5 overflow-x-auto px-4 py-1 sm:-mx-6 sm:px-6" data-category-row="circles">
       {items.map((item) => (
         <Link
           key={item.key}
           href={item.href}
           scroll={false}
-          className="flex w-[4.85rem] shrink-0 flex-col items-center gap-2"
+          className="flex w-[4.6rem] shrink-0 flex-col items-center gap-1.5"
         >
           <span
-            className={`relative flex size-[4.35rem] items-center justify-center overflow-hidden rounded-full shadow-[0_6px_14px_rgba(15,23,42,0.08)] ${
+            className={`relative flex size-[4.15rem] items-center justify-center overflow-hidden rounded-full shadow-[0_6px_14px_rgba(15,23,42,0.08)] ${
               item.active ? "ring-2 ring-[#E91E63] ring-offset-2" : "ring-1 ring-[#EEEFF2]"
             }`}
           >

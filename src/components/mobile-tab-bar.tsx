@@ -34,29 +34,23 @@ export function MobileTabBar() {
     <>
       <div className="h-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:hidden" aria-hidden />
       <nav
-        className="fixed inset-x-3 bottom-[max(0.55rem,env(safe-area-inset-bottom,0px))] z-40 overflow-hidden rounded-[22px] border border-white/70 bg-white/78 shadow-[0_12px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-3 bottom-[max(0.55rem,env(safe-area-inset-bottom,0px))] z-40 overflow-hidden rounded-[24px] border border-white/60 bg-white/72 shadow-[0_14px_44px_rgba(15,23,42,0.18)] backdrop-blur-2xl md:hidden"
         aria-label="Hauptnavigation"
       >
-        <ul className="grid h-[4.2rem] grid-cols-4">
+        <ul className="grid h-[4.25rem] grid-cols-4">
           {tabs.map((tab) => (
             <li key={tab.href} className="min-w-0">
               <Link
                 href={tab.href}
                 aria-current={tab.active ? "page" : undefined}
-                className={`relative flex h-full min-h-11 flex-col items-center justify-center gap-1 ${
+                className={`relative flex h-full min-h-11 flex-col items-center justify-center gap-0.5 ${
                   tab.active ? "text-[#E91E63]" : "text-[#94A3B8]"
                 }`}
               >
-                <span
-                  className={`flex size-8 items-center justify-center rounded-full ${
-                    tab.active ? "bg-[#FCE4EC]" : ""
-                  }`}
-                >
-                  <tab.icon
-                    className={tab.active ? "size-[22px] fill-[#E91E63]" : "size-[21px]"}
-                    strokeWidth={tab.active ? 2.4 : 1.75}
-                  />
-                </span>
+                <tab.icon
+                  className={tab.active ? "size-6 fill-[#E91E63] text-[#E91E63]" : "size-[22px]"}
+                  strokeWidth={tab.active ? 2.6 : 1.7}
+                />
                 <span className={`text-[11px] leading-none ${tab.active ? "font-bold" : "font-medium"}`}>
                   {tab.label}
                 </span>
