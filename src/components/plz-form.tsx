@@ -2,20 +2,18 @@
 
 import { useI18n } from "@/components/locale-provider";
 import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
+import { useLocation } from "@/components/location-provider";
 import { lookupPlz } from "@/lib/plz";
 import { markSplashShown } from "@/lib/splash";
 import { formatLocationChip, formatPlaceLine, type DeliveryPlace } from "@/lib/place";
-import { goMarketplace, persistDeliveryPlace } from "@/lib/persist-place";
+import { type GeoSource } from "@/lib/persist-place";
 import { ChevronDown, MapPin } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 export default function PlzForm({
   initialPlz,
   initialStreet = "",
   initialCity = "",
-  q,
-  cuisine,
-  km = 5,
   compact = false,
 }: {
   initialPlz: string;
@@ -27,33 +25,35 @@ export default function PlzForm({
   compact?: boolean;
 }) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(false);
+  const loc = useLocation();
   const placeMeta = initialPlz ? lookupPlz(initialPlz) : undefined;
 
   const applyPlace = useCallback(
-    (place: DeliveryPlace) => {
+    (place: DeliveryPlace, source: GeoSource = "manual") => {
       markSplashShown();
-      persistDeliveryPlace(place);
       saveRecentPlace(place);
-      goMarketplace(place, q, cuisine, km);
+      loc.applyPlace(place, source);
     },
-    [cuisine, km, q],
+    [loc],
   );
 
+  const live = loc.place;
   const summary =
-    formatLocationChip({
-      postalCode: initialPlz,
-      city: initialCity || "Frankfurt am Main",
-      district: placeMeta?.district,
-      street: initialStreet,
-    }) || t.enterLocation;
+    loc.status === "locating"
+      ? t.geoLocating
+      : live
+        ? formatLocationChip({
+            postalCode: live.postalCode,
+            city: live.city,
+          }) || t.enterLocation
+        : t.enterLocation;
 
   if (compact) {
     return (
       <div>
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => loc.setSheetOpen(true)}
           className="inline-flex min-h-11 max-w-full items-center gap-1 py-1 text-left text-[#0F172A]"
           aria-haspopup="dialog"
         >
@@ -61,16 +61,28 @@ export default function PlzForm({
           <span className="min-w-0 truncate text-[15px] font-bold tracking-tight">{summary}</span>
           <ChevronDown className="size-4 shrink-0 text-[#94A3B8]" strokeWidth={2} />
         </button>
-        <LocationPicker variant="sheet" open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
+        <LocationPicker
+          variant="sheet"
+          open={loc.sheetOpen}
+          onClose={() => loc.setSheetOpen(false)}
+          onPick={applyPlace}
+        />
       </div>
     );
   }
+
+  const fallback = formatLocationChip({
+    postalCode: initialPlz,
+    city: initialCity,
+    district: placeMeta?.district,
+    street: initialStreet,
+  });
 
   return (
     <div id="lieferung">
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => loc.setSheetOpen(true)}
         className="flex w-full items-center gap-2 rounded-xl bg-bg-muted px-3 py-2.5 text-left"
         aria-haspopup="dialog"
       >
@@ -79,14 +91,18 @@ export default function PlzForm({
           <span className="block text-[10px] font-medium uppercase tracking-wide text-text-secondary">
             {t.deliverTo}
           </span>
-          <span className="block truncate text-sm font-semibold text-ink">{summary}</span>
+          <span className="block truncate text-sm font-semibold text-ink">{summary || fallback || t.enterLocation}</span>
         </span>
         <ChevronDown className="size-4 shrink-0 text-text-secondary" />
       </button>
 
-      <LocationPicker open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
+      <LocationPicker open={loc.sheetOpen} onClose={() => loc.setSheetOpen(false)} onPick={applyPlace} />
       <span className="sr-only">
-        {formatPlaceLine({ street: initialStreet, postalCode: initialPlz || "", city: initialCity || "" })}
+        {formatPlaceLine({
+          street: live?.street ?? initialStreet,
+          postalCode: live?.postalCode || initialPlz || "",
+          city: live?.city || initialCity || "",
+        })}
       </span>
     </div>
   );

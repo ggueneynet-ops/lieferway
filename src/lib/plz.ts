@@ -73,12 +73,9 @@ export function isNearFrankfurt(lat: number, lng: number, maxKm = 40) {
   return haversineKm({ lat, lng }, FRANKFURT_CENTER) <= maxKm;
 }
 
-/** Drop stale/wrong IP zips (e.g. 49661) unless the user actually picked a street. */
-export function sanitizeDemoPlz(plz?: string | null, hasStreet = false) {
-  const n = normalizePlz(plz);
-  if (n && isFrankfurtServicePlz(n)) return n;
-  if (n && hasStreet) return n;
-  return DEFAULT_DEMO_PLZ;
+/** Keep a valid German PLZ as-is. Never substitute 60311 / Frankfurt. */
+export function sanitizeDemoPlz(plz?: string | null, _hasStreet = false) {
+  return normalizePlz(plz);
 }
 
 export function defaultDemoPlace() {

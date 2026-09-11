@@ -4,9 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Clock, MapPin, Navigation, Search, X } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
-import { formatDistanceShort, haversineKm, isFrankfurtServicePlz, isNearFrankfurt, lookupPlz, DEMO_PLZ_CHIPS } from "@/lib/plz";
+import { formatDistanceShort, haversineKm, lookupPlz, DEMO_PLZ_CHIPS } from "@/lib/plz";
 import { formatLocationChip, formatPlaceLine, placeKey, type DeliveryPlace } from "@/lib/place";
 import { geoErrorMessage, requestDeviceCoords } from "@/lib/browser-geo";
+import type { GeoSource } from "@/lib/persist-place";
 
 const RECENT_KEY = "lw_recent_places";
 
@@ -32,24 +33,6 @@ export function saveRecentPlace(place: DeliveryPlace) {
   }
 }
 
-function placeFromIpPayload(data: {
-  plz?: string | null;
-  city?: string;
-  street?: string;
-  lat?: number;
-  lng?: number;
-}): DeliveryPlace | null {
-  if (!data.plz) return null;
-  const known = lookupPlz(data.plz);
-  return {
-    street: data.street || known?.district || "",
-    postalCode: data.plz,
-    city: data.city ?? "Frankfurt am Main",
-    lat: data.lat ?? known?.lat ?? 50.1109,
-    lng: data.lng ?? known?.lng ?? 8.6821,
-  };
-}
-
 export function LocationPicker({
   open,
   onClose,
@@ -58,7 +41,7 @@ export function LocationPicker({
 }: {
   open: boolean;
   onClose: () => void;
-  onPick: (place: DeliveryPlace) => void;
+  onPick: (place: DeliveryPlace, source?: GeoSource) => void;
   variant?: "full" | "sheet";
 }) {
   const { t, locale } = useI18n();
@@ -146,65 +129,35 @@ export function LocationPicker({
     return formatDistanceShort(km, locale);
   }
 
-  function pick(place: DeliveryPlace) {
+  function pick(place: DeliveryPlace, source: GeoSource = "manual") {
     saveRecentPlace(place);
-    onPick(place);
+    onPick(place, source);
   }
 
   async function applyCoords(lat: number, lng: number, apply: boolean) {
     gpsRef.current = { lat, lng };
     const res = await fetch(`/api/geo/plz?lat=${lat}&lng=${lng}`);
     const data = (await res.json()) as { place?: DeliveryPlace | null };
-    if (!data.place) {
-      setHereError(t.geoFailed);
-      return false;
-    }
-    if (
-      !isFrankfurtServicePlz(data.place.postalCode) &&
-      !isNearFrankfurt(data.place.lat, data.place.lng)
-    ) {
+    if (!data.place || (!data.place.postalCode && !data.place.city)) {
       setHereError(t.geoFailed);
       return false;
     }
     setHere(data.place);
     setHereError("");
     setHereHint("");
-    if (apply) pick(data.place);
+    if (apply) pick(data.place, "gps");
     return true;
-  }
-
-  async function fallbackIp() {
-    try {
-      const ipRes = await fetch("/api/geo/ip");
-      const ipData = (await ipRes.json()) as {
-        plz?: string | null;
-        city?: string;
-        street?: string;
-        lat?: number;
-        lng?: number;
-      };
-      const approx = placeFromIpPayload(ipData);
-      if (approx) {
-        setHere(approx);
-        setHereHint(t.geoIpFallback);
-        setHereError("");
-        return true;
-      }
-    } catch {
-      /* type address */
-    }
-    return false;
   }
 
   function onCurrentLocationClick() {
     if (here && !hereBusy) {
-      pick(here);
+      pick(here, "gps");
       return;
     }
     setHereBusy(true);
     setHereError("");
     setHereHint("");
-    const resultPromise = requestDeviceCoords();
+    const resultPromise = requestDeviceCoords({ force: true });
     void (async () => {
       const result = await resultPromise;
       try {
@@ -212,12 +165,7 @@ export function LocationPicker({
           await applyCoords(result.lat, result.lng, true);
           return;
         }
-        if (result.error === "denied" || result.error === "insecure") {
-          setHereError(geoErrorMessage(result.error, t));
-          return;
-        }
-        const usedIp = await fallbackIp();
-        if (!usedIp) setHereError(geoErrorMessage(result.error, t));
+        setHereError(geoErrorMessage(result.error, t));
       } catch {
         setHereError(t.geoFailed);
       } finally {

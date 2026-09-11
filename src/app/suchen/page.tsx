@@ -5,8 +5,8 @@ import { restaurantCardCopy, RestaurantCard } from "@/components/restaurant-card
 import { HomeSearch } from "@/components/home-search";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
-import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
-import { normalizePlz, sanitizeDemoPlz } from "@/lib/plz";
+import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, GEO_SOURCE_COOKIE, isTrustedGeoSource } from "@/lib/constants";
+import { normalizePlz } from "@/lib/plz";
 import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { cuisineName } from "@/lib/i18n";
 
@@ -21,10 +21,10 @@ export default async function SearchPage({
   const query = (q ?? "").trim();
   const { locale, t } = await getCopy();
   const jar = await cookies();
-  const street = (jar.get(STREET_COOKIE)?.value ?? "").trim();
-  const plz = sanitizeDemoPlz(normalizePlz(jar.get(PLZ_COOKIE)?.value), Boolean(street));
+  const trusted = isTrustedGeoSource(jar.get(GEO_SOURCE_COOKIE)?.value);
+  const plz = trusted ? normalizePlz(jar.get(PLZ_COOKIE)?.value) : null;
   const km = resolveUserRadius(null, jar.get(RADIUS_COOKIE)?.value);
-  const gps = parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value);
+  const gps = trusted ? parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value) : null;
   const origin = resolveOrigin({
     plz,
     lat: gps?.lat ?? null,

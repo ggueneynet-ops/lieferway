@@ -2,54 +2,44 @@
 
 import { MapPin } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
-import { LocationPicker, saveRecentPlace } from "@/components/location-picker";
-import { persistDeliveryPlace } from "@/lib/persist-place";
+import { saveRecentPlace } from "@/components/location-picker";
+import { useLocation } from "@/components/location-provider";
 import { DEMO_PLZ_CHIPS, lookupPlz } from "@/lib/plz";
 import { markSplashShown } from "@/lib/splash";
 import type { DeliveryPlace } from "@/lib/place";
-import { useCallback, useState } from "react";
 
 export function AddressFirst({
-  q,
-  cuisine,
-  km = 5,
+  q: _q,
+  cuisine: _cuisine,
+  km: _km = 5,
 }: {
   q?: string;
   cuisine?: string;
   km?: number | null;
 }) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(false);
+  const loc = useLocation();
 
-  const go = useCallback(
-    (place: DeliveryPlace) => {
-      markSplashShown();
-      persistDeliveryPlace(place);
-      saveRecentPlace(place);
-      const params = new URLSearchParams();
-      params.set("plz", place.postalCode);
-      params.set("km", km == null ? "all" : String(km));
-      if (q) params.set("q", q);
-      if (cuisine) params.set("cuisine", cuisine);
-      window.location.assign(`/?${params.toString()}#restaurants`);
-    },
-    [cuisine, km, q],
-  );
+  if (loc.status === "locating") return null;
+  if (loc.status === "ready" && loc.place) return null;
 
   function pickChip(plz: string) {
     const meta = lookupPlz(plz);
     if (!meta) return;
-    go({
+    const place: DeliveryPlace = {
       street: "",
       postalCode: meta.plz,
       city: "Frankfurt am Main",
       lat: meta.lat,
       lng: meta.lng,
-    });
+    };
+    markSplashShown();
+    saveRecentPlace(place);
+    loc.applyPlace(place, "manual");
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-[#E8E8EC] bg-white px-5 py-8 text-center">
+    <div className="mx-auto max-w-md rounded-[1.35rem] border border-[#E8E8EC] bg-white px-5 py-8 text-center">
       <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#FCE4EC] text-[#E91E63]">
         <MapPin className="size-5" strokeWidth={1.75} />
       </span>
@@ -57,7 +47,7 @@ export function AddressFirst({
       <p className="mt-2 text-sm leading-relaxed text-[#64748B]">{t.addressFirstLead}</p>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => loc.setSheetOpen(true)}
         className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#E91E63] px-5 text-sm font-semibold text-white hover:bg-[#C2185B]"
       >
         {t.enterLocation}
@@ -74,7 +64,6 @@ export function AddressFirst({
           </button>
         ))}
       </div>
-      <LocationPicker open={open} onClose={() => setOpen(false)} onPick={go} />
     </div>
   );
 }

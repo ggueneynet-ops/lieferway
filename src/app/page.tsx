@@ -3,17 +3,16 @@ import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { restaurantCardCopy, RestaurantCard } from "@/components/restaurant-card";
-import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, STREET_COOKIE } from "@/lib/constants";
+import { LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, GEO_SOURCE_COOKIE, isTrustedGeoSource } from "@/lib/constants";
 import { interpolate, cuisineName } from "@/lib/i18n";
 import { getCopy } from "@/lib/get-locale";
 import { listMarketplaceRestaurants } from "@/lib/marketplace";
-import { normalizePlz, sanitizeDemoPlz } from "@/lib/plz";
+import { normalizePlz } from "@/lib/plz";
 import { CuisineRow } from "@/components/cuisine-row";
 import { SplashIntro } from "@/components/splash-intro";
 import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { HomeSearch } from "@/components/home-search";
 import { AddressFirst } from "@/components/address-first";
-import { GeoOnOpen } from "@/components/geo-on-open";
 import { LaunchWeekBanner } from "@/components/launch-week-banner";
 import { RadiusFilter } from "@/components/radius-filter";
 import { SPLASH_COOKIE } from "@/lib/splash";
@@ -28,11 +27,11 @@ export default async function Home({
   const { q, cuisine, plz: plzParam, km: kmParam } = await searchParams;
   const { locale, t: copy } = await getCopy();
   const jar = await cookies();
-  const street = (jar.get(STREET_COOKIE)?.value ?? "").trim();
-  const chosenPlz = normalizePlz(plzParam) ?? normalizePlz(jar.get(PLZ_COOKIE)?.value);
-  const hasAddress = Boolean(street || chosenPlz);
-  const gps = parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value);
-  const plz = hasAddress ? sanitizeDemoPlz(chosenPlz, Boolean(street)) : null;
+  const trusted = isTrustedGeoSource(jar.get(GEO_SOURCE_COOKIE)?.value);
+  const chosenPlz = normalizePlz(plzParam) ?? (trusted ? normalizePlz(jar.get(PLZ_COOKIE)?.value) : null);
+  const hasAddress = Boolean(chosenPlz);
+  const gps = trusted ? parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value) : null;
+  const plz = chosenPlz;
   const km = resolveUserRadius(kmParam, jar.get(RADIUS_COOKIE)?.value);
   const splashDone = jar.get(SPLASH_COOKIE)?.value === "1";
   const origin = resolveOrigin({
@@ -48,7 +47,6 @@ export default async function Home({
   return (
     <>
       {splashDone ? null : <SplashIntro />}
-      <GeoOnOpen q={q ?? ""} cuisine={cuisine ?? ""} km={km} />
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-[#FFFFFF]">
         {hasAddress ? (

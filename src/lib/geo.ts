@@ -45,18 +45,25 @@ function streetFromOsm(addr: OsmAddress) {
 }
 
 function cityFromOsm(addr: OsmAddress) {
-  return addr.city ?? addr.town ?? addr.village ?? addr.municipality ?? "Frankfurt am Main";
+  return (
+    addr.city ??
+    addr.town ??
+    addr.village ??
+    addr.municipality ??
+    addr.suburb ??
+    addr.city_district ??
+    ""
+  );
 }
 
 function placeFromOsm(addr: OsmAddress, lat: number, lng: number): DeliveryPlace | null {
-  const postalCode = germanPlz(addr.postcode) ?? lookupPlz(nearestPlz(lat, lng).plz)?.plz;
-  if (!postalCode) return null;
-  const street = streetFromOsm(addr);
+  const postalCode = germanPlz(addr.postcode);
   const city = cityFromOsm(addr);
-  const near = lookupPlz(postalCode);
+  if (!postalCode && !city) return null;
+  const street = streetFromOsm(addr);
   return {
-    street: street || (near ? near.district : ""),
-    postalCode,
+    street,
+    postalCode: postalCode ?? "",
     city,
     lat,
     lng,
@@ -84,21 +91,11 @@ export async function reverseGeocodeAddress(lat: number, lng: number): Promise<D
     const data = (await res.json()) as { address?: OsmAddress; lat?: string; lon?: string };
     const addr = data.address ?? {};
     const place = placeFromOsm(addr, lat, lng);
-    if (place?.postalCode) return place;
+    if (place && (place.postalCode || place.city)) return place;
   } catch {
-    /* snap to Frankfurt catalog if nearby */
+    /* do not snap to Frankfurt */
   }
 
-  const near = nearestPlz(lat, lng);
-  if (haversineKm({ lat, lng }, near) <= 30) {
-    return {
-      street: near.district,
-      postalCode: near.plz,
-      city: "Frankfurt am Main",
-      lat,
-      lng,
-    };
-  }
   return null;
 }
 

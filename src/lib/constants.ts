@@ -18,7 +18,11 @@ export const LAT_COOKIE = "lw_lat";
 export const LNG_COOKIE = "lw_lng";
 export const STREET_COOKIE = "lw_street";
 export const CITY_COOKIE = "lw_city";
+export const GEO_SOURCE_COOKIE = "lw_geo_source";
 export const FULFILLMENT_COOKIE = "lw_fulfill";
+export function isTrustedGeoSource(value?: string | null) {
+  return value === "gps" || value === "manual";
+}
 export const CITY = "Frankfurt am Main";
 export const RADIUS_PRESETS = [3, 5, 10] as const;
 export const DEFAULT_RADIUS_KM = 5;

@@ -12,86 +12,25 @@ function kindFromError(err: unknown): GeoErrorKind {
   return "unavailable";
 }
 
-function getCurrentPosition(options: PositionOptions): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject, options);
-  });
-}
-
-function watchOnce(options: PositionOptions, waitMs: number): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    let done = false;
-    const id = navigator.geolocation.watchPosition(
-      (pos) => {
-        if (done) return;
-        done = true;
-        navigator.geolocation.clearWatch(id);
-        window.clearTimeout(timer);
-        resolve(pos);
-      },
-      (err) => {
-        if (done) return;
-        done = true;
-        navigator.geolocation.clearWatch(id);
-        window.clearTimeout(timer);
-        reject(err);
-      },
-      options,
-    );
-    const timer = window.setTimeout(() => {
-      if (done) return;
-      done = true;
-      navigator.geolocation.clearWatch(id);
-      reject({ code: 3, message: "Timeout" });
-    }, waitMs);
-  });
-}
-
 /**
- * Must be called directly from a tap/click (Safari). Starts GPS in the same turn —
- * do not await anything before calling this.
+ * Starts GPS in this turn (required on iPhone Safari). Do not await anything
+ * before calling this. Not a watch — one getCurrentPosition only.
  */
-export function requestDeviceCoords(opts?: { allowWatch?: boolean }): Promise<GeoResult> {
+export function requestDeviceCoords(opts?: { force?: boolean }): Promise<GeoResult> {
   if (typeof window === "undefined") return Promise.resolve({ ok: false, error: "unavailable" });
   if (!window.isSecureContext) return Promise.resolve({ ok: false, error: "insecure" });
   if (!navigator.geolocation) return Promise.resolve({ ok: false, error: "unsupported" });
-  const allowWatch = opts?.allowWatch !== false;
 
-  return (async () => {
-    try {
-      const pos = await getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 18_000,
-        maximumAge: 0,
-      });
-      return { ok: true, lat: pos.coords.latitude, lng: pos.coords.longitude };
-    } catch (err) {
-      if (kindFromError(err) === "denied") return { ok: false, error: "denied" };
-    }
-
-    try {
-      const pos = await getCurrentPosition({
-        enableHighAccuracy: false,
-        timeout: 12_000,
-        maximumAge: 60_000,
-      });
-      return { ok: true, lat: pos.coords.latitude, lng: pos.coords.longitude };
-    } catch (err) {
-      if (kindFromError(err) === "denied") return { ok: false, error: "denied" };
-    }
-
-    if (!allowWatch) return { ok: false, error: "unavailable" };
-
-    try {
-      const pos = await watchOnce(
-        { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
-        16_000,
+  const run = () =>
+    new Promise<GeoResult>((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ ok: true, lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (err) => resolve({ ok: false, error: kindFromError(err) }),
+        { enableHighAccuracy: true, timeout: 20_000, maximumAge: opts?.force ? 0 : 15_000 },
       );
-      return { ok: true, lat: pos.coords.latitude, lng: pos.coords.longitude };
-    } catch (err) {
-      return { ok: false, error: kindFromError(err) };
-    }
-  })();
+    });
+
+  return run();
 }
 
 export function geoErrorMessage(

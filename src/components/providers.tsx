@@ -2,6 +2,7 @@
 
 import { CartProvider } from "@/components/cart-provider";
 import { LocaleProvider } from "@/components/locale-provider";
+import { LocationProvider } from "@/components/location-provider";
 import { StickyCartBar } from "@/components/sticky-cart-bar";
 import { CartSheet } from "@/components/cart-sheet";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
@@ -17,13 +18,15 @@ export function Providers({
 }) {
   return (
     <LocaleProvider initialLocale={initialLocale}>
-      <CartProvider>
-        {children}
-        <MobileTabBar />
-        <StickyCartBar />
-        <CartSheet />
-        <CustomerNoticePoller />
-      </CartProvider>
+      <LocationProvider>
+        <CartProvider>
+          {children}
+          <MobileTabBar />
+          <StickyCartBar />
+          <CartSheet />
+          <CustomerNoticePoller />
+        </CartProvider>
+      </LocationProvider>
     </LocaleProvider>
   );
 }
