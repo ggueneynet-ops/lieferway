@@ -8,6 +8,7 @@ import { formatDistanceShort, haversineKm, lookupPlz, DEMO_PLZ_CHIPS } from "@/l
 import { formatLocationChip, formatPlaceLine, placeKey, type DeliveryPlace } from "@/lib/place";
 import { useLocation } from "@/components/location-provider";
 import { formatGeoPositionError, getCurrentPositionFromTap, wipeStaleGeoDenial } from "@/lib/browser-geo";
+import { interpolate } from "@/lib/i18n";
 import type { GeoSource } from "@/lib/persist-place";
 
 const RECENT_KEY = "lw_recent_places";
@@ -209,7 +210,12 @@ export function LocationPicker({
           await applyCoords(result.lat, result.lng, true);
           return;
         }
-        setHereError(formatGeoPositionError(result.code, result.message));
+        if (result.code === 1) {
+          const host = typeof location !== "undefined" ? location.host : "";
+          setHereError(interpolate(t.geoDenied, { host }));
+        } else {
+          setHereError(formatGeoPositionError(result.code, result.message));
+        }
         loc.rejectGps();
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);

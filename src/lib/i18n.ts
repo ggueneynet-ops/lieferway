@@ -337,7 +337,8 @@ export const dictionaries = {
     noDeliveryToPlz: "Kein Restaurant liefert nach {plz}.",
     plzTryExamples:
       "Zum Ausprobieren: 60311 Innenstadt, 60487 Bockenheim, 60594 Sachsenhausen oder 65929 Höchst.",
-    geoDenied: "Standortzugriff verweigert. In Safari erlauben oder Adresse eintippen.",
+    geoDenied:
+      "Standort für diese Website erlauben: {host}. In Safari: Einstellungen → Safari → Websites → Ortung → {host} auf „Erlauben“, dann erneut „Aktueller Standort“ tippen.",
     geoUnavailable: "Standort derzeit nicht verfügbar. Bitte Adresse oder PLZ eintippen.",
     geoTimeout: "Standort dauert zu lange. Bitte erneut tippen oder Adresse eintippen.",
     geoInsecure: "Standort nur über HTTPS. Bitte den sicheren Link öffnen.",
@@ -972,7 +973,8 @@ export const dictionaries = {
     noDeliveryToPlz: "No restaurant delivers to {plz}.",
     plzTryExamples:
       "Try 60311 city centre, 60487 Bockenheim, 60594 Sachsenhausen or 65929 Höchst.",
-    geoDenied: "Location access denied. Allow it in Safari or type an address.",
+    geoDenied:
+      "Allow location for this site: {host}. In Safari: Settings → Safari → Websites → Location → Allow for {host}, then tap Current location again.",
     geoUnavailable: "Location is currently unavailable. Please type an address or postcode.",
     geoTimeout: "Location timed out. Tap again or type an address.",
     geoInsecure: "Location needs HTTPS. Please open the secure link.",
@@ -1607,7 +1609,8 @@ export const dictionaries = {
     noDeliveryToPlz: "{plz} için teslimat yapan restoran yok.",
     plzTryExamples:
       "Dene: 60311 Innenstadt, 60487 Bockenheim, 60594 Sachsenhausen veya 65929 Höchst.",
-    geoDenied: "Konum izni reddedildi. Safari’de izin verin veya adres yazın.",
+    geoDenied:
+      "Bu site için konuma izin verin: {host}. Safari: Ayarlar → Safari → Web Siteleri → Konum → {host} için İzin Ver, sonra Mevcut konum’a tekrar dokunun.",
     geoUnavailable: "Konum şu an alınamıyor. Lütfen adres veya posta kodu yazın.",
     geoTimeout: "Konum zaman aşımına uğradı. Tekrar dokunun veya adres yazın.",
     geoInsecure: "Konum yalnızca HTTPS ile. Lütfen güvenli bağlantıyı açın.",
