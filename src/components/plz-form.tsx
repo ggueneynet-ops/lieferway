@@ -123,9 +123,11 @@ export default function PlzForm({
     );
   }, [autoDetect, cuisine, initialPlz, initialStreet, km, q]);
 
-  const summary = initialPlz
-    ? `${initialPlz}${placeMeta ? ` · ${placeMeta.district}` : ""}`
-    : t.enterLocation;
+  const summary = initialStreet.trim()
+    ? initialStreet.trim()
+    : initialPlz
+      ? `${initialPlz}${placeMeta ? ` · ${placeMeta.district}` : ""}`
+      : t.enterLocation;
 
   const subtitle = initialStreet
     ? `${initialPlz}${initialCity ? ` ${initialCity}` : ""}`
@@ -139,12 +141,12 @@ export default function PlzForm({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex max-w-[58vw] items-center gap-1 rounded-full border border-[#E8E8EC] bg-[#F7F7F8] px-2.5 py-1.5 text-left text-[13px] font-semibold text-[#0F172A] hover:bg-white sm:max-w-[20rem]"
+          className="inline-flex min-h-11 max-w-full items-center gap-1 py-1 text-left text-[#0F172A]"
           aria-haspopup="dialog"
         >
-          <MapPin className="size-3.5 shrink-0 text-[#E91E63]" />
-          <span className="min-w-0 truncate">{summary}</span>
-          <ChevronDown className="size-3.5 shrink-0 text-[#94A3B8]" />
+          <MapPin className="size-4 shrink-0 text-[#E91E63]" strokeWidth={2.25} />
+          <span className="min-w-0 truncate text-[15px] font-bold tracking-tight">{summary}</span>
+          <ChevronDown className="size-4 shrink-0 text-[#94A3B8]" strokeWidth={2} />
         </button>
         <LocationPicker open={open} onClose={() => setOpen(false)} onPick={applyPlace} />
       </div>

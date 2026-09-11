@@ -6,7 +6,7 @@ export async function LaunchWeekBanner() {
   return (
     <Link
       href="#restaurants"
-      className="group relative block overflow-hidden rounded-2xl border border-[#E8E8EC] bg-white"
+      className="group relative block overflow-hidden rounded-[1.35rem] shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

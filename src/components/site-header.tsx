@@ -39,19 +39,21 @@ export async function SiteHeader({
   const app = chrome === "app";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#E8E8EC] bg-white/95 backdrop-blur-sm">
-      <div className="lw-wrap flex h-14 items-center gap-1.5 sm:h-16 sm:gap-3">
+    <header className="sticky top-0 z-40 border-b border-[#F3F4F6] bg-white/90 backdrop-blur-md">
+      <div className="lw-wrap flex h-[3.35rem] items-center gap-2 sm:h-16 sm:gap-3">
         <Logo size="sm" className="shrink-0 sm:hidden" />
         <Logo size="md" className="hidden shrink-0 sm:inline-flex" />
-        <PlzForm
-          compact
-          initialPlz={activePlz}
-          initialStreet={cookieStore.get(STREET_COOKIE)?.value ?? ""}
-          initialCity={cookieStore.get(CITY_COOKIE)?.value ?? ""}
-          q={q ?? ""}
-          cuisine={cuisine ?? ""}
-          km={activeKm}
-        />
+        <div className="min-w-0 flex-1">
+          <PlzForm
+            compact
+            initialPlz={activePlz}
+            initialStreet={cookieStore.get(STREET_COOKIE)?.value ?? ""}
+            initialCity={cookieStore.get(CITY_COOKIE)?.value ?? ""}
+            q={q ?? ""}
+            cuisine={cuisine ?? ""}
+            km={activeKm}
+          />
+        </div>
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           {app ? null : (
             <div className="hidden sm:block">
@@ -59,7 +61,13 @@ export async function SiteHeader({
             </div>
           )}
           {app ? null : <CartButton compact />}
-          <AccountMenu user={user} locale={locale} iconOnly={app} localeInMenu={app ? "always" : "mobile"} />
+          <AccountMenu
+            className={app ? "" : "hidden sm:block"}
+            user={user}
+            locale={locale}
+            iconOnly={app}
+            localeInMenu={app ? "always" : "mobile"}
+          />
         </div>
       </div>
     </header>

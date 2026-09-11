@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Clock, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { formatEUR } from "@/lib/money";
 import { restaurantPhoto } from "@/lib/media";
+import { RestaurantLogo } from "@/components/restaurant-logo";
 import type { FulfillmentType } from "@/lib/constants";
 import type { Dictionary } from "@/lib/i18n";
 
@@ -76,12 +77,19 @@ export function RestaurantCard({
       ? pickupFeeLabel
       : free && freeDeliveryLabel
         ? freeDeliveryLabel
-        : `${formatEUR(r.deliveryFeeCents)}${feeLabel ? ` ${feeLabel}` : ""}`;
+        : `${formatEUR(r.deliveryFeeCents)} ${feeLabel ?? ""}`.trim();
+
+  const stats = [
+    hasReviews ? `${r.rating.toFixed(1)} (${r.reviewCount})` : newLabel,
+    feeText,
+    `${minLabel} ${formatEUR(r.minOrderCents)}`,
+    `${r.etaMin}–${r.etaMax} Min.`,
+  ].filter(Boolean);
 
   return (
     <Link
       href={`/${r.slug}`}
-      className="group block w-full min-w-0 overflow-hidden rounded-2xl border border-[#E8E8EC] bg-white shadow-[0_4px_14px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.07)]"
+      className="group block w-full min-w-0 overflow-hidden rounded-[1.35rem] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.07)] ring-1 ring-[#EEEFF2] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(15,23,42,0.1)]"
     >
       <div className="lw-card-photo shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -104,44 +112,35 @@ export function RestaurantCard({
             </span>
           ) : null}
           {launchWeek && launchWeekLabel ? (
-            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#E91E63] shadow-sm ring-1 ring-[#E8E8EC]">
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#E91E63] shadow-sm">
               {launchWeekLabel}
             </span>
           ) : null}
         </div>
+        <span className="absolute bottom-2.5 left-2.5 rounded-[12px] bg-white p-[3px] shadow-[0_4px_12px_rgba(15,23,42,0.12)]">
+          <RestaurantLogo name={r.name} logoUrl={r.logoUrl} slug={r.slug} size={40} />
+        </span>
       </div>
       <div className="px-3.5 pb-3.5 pt-3">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 truncate font-display text-[16px] font-semibold leading-snug tracking-tight text-[#0F172A]">
-            {r.name}
-          </h3>
+        <h3 className="truncate font-display text-[17px] font-bold leading-snug tracking-tight text-[#0F172A]">
+          {r.name}
+        </h3>
+        {cuisineLabel ? (
+          <p className="sr-only">{cuisineLabel}</p>
+        ) : null}
+        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[13px] text-[#64748B]">
           {hasReviews ? (
-            <span className="mt-0.5 inline-flex shrink-0 items-center gap-0.5 text-[13px] font-semibold text-[#0F172A]">
-              <Star className="size-3.5 fill-[#E91E63] text-[#E91E63]" />
-              {r.rating.toFixed(1)}
-              <span className="font-medium text-[#94A3B8]">({r.reviewCount})</span>
-            </span>
-          ) : newLabel ? (
-            <span className="mt-0.5 shrink-0 rounded-full bg-[#FCE4EC] px-2 py-0.5 text-[11px] font-semibold text-[#E91E63]">
-              {newLabel}
-            </span>
+            <Star className="size-3.5 shrink-0 fill-[#E91E63] text-[#E91E63]" />
           ) : null}
-        </div>
-        <p className="mt-0.5 truncate text-[13px] font-medium text-[#64748B]">{cuisineLabel ?? r.cuisine}</p>
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#64748B]">
-          <span className="inline-flex items-center gap-1">
-            <Clock className="size-3 text-[#E91E63]" strokeWidth={2} />
-            {r.etaMin}–{r.etaMax} Min.
-          </span>
-          <span className="tabular-nums">
-            {minLabel} {formatEUR(r.minOrderCents)}
-          </span>
-          <span className={`tabular-nums ${free || pickup ? "font-semibold text-[#E91E63]" : ""}`}>
-            {feeText}
-          </span>
-        </div>
+          {stats.map((part, i) => (
+            <span key={`${part}-${i}`} className="inline-flex items-center gap-1.5">
+              {i > 0 ? <span className="text-[#D1D5DB]">·</span> : null}
+              <span className={free && part === feeText ? "font-semibold text-[#E91E63]" : ""}>{part}</span>
+            </span>
+          ))}
+        </p>
         {r.pickupAllowed && pickupLabel ? (
-          <p className="mt-1.5 text-[11px] font-medium text-[#64748B]">{pickupLabel}</p>
+          <p className="mt-1 text-[12px] font-medium text-[#64748B]">{pickupLabel}</p>
         ) : null}
       </div>
     </Link>

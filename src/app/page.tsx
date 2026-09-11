@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -49,29 +50,36 @@ export default async function Home({
       {splashDone ? null : <SplashIntro />}
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-[#FFFFFF]">
-        <section className="lw-wrap pt-3 pb-2">
-          {hasAddress ? (
-            <HomeSearch initialQ={q ?? ""} plz={plz} cuisine={cuisine} km={km} />
-          ) : null}
-        </section>
-
         {hasAddress ? (
-          <>
-            <section className="lw-wrap pb-3">
-              <LaunchWeekBanner />
-            </section>
-            <section className="lw-wrap pt-1 pb-3">
+          <div className="lw-wrap flex flex-col gap-5 pb-6 pt-3 sm:gap-6 sm:pt-4">
+            <HomeSearch initialQ={q ?? ""} plz={plz} cuisine={cuisine} km={km} />
+
+            <section className="space-y-3">
+              <div className="flex items-end justify-between gap-3">
+                <h2 className="text-[17px] font-semibold tracking-tight text-[#0F172A]">
+                  {copy.discoverTaste}
+                </h2>
+                <Link
+                  href="/suchen"
+                  className="shrink-0 text-[13px] font-medium text-[#0F172A] underline decoration-[#E91E63]/30 underline-offset-4"
+                >
+                  {copy.showAllLink}
+                </Link>
+              </div>
               <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
             </section>
-            <section id="restaurants" className="lw-wrap pt-1 pb-20">
-              <div className="mb-3 flex items-center justify-between gap-3">
+
+            <LaunchWeekBanner />
+
+            <section id="restaurants">
+              <div className="mb-3.5 flex items-center justify-between gap-3">
                 {plz ? <RadiusFilter plz={plz} q={q} cuisine={cuisine} km={km} /> : <span />}
-                <p className="text-[12px] text-[#64748B]">
+                <p className="text-[13px] font-medium text-[#64748B]">
                   {filtered.length} {copy.restaurants}
                 </p>
               </div>
               {filtered.length === 0 ? (
-                <div className="rounded-2xl border border-[#E8E8EC] bg-white px-4 py-12 text-center">
+                <div className="rounded-[1.35rem] border border-[#E8E8EC] bg-white px-4 py-12 text-center">
                   <p className="text-[#6B7280]">
                     {plz && km != null
                       ? interpolate(copy.noDeliveryInRadius, { plz, km: String(km) })
@@ -82,7 +90,7 @@ export default async function Home({
                   {plz ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
                 </div>
               ) : (
-                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
                   {filtered.map((r) => (
                     <RestaurantCard
                       key={r.id}
@@ -94,9 +102,9 @@ export default async function Home({
                 </div>
               )}
             </section>
-          </>
+          </div>
         ) : (
-          <section className="lw-wrap pb-20 pt-2">
+          <section className="lw-wrap pb-8 pt-3">
             <AddressFirst q={q} cuisine={cuisine} km={km} />
           </section>
         )}
