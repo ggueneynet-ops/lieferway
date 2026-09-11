@@ -5,12 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { requestDeviceCoords } from "@/lib/browser-geo";
 import {
   CITY_COOKIE,
+  GEO_LIVE_COOKIE,
   GEO_SOURCE_COOKIE,
   LAT_COOKIE,
   LNG_COOKIE,
   PLZ_COOKIE,
   STREET_COOKIE,
-  isTrustedGeoSource,
+  isActiveDeliveryLocation,
 } from "@/lib/constants";
 import { persistDeliveryPlace, type GeoSource } from "@/lib/persist-place";
 import type { DeliveryPlace } from "@/lib/place";
@@ -25,6 +26,7 @@ type LocationContextValue = {
   setSheetOpen: (open: boolean) => void;
   applyPlace: (place: DeliveryPlace, source: GeoSource) => void;
   refreshGps: () => void;
+  rejectGps: () => void;
 };
 
 const LocationContext = createContext<LocationContextValue | null>(null);
@@ -41,9 +43,8 @@ function cookieValue(name: string) {
   }
 }
 
-function readTrustedPlace(): DeliveryPlace | null {
+function readPlaceFromCookies(): DeliveryPlace | null {
   if (typeof document === "undefined") return null;
-  if (!isTrustedGeoSource(cookieValue(GEO_SOURCE_COOKIE))) return null;
   const postalCode = cookieValue(PLZ_COOKIE);
   const city = cookieValue(CITY_COOKIE);
   const lat = Number(cookieValue(LAT_COOKIE));
@@ -59,11 +60,29 @@ function readTrustedPlace(): DeliveryPlace | null {
   };
 }
 
+/** Restore without GPS only for an explicit manual pick, or this-session GPS (`lw_geo_live`). */
+function readRestorablePlace(): DeliveryPlace | null {
+  if (!isActiveDeliveryLocation(cookieValue(GEO_SOURCE_COOKIE), cookieValue(GEO_LIVE_COOKIE))) {
+    return null;
+  }
+  return readPlaceFromCookies();
+}
+
 function shouldAutoLocate(path: string) {
   if (isStaffArea(path)) return false;
   if (path.startsWith("/login") || path.startsWith("/register")) return false;
   if (path.startsWith("/checkout") || path.startsWith("/partner")) return false;
   return true;
+}
+
+function stripPlzFromUrl(router: ReturnType<typeof useRouter>) {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("plz")) return;
+  url.searchParams.delete("plz");
+  const href = `${url.pathname}${url.search}${url.hash}`;
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (href !== current) router.replace(href);
 }
 
 export function LocationProvider({ children }: { children: React.ReactNode }) {
@@ -93,19 +112,36 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     [router],
   );
 
+  const rejectGps = useCallback(() => {
+    const keepManual = cookieValue(GEO_SOURCE_COOKIE) === "manual";
+    if (keepManual) {
+      const restored = readPlaceFromCookies();
+      if (restored) {
+        setPlace(restored);
+        setStatus("ready");
+        return;
+      }
+    }
+    persistDeliveryPlace(null);
+    setPlace(null);
+    setStatus("need-pick");
+    setSheetOpen(true);
+    stripPlzFromUrl(router);
+    router.refresh();
+  }, [router]);
+
   const applyCoords = useCallback(
     async (lat: number, lng: number) => {
       const res = await fetch(`/api/geo/plz?lat=${lat}&lng=${lng}`);
       const data = (await res.json()) as { place?: DeliveryPlace | null };
       const next = data.place ?? null;
       if (!next || (!next.postalCode && !next.city)) {
-        setStatus("need-pick");
-        setSheetOpen(true);
+        rejectGps();
         return;
       }
       applyPlace(next, "gps");
     },
-    [applyPlace],
+    [applyPlace, rejectGps],
   );
 
   const refreshGps = useCallback(() => {
@@ -114,24 +150,22 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     void (async () => {
       const result = await resultPromise;
       if (!result.ok) {
-        setStatus(place ? "ready" : "need-pick");
-        if (!place) setSheetOpen(true);
+        rejectGps();
         return;
       }
       try {
         await applyCoords(result.lat, result.lng);
       } catch {
-        setStatus(place ? "ready" : "need-pick");
-        if (!place) setSheetOpen(true);
+        rejectGps();
       }
     })();
-  }, [applyCoords, place]);
+  }, [applyCoords, rejectGps]);
 
   useEffect(() => {
-    const trusted = readTrustedPlace();
+    const restorable = readRestorablePlace();
     setHydrated(true);
-    if (trusted) {
-      setPlace(trusted);
+    if (restorable) {
+      setPlace(restorable);
       setStatus("ready");
       return;
     }
@@ -144,15 +178,13 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     void (async () => {
       const result = await resultPromise;
       if (!result.ok) {
-        setStatus("need-pick");
-        setSheetOpen(true);
+        rejectGps();
         return;
       }
       try {
         await applyCoords(result.lat, result.lng);
       } catch {
-        setStatus("need-pick");
-        setSheetOpen(true);
+        rejectGps();
       }
     })();
     // Run once on marketplace mount — not on every client navigation.
@@ -167,8 +199,9 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       setSheetOpen,
       applyPlace,
       refreshGps,
+      rejectGps,
     }),
-    [applyPlace, hydrated, place, refreshGps, sheetOpen, status],
+    [applyPlace, hydrated, place, refreshGps, rejectGps, sheetOpen, status],
   );
 
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;

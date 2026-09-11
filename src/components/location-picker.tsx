@@ -6,6 +6,7 @@ import { Clock, MapPin, Navigation, Search, X } from "lucide-react";
 import { useI18n } from "@/components/locale-provider";
 import { formatDistanceShort, haversineKm, lookupPlz, DEMO_PLZ_CHIPS } from "@/lib/plz";
 import { formatLocationChip, formatPlaceLine, placeKey, type DeliveryPlace } from "@/lib/place";
+import { useLocation } from "@/components/location-provider";
 import { geoErrorMessage, requestDeviceCoords } from "@/lib/browser-geo";
 import type { GeoSource } from "@/lib/persist-place";
 
@@ -45,6 +46,7 @@ export function LocationPicker({
   variant?: "full" | "sheet";
 }) {
   const { t, locale } = useI18n();
+  const loc = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<DeliveryPlace[]>([]);
@@ -140,6 +142,7 @@ export function LocationPicker({
     const data = (await res.json()) as { place?: DeliveryPlace | null };
     if (!data.place || (!data.place.postalCode && !data.place.city)) {
       setHereError(t.geoFailed);
+      loc.rejectGps();
       return false;
     }
     setHere(data.place);
@@ -150,13 +153,11 @@ export function LocationPicker({
   }
 
   function onCurrentLocationClick() {
-    if (here && !hereBusy) {
-      pick(here, "gps");
-      return;
-    }
     setHereBusy(true);
     setHereError("");
     setHereHint("");
+    setHere(null);
+    gpsRef.current = null;
     const resultPromise = requestDeviceCoords({ force: true });
     void (async () => {
       const result = await resultPromise;
@@ -166,8 +167,10 @@ export function LocationPicker({
           return;
         }
         setHereError(geoErrorMessage(result.error, t));
+        loc.rejectGps();
       } catch {
         setHereError(t.geoFailed);
+        loc.rejectGps();
       } finally {
         setHereBusy(false);
       }

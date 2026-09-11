@@ -52,20 +52,20 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout: compact address row, prominent search, food-photo category circles, **large hero restaurant cards**. UI accent is pink `#E91E63` on white. Logo rasters are the locked pink pin+fork. Cache `?v=26`. Partnership copy stays on `/partner/anmelden` only.
+Marketplace layout: compact address row, prominent search, food-photo category circles, **large hero restaurant cards**. UI accent is pink `#E91E63` on white. Logo rasters are the locked pink pin+fork. Cache `?v=30`. Partnership copy stays on `/partner/anmelden` only.
 
 Customer home shows food photos, prices, Mindestbestellwert, Liefergebühr, and Lieferzeit. Partnership copy (5 % Provision, Auszahlung montags) is on `/partner/anmelden` only.
 
 Marketplace restaurant cards use wide food photos plus name, cuisine, ETA, min order, delivery fee, rating or Neu, and badges (Beliebt, Restaurant liefert). Demo-Modus is a single info chip — not a stamp on every photo.
 
-**Standort:** Default **Lieferung nach** is Frankfurt **60311** (Innenstadt). Tap it → **Aktueller Standort** (GPS only on that tap, as Safari requires). Success fills street + PLZ + city and filters the list. If GPS is denied, type an address. IP approx is used only when GPS times out and the IP is in the Frankfurt area — never a random German zip like 49661.
+**Standort:** On marketplace load, GPS runs once (`getCurrentPosition`, no watch). A successful fix **overwrites** cookies and `localStorage` (`lw_plz`) with the GPS PLZ/city/lat/lng — leftover Frankfurt does not win. If permission is denied, the header chip is **Standort wählen** (location sheet opens); demo-seeded Frankfurt is cleared unless the user **explicitly** picked an address/PLZ (`lw_geo_source=manual`). Tapping **Aktueller Standort** always calls `getCurrentPosition` again (`maximumAge: 0`). Restaurant filters follow that same active location.
 
 ## iPhone (Safari)
 
 1. Open the **public HTTPS** Cloudflare URL (Safari only allows GPS in a secure context).
-2. Tap **Lieferung nach**, then **Aktueller Standort**, and allow location. Street + PLZ should fill.
-3. If Safari blocks GPS: type `60311` / a street, or we may offer an IP approximation **only** if it is in Frankfurt.
-4. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row. Pull to refresh if an old layout is cached.
+2. Allow location when prompted, or tap the header chip → **Aktueller Standort**. A GPS fix overwrites any leftover Frankfurt cookie. The chip shows `{Stadt} · {PLZ}`.
+3. If Safari blocks GPS, the chip is **Standort wählen** — type a PLZ or address. Tapping **Aktueller Standort** asks again (it does not remember a prior denial forever).
+4. Try **3 km** vs **5 km** vs **10 km** on the Umkreis row. Pull to refresh if an old layout is cached (`?v=30`).
 
 Partner onboarding is apply-then-review (not self-serve panel signup):
 

@@ -1,13 +1,15 @@
 import {
   CITY_COOKIE,
+  GEO_LIVE_COOKIE,
   GEO_SOURCE_COOKIE,
   LAT_COOKIE,
   LNG_COOKIE,
   PLZ_COOKIE,
   STREET_COOKIE,
+  isActiveDeliveryLocation,
   isTrustedGeoSource,
 } from "@/lib/constants";
-import { PLZ_STORAGE_KEY } from "@/lib/geo";
+import { GEO_ATTEMPTED_KEY, PLZ_STORAGE_KEY } from "@/lib/geo";
 import type { DeliveryPlace } from "@/lib/place";
 
 export type GeoSource = "gps" | "manual";
@@ -17,28 +19,41 @@ function setCookie(name: string, value: string) {
   document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=31536000;SameSite=Lax${secure}`;
 }
 
+function setSessionCookie(name: string, value: string) {
+  const secure = typeof location !== "undefined" && location.protocol === "https:" ? ";Secure" : "";
+  document.cookie = `${name}=${encodeURIComponent(value)};path=/;SameSite=Lax${secure}`;
+}
+
 function clearCookie(name: string) {
   const secure = typeof location !== "undefined" && location.protocol === "https:" ? ";Secure" : "";
   document.cookie = `${name}=;path=/;max-age=0;SameSite=Lax${secure}`;
 }
 
+function wipeLocalLocation() {
+  try {
+    window.localStorage.removeItem(PLZ_STORAGE_KEY);
+    window.localStorage.removeItem(GEO_ATTEMPTED_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Writes GPS/manual place over any leftover Frankfurt cookies + `lw_plz` localStorage. */
 export function persistDeliveryPlace(place: DeliveryPlace | null, source: GeoSource = "manual") {
   if (!place) {
-    try {
-      window.localStorage.removeItem(PLZ_STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
+    wipeLocalLocation();
     clearCookie(PLZ_COOKIE);
     clearCookie(LAT_COOKIE);
     clearCookie(LNG_COOKIE);
     clearCookie(STREET_COOKIE);
     clearCookie(CITY_COOKIE);
     clearCookie(GEO_SOURCE_COOKIE);
+    clearCookie(GEO_LIVE_COOKIE);
     return;
   }
   try {
     window.localStorage.setItem(PLZ_STORAGE_KEY, place.postalCode);
+    window.localStorage.removeItem(GEO_ATTEMPTED_KEY);
   } catch {
     /* private mode */
   }
@@ -48,6 +63,11 @@ export function persistDeliveryPlace(place: DeliveryPlace | null, source: GeoSou
   setCookie(STREET_COOKIE, place.street);
   setCookie(CITY_COOKIE, place.city);
   setCookie(GEO_SOURCE_COOKIE, source);
+  if (source === "gps") {
+    setSessionCookie(GEO_LIVE_COOKIE, "1");
+  } else {
+    clearCookie(GEO_LIVE_COOKIE);
+  }
 }
 
 export function marketplaceHrefForPlace(
@@ -76,4 +96,4 @@ export function goMarketplace(
   window.location.assign(marketplaceHrefForPlace(place, q, cuisine, km));
 }
 
-export { isTrustedGeoSource };
+export { isActiveDeliveryLocation, isTrustedGeoSource };

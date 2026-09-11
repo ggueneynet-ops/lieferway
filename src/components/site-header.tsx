@@ -3,12 +3,13 @@ import { getSession } from "@/lib/auth";
 import { cookies } from "next/headers";
 import {
   CITY_COOKIE,
+  GEO_LIVE_COOKIE,
   GEO_SOURCE_COOKIE,
   LOCALE_COOKIE,
   PLZ_COOKIE,
   RADIUS_COOKIE,
   STREET_COOKIE,
-  isTrustedGeoSource,
+  isActiveDeliveryLocation,
 } from "@/lib/constants";
 import { parseLocale, type Locale } from "@/lib/i18n";
 import { LocaleToggle } from "@/components/locale-toggle";
@@ -34,9 +35,12 @@ export async function SiteHeader({
   const user = await getSession();
   const cookieStore = await cookies();
   const locale: Locale = parseLocale(cookieStore.get(LOCALE_COOKIE)?.value);
-  const trusted = isTrustedGeoSource(cookieStore.get(GEO_SOURCE_COOKIE)?.value);
-  const cookiePlz = normalizePlz(cookieStore.get(PLZ_COOKIE)?.value);
-  const activePlz = trusted ? (plz !== undefined ? plz ?? "" : cookiePlz ?? "") : plz ?? "";
+  const trusted = isActiveDeliveryLocation(
+    cookieStore.get(GEO_SOURCE_COOKIE)?.value,
+    cookieStore.get(GEO_LIVE_COOKIE)?.value,
+  );
+  const cookiePlz = trusted ? normalizePlz(cookieStore.get(PLZ_COOKIE)?.value) : null;
+  const activePlz = trusted ? (plz !== undefined ? plz ?? "" : cookiePlz ?? "") : "";
   const activeKm =
     km !== undefined ? km : resolveUserRadius(null, cookieStore.get(RADIUS_COOKIE)?.value);
   const app = chrome === "app";

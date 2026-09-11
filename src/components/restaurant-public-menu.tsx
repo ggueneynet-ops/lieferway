@@ -12,7 +12,7 @@ import { restaurantPhoto } from "@/lib/media";
 import { RestaurantLogo } from "@/components/restaurant-logo";
 import { getCopy } from "@/lib/get-locale";
 import { cuisineName } from "@/lib/i18n";
-import { GEO_SOURCE_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, isTrustedGeoSource } from "@/lib/constants";
+import { GEO_LIVE_COOKIE, GEO_SOURCE_COOKIE, LAT_COOKIE, LNG_COOKIE, PLZ_COOKIE, RADIUS_COOKIE, isActiveDeliveryLocation } from "@/lib/constants";
 import { formatDistanceKm, normalizePlz } from "@/lib/plz";
 import { distanceFromOrigin, parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
@@ -21,7 +21,7 @@ import { RestaurantPublicTabs } from "@/components/restaurant-public-tabs";
 export async function RestaurantPublicMenu({ slug }: { slug: string }) {
   const { t, locale } = await getCopy();
   const jar = await cookies();
-  const trusted = isTrustedGeoSource(jar.get(GEO_SOURCE_COOKIE)?.value);
+  const trusted = isActiveDeliveryLocation(jar.get(GEO_SOURCE_COOKIE)?.value, jar.get(GEO_LIVE_COOKIE)?.value);
   const plz = trusted ? normalizePlz(jar.get(PLZ_COOKIE)?.value) : null;
   const km = resolveUserRadius(null, jar.get(RADIUS_COOKIE)?.value);
   const gps = trusted ? parseLatLng(jar.get(LAT_COOKIE)?.value, jar.get(LNG_COOKIE)?.value) : null;

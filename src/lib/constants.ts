@@ -19,9 +19,18 @@ export const LNG_COOKIE = "lw_lng";
 export const STREET_COOKIE = "lw_street";
 export const CITY_COOKIE = "lw_city";
 export const GEO_SOURCE_COOKIE = "lw_geo_source";
+/** Session-only: set after a successful GPS fix this visit. Leftover `gps` cookies without this are not trusted. */
+export const GEO_LIVE_COOKIE = "lw_geo_live";
 export const FULFILLMENT_COOKIE = "lw_fulfill";
+export function isManualGeoSource(value?: string | null) {
+  return value === "manual";
+}
 export function isTrustedGeoSource(value?: string | null) {
   return value === "gps" || value === "manual";
+}
+/** SSR listing + cookie restore. Demo-seeded / leftover GPS Frankfurt is not an explicit choice. */
+export function isActiveDeliveryLocation(source?: string | null, live?: string | null) {
+  return source === "manual" || (source === "gps" && live === "1");
 }
 export const CITY = "Frankfurt am Main";
 export const RADIUS_PRESETS = [3, 5, 10] as const;

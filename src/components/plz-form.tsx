@@ -41,12 +41,12 @@ export default function PlzForm({
   const summary =
     loc.status === "locating"
       ? t.geoLocating
-      : live
-        ? formatLocationChip({
+      : loc.status === "need-pick" || !live
+        ? t.chooseLocation
+        : formatLocationChip({
             postalCode: live.postalCode,
             city: live.city,
-          }) || t.enterLocation
-        : t.enterLocation;
+          }) || t.chooseLocation;
 
   if (compact) {
     return (
@@ -91,7 +91,9 @@ export default function PlzForm({
           <span className="block text-[10px] font-medium uppercase tracking-wide text-text-secondary">
             {t.deliverTo}
           </span>
-          <span className="block truncate text-sm font-semibold text-ink">{summary || fallback || t.enterLocation}</span>
+          <span className="block truncate text-sm font-semibold text-ink">
+            {summary || (loc.status === "ready" ? fallback : "") || t.chooseLocation}
+          </span>
         </span>
         <ChevronDown className="size-4 shrink-0 text-text-secondary" />
       </button>
