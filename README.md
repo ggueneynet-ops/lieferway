@@ -52,7 +52,7 @@ On a physical device, use your machine LAN IP instead of `127.0.0.1`.
 
 Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + localStorage).
 
-Marketplace layout: compact address row, prominent search, food-photo category circles, **large hero restaurant cards**. UI accent is pink `#E91E63` on white. Logo rasters are the locked pink pin+fork. Cache `?v=24`. Partnership copy stays on `/partner/anmelden` only.
+Marketplace layout: compact address row, prominent search, food-photo category circles, **large hero restaurant cards**. UI accent is pink `#E91E63` on white. Logo rasters are the locked pink pin+fork. Cache `?v=25`. Partnership copy stays on `/partner/anmelden` only.
 
 Customer home shows food photos, prices, Mindestbestellwert, Liefergebühr, and Lieferzeit. Partnership copy (5 % Provision, Auszahlung montags) is on `/partner/anmelden` only.
 
