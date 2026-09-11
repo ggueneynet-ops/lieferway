@@ -4,8 +4,8 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/locale-provider";
 import { markSplashShown, notifySplashDone, splashAlreadyShown } from "@/lib/splash";
 
-/** Auto-hide after 1.1s. Tap/skip removes the overlay on the same frame. */
-const HOLD_MS = 1100;
+/** Auto-hide after ~0.9s. Tap/skip removes the overlay on the same frame. */
+const HOLD_MS = 900;
 
 function prefersReducedMotion() {
   if (typeof window === "undefined") return true;
@@ -57,7 +57,7 @@ export function SplashIntro() {
     >
       <span className="lw-splash-mark">
         <img
-          src="/Lieferway-splash-lockup.png?v=25"
+          src="/Lieferway-splash-lockup.png?v=26"
           alt="Lieferway"
           width={835}
           height={200}

@@ -38,7 +38,7 @@ export default async function SearchPage({
       <main className="lw-wrap flex-1 pb-6 pt-3">
         <h1 className="font-display text-[22px] font-semibold tracking-tight text-[#0F172A]">{t.navSearch}</h1>
         <div className="mt-3">
-          <HomeSearch initialQ={q ?? ""} plz={plz} km={km} action="/suchen" />
+          <HomeSearch initialQ={q ?? ""} plz={plz} km={km} action="/suchen" autoFocus />
         </div>
         <p className="mt-5 text-[13px] font-medium text-[#64748B]">
           {filtered.length} {t.restaurants}

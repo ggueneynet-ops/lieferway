@@ -6,7 +6,7 @@ Tokens live in `src/app/globals.css` as CSS variables. Customer UI is a premium 
 
 ## Logo
 
-**Locked by owner/designer.** Pink pin + white fork. Do not recreate or recolor logo rasters. Header has no slogan; splash uses **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Cache-bust `?v=25`.
+**Locked by owner/designer.** Pink pin + white fork. Do not recreate or recolor logo rasters. Header has no slogan; splash uses **DEIN ESSEN. DEIN VIERTEL. DEIN WEG.** Cache-bust `?v=26`.
 
 - Header / login / footer: `public/Lieferway-header-h64.png`, `h96`, `h128`, `h256` (`Lieferway-header.svg`, `Lieferway-header-from-owner.png`) — pin + wordmark, **no slogan**.
 - Splash: `public/Lieferway-splash-lockup.png` / `OWNER-LOCKUP-FINAL.png` / `Lieferway-lockup.png`

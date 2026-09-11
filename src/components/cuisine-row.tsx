@@ -51,7 +51,7 @@ export function CuisineRow({
             ) : (
               <span
                 className={`flex size-full items-center justify-center ${
-                  item.active ? "bg-[#E91E63] text-white" : "bg-[#F4F4F5] text-[#0F172A]"
+                  item.active ? "bg-[#F4F4F5] text-[#E91E63]" : "bg-[#F4F4F5] text-[#0F172A]"
                 }`}
               >
                 <CategoryIcon name={item.key} className="size-6" />

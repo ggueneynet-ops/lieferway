@@ -22,7 +22,6 @@ export function RestaurantFulfillment({
   postalCode,
   etaMin,
   deliveryFeeCents,
-  launchWeekFreeDelivery,
 }: {
   restaurantId: string;
   pickupAllowed: boolean;
@@ -67,8 +66,8 @@ export function RestaurantFulfillment({
 
   if (!pickupAllowed) {
     return (
-      <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#FCE4EC] px-2.5 py-1 text-[11px] font-semibold text-[#C2185B]">
-        <Bike className="size-3 shrink-0" strokeWidth={2} />
+      <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#F7F7F8] px-2.5 py-1 text-[11px] font-semibold text-[#0F172A]">
+        <Bike className="size-3 shrink-0 text-[#E91E63]" strokeWidth={2} />
         {t.restaurantDelivers}
       </p>
     );
@@ -79,9 +78,9 @@ export function RestaurantFulfillment({
     <div className="mt-3 space-y-2">
       <FulfillmentToggle pickupAllowed value={mode} onChange={choose} />
       {pickup ? (
-        <div className="rounded-2xl border border-[#E91E63]/20 bg-[#FCE4EC] px-3.5 py-3">
-          <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#C2185B]">
-            <ShoppingBag className="size-3.5" strokeWidth={2} />
+        <div className="rounded-2xl border border-[#E8E8EC] bg-[#F7F7F8] px-3.5 py-3">
+          <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0F172A]">
+            <ShoppingBag className="size-3.5 text-[#E91E63]" strokeWidth={2} />
             {t.pickupAtCounter}
           </p>
           <p className="mt-1 text-sm text-[#111827]">
@@ -93,9 +92,9 @@ export function RestaurantFulfillment({
           <p className="mt-1 text-[13px] text-[#6B7280]">{t.pickupHint}</p>
         </div>
       ) : (
-        <p className="inline-flex items-center gap-1.5 rounded-full bg-[#FCE4EC] px-2.5 py-1 text-[11px] font-semibold text-[#C2185B]">
-          <Bike className="size-3 shrink-0" strokeWidth={2} />
-          {launchWeekFreeDelivery ? `${t.launchWeekBadge} · ${t.badgeFreeDelivery}` : t.restaurantDelivers}
+        <p className="inline-flex items-center gap-1.5 rounded-full bg-[#F7F7F8] px-2.5 py-1 text-[11px] font-semibold text-[#0F172A]">
+          <Bike className="size-3 shrink-0 text-[#E91E63]" strokeWidth={2} />
+          {t.restaurantDelivers}
         </p>
       )}
       {pickup ? (

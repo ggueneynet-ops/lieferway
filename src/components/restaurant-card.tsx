@@ -78,13 +78,9 @@ export function RestaurantCard({
       : free && freeDeliveryLabel
         ? freeDeliveryLabel
         : `${formatEUR(r.deliveryFeeCents)} ${feeLabel ?? ""}`.trim();
-
-  const stats = [
-    hasReviews ? `${r.rating.toFixed(1)} (${r.reviewCount})` : null,
-    feeText,
-    `${minLabel} ${formatEUR(r.minOrderCents)}`,
-    `${r.etaMin}–${r.etaMax} Min.`,
-  ].filter(Boolean);
+  const etaText = `${r.etaMin}–${r.etaMax} Min.`;
+  const minText = `${minLabel} ${formatEUR(r.minOrderCents)}`;
+  const showNew = Boolean(!hasReviews && newLabel);
 
   return (
     <Link
@@ -105,20 +101,24 @@ export function RestaurantCard({
             {closedLabel}
           </div>
         )}
-        <div className="absolute left-2.5 top-2.5 flex max-w-[88%] flex-wrap gap-1">
-          {!hasReviews && newLabel ? (
-            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#0F172A] shadow-sm">
+        <div className="absolute left-2.5 top-2.5 flex max-w-[88%] flex-wrap items-center gap-1">
+          {launchWeek && launchWeekLabel ? (
+            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#E91E63] shadow-sm">
+              {launchWeekLabel}
+            </span>
+          ) : null}
+          {showNew ? (
+            <span
+              className={`rounded-full bg-white/90 px-1.5 py-[2px] font-medium text-[#64748B] shadow-sm ${
+                launchWeek ? "text-[9px]" : "px-2 py-[3px] text-[10px] font-semibold text-[#0F172A]"
+              }`}
+            >
               {newLabel}
             </span>
           ) : null}
           {popular && popularLabel ? (
             <span className="rounded-full bg-[#E91E63] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-white">
               {popularLabel}
-            </span>
-          ) : null}
-          {launchWeek && launchWeekLabel ? (
-            <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#E91E63] shadow-sm">
-              {launchWeekLabel}
             </span>
           ) : null}
         </div>
@@ -130,23 +130,32 @@ export function RestaurantCard({
         <h3 className="truncate font-display text-[17px] font-bold leading-snug tracking-tight text-[#0F172A]">
           {r.name}
         </h3>
-        {cuisineLabel ? (
-          <p className="sr-only">{cuisineLabel}</p>
-        ) : null}
-        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[13px] text-[#64748B]">
-          {hasReviews ? (
-            <Star className="size-3.5 shrink-0 fill-[#E91E63] text-[#E91E63]" />
-          ) : null}
-          {stats.map((part, i) => (
-            <span key={`${part}-${i}`} className="inline-flex items-center gap-1.5">
-              {i > 0 ? <span className="text-[#D1D5DB]">·</span> : null}
-              <span className={free && part === feeText ? "font-semibold text-[#E91E63]" : ""}>{part}</span>
-            </span>
-          ))}
-        </p>
-        {r.pickupAllowed && pickupLabel ? (
-          <p className="mt-1 text-[12px] font-medium text-[#64748B]">{pickupLabel}</p>
-        ) : null}
+        {cuisineLabel ? <p className="sr-only">{cuisineLabel}</p> : null}
+        <div className="mt-1.5 space-y-0.5 text-[13px] leading-snug text-[#64748B]">
+          <p className="flex flex-wrap items-center gap-x-1.5">
+            {hasReviews ? (
+              <span className="inline-flex items-center gap-1">
+                <Star className="size-3.5 shrink-0 fill-[#E91E63] text-[#E91E63]" />
+                <span>
+                  {r.rating.toFixed(1)} ({r.reviewCount})
+                </span>
+              </span>
+            ) : null}
+            {hasReviews ? <span className="text-[#D1D5DB]">·</span> : null}
+            <span className={free ? "font-medium text-[#0F172A]" : ""}>{feeText}</span>
+            <span className="text-[#D1D5DB]">·</span>
+            <span>{etaText}</span>
+          </p>
+          <p className="flex flex-wrap items-center gap-x-1.5 text-[12.5px]">
+            <span>{minText}</span>
+            {r.pickupAllowed && pickupLabel ? (
+              <>
+                <span className="text-[#D1D5DB]">·</span>
+                <span>{pickupLabel}</span>
+              </>
+            ) : null}
+          </p>
+        </div>
       </div>
     </Link>
   );

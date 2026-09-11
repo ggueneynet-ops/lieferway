@@ -556,7 +556,7 @@ export const dictionaries = {
     badgeSelfDelivery: "Restaurant liefert",
     badgeFreeDelivery: "Gratis Lieferung",
     launchWeekBadge: "Launch Week",
-    launchWeekFreeHint: "Launch Week: 0 € Liefergebühr — das Restaurant liefert selbst.",
+    launchWeekFreeHint: "Launch Week: 0 € Liefergebühr",
     launchWeekToggle: "Launch Week: 0 € Liefergebühr",
     launchWeekToggleHint:
       "Kunden sehen 0 € Liefergebühr und das Badge Launch Week. Die hinterlegte Gebühr bleibt gespeichert.",
@@ -1187,7 +1187,7 @@ export const dictionaries = {
     badgeSelfDelivery: "Restaurant delivers",
     badgeFreeDelivery: "Free delivery",
     launchWeekBadge: "Launch Week",
-    launchWeekFreeHint: "Launch Week: €0 delivery — the restaurant delivers itself.",
+    launchWeekFreeHint: "Launch Week: €0 delivery",
     launchWeekToggle: "Launch Week: €0 delivery fee",
     launchWeekToggleHint:
       "Customers see a €0 delivery fee and a Launch Week badge. Your stored fee stays on file.",
@@ -1818,7 +1818,7 @@ export const dictionaries = {
     badgeSelfDelivery: "Restoran getirir",
     badgeFreeDelivery: "Ücretsiz teslimat",
     launchWeekBadge: "Launch Week",
-    launchWeekFreeHint: "Launch Week: 0 € teslimat — restoran kendisi getirir.",
+    launchWeekFreeHint: "Launch Week: 0 € teslimat",
     launchWeekToggle: "Launch Week: 0 € teslimat ücreti",
     launchWeekToggleHint:
       "Müşteriler 0 € teslimat ve Launch Week rozeti görür. Kayıtlı ücretiniz durur.",

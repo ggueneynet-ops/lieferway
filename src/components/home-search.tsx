@@ -9,12 +9,14 @@ export function HomeSearch({
   cuisine,
   km,
   action = "/",
+  autoFocus = false,
 }: {
   initialQ: string;
   plz?: string | null;
   cuisine?: string;
   km?: number | null;
   action?: string;
+  autoFocus?: boolean;
 }) {
   const { t } = useI18n();
   return (
@@ -28,6 +30,9 @@ export function HomeSearch({
           name="q"
           defaultValue={initialQ}
           placeholder={t.searchPlaceholder}
+          autoFocus={autoFocus}
+          autoComplete="off"
+          enterKeyHint="search"
           className="h-[3.25rem] w-full rounded-full border-0 bg-[#F4F4F5] pl-12 pr-5 text-[15px] text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none placeholder:text-[#9CA3AF] focus:bg-white focus:shadow-[0_4px_16px_rgba(15,23,42,0.06)] focus:ring-2 focus:ring-[#E91E63]/18"
         />
       </div>
