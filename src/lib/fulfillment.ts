@@ -41,9 +41,10 @@ export function customerStep(status: string, fulfillment?: unknown): OrderStatus
     if (status === "PREPARING" || status === "ACCEPTED") return "ACCEPTED";
     if (status === "READY") return "READY";
     if (status === "DELIVERED") return "DELIVERED";
-    if (status === "PLACED") return "PLACED";
+    if (status === "PLACED" || status === "PENDING_PAYMENT") return "PLACED";
     return "PLACED";
   }
+  if (status === "PENDING_PAYMENT") return "PLACED";
   if (status === "READY") return "PREPARING";
   if ((CUSTOMER_STATUS_FLOW as string[]).includes(status)) return status as OrderStatus;
   return "PLACED";

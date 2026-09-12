@@ -3,8 +3,6 @@
 import type { PaymentMethod } from "@/lib/constants";
 import { formatEUR } from "@/lib/money";
 import { useI18n } from "@/components/locale-provider";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 function AppleMark() {
   return (
@@ -60,7 +58,7 @@ export function PaymentPicker({
           <p className="mt-1 text-sm text-[#6B7280]">{t.payHint}</p>
         </div>
         <span className="shrink-0 rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
-          {t.demoMode}
+          {t.stripeTestMode}
         </span>
       </div>
       <p className="mt-2 text-[12px] text-[#9CA3AF]">{t.demoPaymentNote}</p>
@@ -107,42 +105,8 @@ export function PaymentPicker({
         </button>
       </div>
 
-      {method === "CARD" ? (
-        <div className="mt-5 space-y-4">
-          <div className="rounded-2xl bg-gradient-to-br from-[#111827] to-[#374151] p-5 text-white shadow-inner">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">{t.demoMode}</p>
-            <p className="mt-6 font-mono text-lg tracking-[0.18em]">{card || "•••• •••• •••• ••••"}</p>
-            <div className="mt-4 flex justify-between text-xs text-white/80">
-              <span>{expiry || "MM/YY"}</span>
-              <span>Visa / Mastercard</span>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="sm:col-span-3">
-              <Label>{t.cardNumber}</Label>
-              <Input className="mt-1" inputMode="numeric" autoComplete="cc-number" value={card} onChange={(e) => onCard(e.target.value)} />
-            </div>
-            <div>
-              <Label>{t.expiry}</Label>
-              <Input className="mt-1" inputMode="numeric" autoComplete="cc-exp" value={expiry} onChange={(e) => onExpiry(e.target.value)} />
-            </div>
-            <div>
-              <Label>{t.cvc}</Label>
-              <Input className="mt-1" inputMode="numeric" autoComplete="cc-csc" value={cvc} onChange={(e) => onCvc(e.target.value)} />
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {method === "APPLE_PAY" ? (
-        <p className="mt-4 text-center text-[13px] text-[#6B7280]">
-          Apple Pay · {amount} · {t.demoPaymentNote}
-        </p>
-      ) : null}
-      {method === "GOOGLE_PAY" ? (
-        <p className="mt-4 text-center text-[13px] text-[#6B7280]">
-          Google Pay · {amount} · {t.demoPaymentNote}
-        </p>
+      {method !== "CASH" ? (
+        <p className="mt-4 text-center text-[13px] text-[#6B7280]">{t.stripeTestHint}</p>
       ) : null}
     </section>
   );

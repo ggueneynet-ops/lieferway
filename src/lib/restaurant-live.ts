@@ -99,7 +99,7 @@ export async function loadKitchenSnapshot(restaurantId: string) {
       orderBy: { createdAt: "desc" },
     }),
     prisma.order.findMany({
-      where: { restaurantId, status: { not: "PLACED" } },
+      where: { restaurantId, status: { notIn: ["PLACED", "PENDING_PAYMENT"] } },
       include: kitchenOrderInclude,
       orderBy: { createdAt: "desc" },
       take: 40,

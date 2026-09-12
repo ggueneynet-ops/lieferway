@@ -25,13 +25,13 @@ export default async function AdminHome() {
     prisma.order.count({ where: createdToday ? { createdAt: createdToday } : {} }),
     prisma.order.aggregate({
       where: {
-        status: { notIn: ["REJECTED", "CANCELLED"] },
+        status: { notIn: ["REJECTED", "CANCELLED", "PENDING_PAYMENT"] },
         ...(createdToday ? { createdAt: createdToday } : {}),
       },
       _sum: { totalCents: true, commissionCents: true },
     }),
     prisma.order.aggregate({
-      where: { status: { notIn: ["REJECTED", "CANCELLED"] } },
+      where: { status: { notIn: ["REJECTED", "CANCELLED", "PENDING_PAYMENT"] } },
       _sum: { totalCents: true, commissionCents: true },
     }),
     prisma.restaurant.count({ where: { isActive: true } }),

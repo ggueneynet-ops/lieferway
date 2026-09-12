@@ -27,6 +27,9 @@ export async function acceptKitchenOrder(opts: {
 
   const now = new Date();
   const alreadyInKitchen = order.status === "PREPARING" || order.status === "ACCEPTED";
+  if (order.status === "PENDING_PAYMENT") {
+    return { error: "Zahlung steht noch aus — Auftrag noch nicht in der Küche.", status: 400 };
+  }
   if (order.status === "PLACED" || alreadyInKitchen) {
     await prisma.$executeRawUnsafe(
       `UPDATE "Order" SET "status" = $1, "prepMinutes" = $2, "acceptedAt" = COALESCE("acceptedAt", $3), "updatedAt" = $4 WHERE "id" = $5`,

@@ -140,23 +140,21 @@ export default function App() {
     setBusy(true);
     setError("");
     try {
-      const pay = await api<{ intent: { id: string } }>("/api/payments/intent", {
-        method: "POST",
-        body: JSON.stringify({ amountCents: total, method, confirm: true }),
-      });
-      const data = await api<{ order: { id: string } }>("/api/orders", {
+      const data = await api<{ order: { id: string }; requiresPayment?: boolean }>("/api/orders", {
         method: "POST",
         body: JSON.stringify({
           restaurantId: cart.restaurant.id,
           items: cart.items.map((i) => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
           paymentMethod: method,
-          paymentIntentId: pay.intent.id,
           customerName: (fullName.trim() || user?.name || "Gast").trim(),
           street,
           city: "Frankfurt am Main",
           postalCode: "60316",
         }),
       });
+      if (data.requiresPayment) {
+        throw new Error("Kartenzahlung im Browser abschließen (Stripe Payment Element).");
+      }
       setCart(null);
       setOrderId(data.order.id);
       const detail = await api<{ order: Record<string, unknown> }>(`/api/orders/${data.order.id}`);

@@ -16,6 +16,7 @@ import { interpolate } from "@/lib/i18n";
 import { customerNeedsPhone } from "@/lib/phone";
 import { toast } from "sonner";
 import { PaymentPicker } from "@/components/payment-picker";
+import { StripePaymentForm } from "@/components/stripe-payment-form";
 import { QtyStepper } from "@/components/cart-panel";
 import { FulfillmentToggle } from "@/components/fulfillment-toggle";
 import { isPickup } from "@/lib/fulfillment";
@@ -32,6 +33,11 @@ export function CheckoutClient() {
   const [card, setCard] = useState("4242 4242 4242 4242");
   const [expiry, setExpiry] = useState("12/28");
   const [cvc, setCvc] = useState("123");
+  const [payClient, setPayClient] = useState<{
+    orderId: string;
+    clientSecret: string;
+    publishableKey: string;
+  } | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [coupon, setCoupon] = useState<{
     code: string;
@@ -145,17 +151,6 @@ export function CheckoutClient() {
     }
     setBusy(true);
     try {
-      let paymentIntentId: string | undefined;
-      if (method !== "CASH") {
-        const payRes = await fetch("/api/payments/intent", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amountCents: totals.totalCents, method, confirm: true }),
-        });
-        const payData = await payRes.json();
-        if (!payRes.ok) throw new Error(payData.error);
-        paymentIntentId = payData.intent.id;
-      }
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -163,7 +158,6 @@ export function CheckoutClient() {
           restaurantId: current.restaurantId,
           items: current.items.map((i) => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
           paymentMethod: method,
-          paymentIntentId,
           customerName: fullName.trim(),
           street: pickup ? current.restaurantAddress || street : street,
           city: pickup ? current.restaurantCity || city : city,
@@ -175,14 +169,39 @@ export function CheckoutClient() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      clear();
-      router.push(`/orders/${data.order.id}`);
-      toast.success(t.orderPlaced);
+      if (method === "CASH" || !data.requiresPayment) {
+        clear();
+        router.push(`/orders/${data.order.id}`);
+        toast.success(t.orderPlaced);
+        return;
+      }
+      if (!data.clientSecret || !data.publishableKey) {
+        throw new Error(t.restaurantNotOnboarded);
+      }
+      setPayClient({
+        orderId: data.order.id,
+        clientSecret: data.clientSecret,
+        publishableKey: data.publishableKey,
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t.error);
     } finally {
       setBusy(false);
     }
+  }
+
+  async function finishPaid() {
+    if (!payClient) return;
+    clear();
+    const orderId = payClient.orderId;
+    for (let i = 0; i < 20; i++) {
+      const res = await fetch(`/api/orders/${orderId}`);
+      const data = await res.json().catch(() => null);
+      if (data?.order?.status && data.order.status !== "PENDING_PAYMENT") break;
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    router.push(`/orders/${orderId}`);
+    toast.success(t.orderPlaced);
   }
 
   return (
@@ -293,17 +312,30 @@ export function CheckoutClient() {
                 {pickup ? t.pickupHint : t.restaurantDeliversHint}
               </p>
             </section>
-            <PaymentPicker
-              method={method}
-              onMethod={setMethod}
-              totalCents={totals.totalCents}
-              card={card}
-              expiry={expiry}
-              cvc={cvc}
-              onCard={setCard}
-              onExpiry={setExpiry}
-              onCvc={setCvc}
-            />
+            {payClient ? (
+              <section className="rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
+                <h2 className="font-display text-lg font-semibold tracking-tight">{t.completePayment}</h2>
+                <p className="mt-1 text-sm text-[#6B7280]">{t.payAwaiting}</p>
+                <StripePaymentForm
+                  clientSecret={payClient.clientSecret}
+                  publishableKey={payClient.publishableKey}
+                  returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/orders/${payClient.orderId}`}
+                  onPaid={() => void finishPaid()}
+                />
+              </section>
+            ) : (
+              <PaymentPicker
+                method={method}
+                onMethod={setMethod}
+                totalCents={totals.totalCents}
+                card={card}
+                expiry={expiry}
+                cvc={cvc}
+                onCard={setCard}
+                onExpiry={setExpiry}
+                onCvc={setCvc}
+              />
+            )}
           </div>
           <aside className="h-fit rounded-[20px] border border-[#E5E7EB] bg-white p-5 shadow-[0_8px_30px_rgba(17,24,39,0.04)] sm:p-6">
             <h2 className="font-display text-lg font-semibold tracking-tight">{t.summary}</h2>
@@ -388,7 +420,7 @@ export function CheckoutClient() {
             <Button
               className="mt-4 hidden h-12 w-full text-base lg:inline-flex"
               size="lg"
-              disabled={busy || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
+              disabled={busy || !!payClient || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
               onClick={pay}
             >
               {busy ? t.processing : t.placeOrder}
@@ -401,7 +433,7 @@ export function CheckoutClient() {
           <Button
             className="h-12 w-full text-base font-semibold"
             size="lg"
-            disabled={busy || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
+            disabled={busy || !!payClient || customerNeedsPhone(phone, "CUSTOMER") || fullName.trim().length < 2}
             onClick={pay}
           >
             {busy ? t.processing : t.placeOrder}

@@ -13,6 +13,7 @@ import { interpolate } from "@/lib/i18n";
 import { isPickup } from "@/lib/fulfillment";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import { OrderPayPanel } from "@/components/order-pay-panel";
 
 export default async function OrderDetailPage({
   params,
@@ -58,7 +59,17 @@ export default async function OrderDetailPage({
         ? isPickup(order.fulfillmentType)
           ? t.cashOnPickup
           : t.cashOnDelivery
-        : t.processing;
+        : order.paymentStatus === "REFUNDED"
+          ? t.payRefunded
+          : order.paymentStatus === "PARTIALLY_REFUNDED"
+            ? t.payPartiallyRefunded
+            : order.paymentStatus === "DISPUTED"
+              ? t.payDisputed
+              : order.paymentStatus === "FAILED"
+                ? t.payFailed
+                : order.status === "PENDING_PAYMENT"
+                  ? t.waitingForPayment
+                  : t.processing;
 
   return (
     <>
@@ -66,6 +77,16 @@ export default async function OrderDetailPage({
       <OrderPoller id={order.id} />
       <main className="lw-flow-enter mx-auto grid w-full max-w-5xl flex-1 gap-8 px-4 py-10 lg:grid-cols-[1fr_320px]">
         <div>
+          {order.status === "PENDING_PAYMENT" ? (
+            <div className="mb-8 rounded-[24px] border border-amber-200 bg-amber-50 px-6 py-6 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+              <h1 className="font-display text-2xl font-semibold tracking-tight text-[#0F172A]">
+                {t.waitingForPayment}
+              </h1>
+              <p className="mt-2 text-sm text-[#64748B]">{t.payAwaiting}</p>
+              <p className="mt-1 text-[13px] font-medium text-[#0F172A]">{order.shortCode}</p>
+              <OrderPayPanel orderId={order.id} />
+            </div>
+          ) : null}
           {order.status === "PLACED" || order.status === "PREPARING" ? (
             <div className="mb-8 rounded-[24px] border border-[#E8E8EC] bg-white px-6 py-8 text-center shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
               <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#E91E63] text-white">
@@ -102,6 +123,8 @@ export default async function OrderDetailPage({
               ) : null}
             </p>
           ) : null}
+          {order.status !== "PENDING_PAYMENT" ? (
+            <>
           <a
             href={`/api/orders/${order.id}/invoice`}
             className="mt-4 inline-flex h-12 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-white"
@@ -109,6 +132,8 @@ export default async function OrderDetailPage({
             {t.invoiceDownload}
           </a>
           <p className="mt-2 text-xs text-[#6B7280]">{t.invoiceNotBon}</p>
+            </>
+          ) : null}
           <p className="mt-2 text-sm text-muted-foreground">
             {isPickup(order.fulfillmentType)
               ? `${t.pickupAtCounter} · ${order.restaurant.address}, ${order.restaurant.postalCode} ${order.restaurant.city}`

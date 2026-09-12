@@ -25,7 +25,11 @@ export default async function AdminOrdersPage() {
               <th className="px-4 py-3 font-medium">{t.nr}</th>
               <th className="px-4 py-3 font-medium">{t.restaurants}</th>
               <th className="px-4 py-3 font-medium">{t.status}</th>
-              <th className="px-4 py-3 font-medium">{t.amount}</th>
+              <th className="px-4 py-3 font-medium">{t.financeGross}</th>
+              <th className="px-4 py-3 font-medium">{t.platformNetCommission}</th>
+              <th className="px-4 py-3 font-medium">{t.stripeFee}</th>
+              <th className="px-4 py-3 font-medium">{t.restaurantNet}</th>
+              <th className="px-4 py-3 font-medium">{t.paymentStatus}</th>
             </tr>
           </thead>
           <tbody>
@@ -44,6 +48,10 @@ export default async function AdminOrdersPage() {
                   <StatusBadge status={o.status} locale={locale} />
                 </td>
                 <td className="px-4 py-4">{formatEUR(o.totalCents, locale)}</td>
+                <td className="px-4 py-4">{formatEUR(o.platformNetCommissionCents || o.commissionCents, locale)}</td>
+                <td className="px-4 py-4">{formatEUR(o.stripeFeeActualCents || o.stripeFeeCents, locale)}</td>
+                <td className="px-4 py-4">{formatEUR(o.restaurantTransferCents || o.restaurantNetCents || o.restaurantPayoutCents, locale)}</td>
+                <td className="px-4 py-4 text-sm text-text-secondary">{o.paymentStatus}</td>
               </tr>
             ))}
           </tbody>

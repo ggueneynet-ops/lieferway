@@ -26,6 +26,7 @@ export async function regeneratePayouts(forWeekStart?: Date) {
   const orders = await prisma.order.findMany({
     where: {
       status: "DELIVERED",
+      paymentStatus: { notIn: ["PENDING", "FAILED"] },
       ...(forWeekStart
         ? {
             deliveredAt: {
@@ -60,12 +61,18 @@ export async function regeneratePayouts(forWeekStart?: Date) {
       cashCommissionDueCents: 0,
       cardPayoutCents: 0,
     };
-    current.foodTotalCents += order.foodSubtotalCents;
-    current.commissionCents += order.commissionCents;
+    const remainingCommission = Math.max(0, order.commissionCents - (order.refundedCommissionCents ?? 0));
+    const remainingFood = order.refundedCents >= order.totalCents ? 0 : order.foodSubtotalCents;
+    const remainingNet = Math.max(
+      0,
+      (order.restaurantNetCents || order.restaurantPayoutCents) - (order.refundedRestaurantNetCents ?? 0),
+    );
+    current.foodTotalCents += remainingFood;
+    current.commissionCents += remainingCommission;
     if (order.paymentMethod === "CASH") {
-      current.cashCommissionDueCents += order.commissionCents;
+      current.cashCommissionDueCents += remainingCommission;
     } else {
-      current.cardPayoutCents += order.restaurantPayoutCents;
+      current.cardPayoutCents += remainingNet;
     }
     buckets.set(key, current);
   }

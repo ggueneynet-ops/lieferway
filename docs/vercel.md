@@ -76,12 +76,13 @@ SMTP_SECURE=false
 MAIL_WEBHOOK_URL=
 ```
 
-Optional legal (invoice issuer; unset fields stay “Demo-Platzhalter”):
+Optional legal (invoice issuer; unset fields stay “Demo-Platzhalter”).
+Matches the public Impressum — do not invent other tax numbers:
 
 ```
-LIEFERWAY_LEGAL_NAME=
-LIEFERWAY_ADDRESS=
-LIEFERWAY_UST_ID=
+LIEFERWAY_LEGAL_NAME=Gökhan Güney
+LIEFERWAY_ADDRESS=Waldstr. 6, 64732 Bad König
+LIEFERWAY_UST_ID=DE331265637
 ```
 
 Optional Google customer login:
@@ -90,6 +91,18 @@ Optional Google customer login:
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
+
+Stripe Connect test mode (never expose the secret or webhook secret to the browser):
+
+```
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_FEE_PERCENT_BPS=150
+STRIPE_FEE_FIXED_CENTS=25
+```
+
+Webhook URL: `https://app.lieferway.de/api/stripe/webhook` (also enable Connect events). Details: [stripe-connect.md](./stripe-connect.md).
 
 ## DNS
 

@@ -112,8 +112,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (isCourier && order.courierId && order.courierId !== session.id) return fail("Andere Tour.");
       status = "DELIVERED";
       deliveredAt = new Date();
-    } else if (action === "cancel" && isCustomer && order.status === "PLACED") {
+    } else if (action === "cancel" && isCustomer && (order.status === "PLACED" || order.status === "PENDING_PAYMENT")) {
       status = "CANCELLED";
+      if (order.status === "PENDING_PAYMENT" && order.stripePaymentIntentId) {
+        const { cancelPaymentIntent } = await import("@/lib/payments");
+        await cancelPaymentIntent(order.stripePaymentIntentId);
+      }
     } else {
       return fail("Diese Statusänderung ist nicht erlaubt.");
     }

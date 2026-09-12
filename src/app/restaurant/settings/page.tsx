@@ -5,18 +5,25 @@ import { PersonalOrderLink } from "@/components/personal-order-link";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
 import { getCopy } from "@/lib/get-locale";
 import { publicOrigin } from "@/lib/public-origin";
+import { StripeOnboardButton } from "@/components/stripe-onboard-button";
+import { isStripeConfigured } from "@/lib/stripe";
+import { syncRestaurantStripeAccount } from "@/lib/stripe-connect";
 
 export const dynamic = "force-dynamic";
 
 export default async function RestaurantSettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ok?: string; error?: string }>;
+  searchParams: Promise<{ ok?: string; error?: string; stripe?: string }>;
 }) {
   const { restaurant } = await requireOwnedRestaurant();
   const { t } = await getCopy();
   const origin = await publicOrigin();
   const q = await searchParams;
+  const stripeRow =
+    restaurant && (q.stripe === "return" || q.stripe === "refresh") && restaurant.stripeAccountId
+      ? ((await syncRestaurantStripeAccount(restaurant.id)) ?? restaurant)
+      : restaurant;
   if (!restaurant) {
     return (
       <RestaurantAppShell title={t.rpSettings}>
@@ -45,6 +52,30 @@ export default async function RestaurantSettingsPage({
           {restaurant.launchWeekFreeDelivery ? ` · ${t.launchWeekBadge}` : ""}
         </p>
       </Link>
+      {stripeRow ? (
+        <div className="mb-4 rounded-2xl border border-[#E5E7EB] bg-white p-4">
+          <h2 className="text-sm font-semibold text-[#111827]">{t.stripeConnect}</h2>
+          <p className="mt-1 text-sm text-[#6B7280]">{t.stripeConnectHint}</p>
+          {q.stripe === "return" ? (
+            <p className="mt-2 text-sm text-emerald-700">{t.stripeConnectReady}</p>
+          ) : null}
+          <p className="mt-2 text-sm">
+            {stripeRow.stripeOnboardingComplete && stripeRow.stripeChargesEnabled
+              ? t.stripeConnectReady
+              : stripeRow.stripeAccountId
+                ? t.stripeConnectIncomplete
+                : t.stripeConnectStart}
+          </p>
+          {isStripeConfigured() ? (
+            <StripeOnboardButton
+              complete={stripeRow.stripeOnboardingComplete}
+              chargesEnabled={stripeRow.stripeChargesEnabled}
+            />
+          ) : (
+            <p className="mt-2 text-sm text-[#6B7280]">{t.stripeTestMode}: —</p>
+          )}
+        </div>
+      ) : null}
       <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4">
         <RestaurantLogoForm
           restaurantId={restaurant.id}

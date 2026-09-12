@@ -78,6 +78,8 @@ Required env on Vercel:
 
 Optional: `MAIL_FROM`, `RESEND_API_KEY` / `SMTP_*` / `MAIL_WEBHOOK_URL`, `LIEFERWAY_LEGAL_*`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
 
+Stripe Connect test mode (card / wallets): `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`. Setup: [docs/stripe-connect.md](docs/stripe-connect.md).
+
 Owner steps after Vercel Sign Up: Import this Git repo → Framework Preset **Next.js** → paste the env vars → Deploy. Then Project → Settings → Domains → add `app.lieferway.de`. DNS: **CNAME** `app` → `cname.vercel-dns.com`.
 
 Full checklist: [docs/vercel.md](docs/vercel.md).
@@ -85,7 +87,7 @@ Full checklist: [docs/vercel.md](docs/vercel.md).
 ## What is in v1
 
 - Customer: browse seeded Frankfurt restaurants, menu, cart, checkout, live status. **In-app toasts** + order page polling when logged in. **Email** on placed / accepted (with prep ETA) / rejected / out for delivery / delivered — Resend, SMTP, or webhook; otherwise a clear demo log. After checkout, a **PDF Rechnung** (Bestellbeleg) is generated, attached to the placed email, and downloadable on the order page. Inbox on **Konto**.
-- Payments: Stripe **mock** (card / Apple Pay / Google Pay UI) + cash. Structure in `src/lib/payments.ts` for a real Stripe swap later
+- Payments: Stripe Connect **test mode** (Express destination charges + Payment Element) + cash. See [docs/stripe-connect.md](docs/stripe-connect.md). Online orders stay `PENDING_PAYMENT` until `payment_intent.succeeded`.
 - Restaurant panel: live kitchen board (SSE + poll), accept/reject, status. **Alarm** (short siren pulse) on new (PLACED) tickets repeats until none are new (Annehmen or Ablehnen or Stumm); first tap unlocks audio. Default on. **Lieferbon drucken** on Heute and Bestellungen opens an 80mm kitchen/courier slip (`window.print()`) with the **restaurant logo** at the top — not a legal invoice. **Bestellungen** date filter (Heute / Gestern / Datum, Angenommen + Abgelehnt). Restaurant marks orders ready for **its own delivery**. **Lieferung**: editable Lieferzeit (min–max minutes on marketplace cards), Mindestbestellwert, Liefergebühr, radius. **Finanzen**: monthly **Provisionsrechnung** (draft PDF).
 - Admin: hidden URL `/admin` (not linked in the public footer). Restaurants, users, orders, Monday payout ledger, **Rechnungen** (commission drafts). E-Rechnung (ZUGFeRD/XRechnung) is stubbed as “coming”.
 - Auth with roles (JWT cookie + Bearer for mobile). Customers self-register at `/register` (**phone required**) or **Mit Google anmelden**. Restaurants **apply** at `/partner` / `/partner/anmelden`. Existing partners log in at `/login?next=/restaurant`.

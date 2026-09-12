@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { orderStatusLabel, type Locale } from "@/lib/i18n";
 
 const tones: Record<string, string> = {
+  PENDING_PAYMENT: "bg-amber-100 text-amber-900",
   PLACED: "bg-warning/15 text-ink",
   ACCEPTED: "bg-primary-soft text-ink",
   PREPARING: "bg-primary-soft text-primary-pressed",

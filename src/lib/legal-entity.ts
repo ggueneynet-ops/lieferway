@@ -22,7 +22,7 @@ export function lieferwayIssuer(): LieferwayIssuer {
   const address = envText("LIEFERWAY_ADDRESS", "LIEFERWAY_LEGAL_ADDRESS");
   const vatId = envText("LIEFERWAY_UST_ID", "LIEFERWAY_LEGAL_UST_ID");
   return {
-    name: name || "Lieferway GmbH i.G.",
+    name: name || "Gökhan Güney",
     addressLines: address
       ? address
           .split(/\n|;/)
