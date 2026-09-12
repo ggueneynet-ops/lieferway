@@ -167,6 +167,7 @@ SMTP_SECURE=false
 # or
 MAIL_WEBHOOK_URL=https://example.com/mail-hook
 MAIL_FROM=Lieferway <noreply@lieferway.de>
+# Allowed alternative (verified sender): MAIL_FROM=Lieferway <info@lieferway.de>
 ```
 
 Without those, the server logs `[lieferway mail demo] no RESEND_API_KEY/SMTP_HOST — not sent` and still stores the in-app notice.
