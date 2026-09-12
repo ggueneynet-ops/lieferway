@@ -25,6 +25,15 @@ npx prisma db seed
 
 (`npm run setup` runs both.) Later deploys only need `migrate deploy` when there are new migration folders. Seed is optional after the first time (it wipes and recreates demo accounts).
 
+To repair demo passwords/users on production **without** deleting restaurants:
+
+```bash
+npx tsx scripts/ensure-demo-users.ts
+# or: npm run db:ensure-demo-users
+```
+
+`AUTH_SECRET` must stay set. Values shorter than 32 bytes are stretched for HS256; prefer `openssl rand -base64 32`.
+
 ## (a) Readiness checklist
 
 Do this in Vercel after Sign Up (this environment cannot create the project — no Vercel team/token):

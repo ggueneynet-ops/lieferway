@@ -12,6 +12,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:ensure-demo-users": "tsx scripts/ensure-demo-users.ts",
+    "test:auth": "tsx scripts/test-auth-session.ts",
     "db:reset": "prisma migrate reset --force",
     "setup": "prisma generate && prisma migrate deploy && tsx prisma/seed.ts",
     "test:stripe": "tsx scripts/test-stripe-connect.ts"
