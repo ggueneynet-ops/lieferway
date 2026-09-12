@@ -76,12 +76,13 @@ SMTP_SECURE=false
 MAIL_WEBHOOK_URL=
 ```
 
-Optional legal (invoice issuer; unset fields stay “Demo-Platzhalter”):
+Optional legal (invoice issuer; unset fields stay “Demo-Platzhalter”).
+Matches the public Impressum — do not invent other tax numbers:
 
 ```
-LIEFERWAY_LEGAL_NAME=
-LIEFERWAY_ADDRESS=
-LIEFERWAY_UST_ID=
+LIEFERWAY_LEGAL_NAME=Gökhan Güney
+LIEFERWAY_ADDRESS=Waldstr. 6, 64732 Bad König
+LIEFERWAY_UST_ID=DE331265637
 ```
 
 Optional Google customer login:

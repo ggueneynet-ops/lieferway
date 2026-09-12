@@ -75,7 +75,7 @@ export const dictionaries = {
     myOrders: "Meine Bestellungen",
     restaurantPanel: "Restaurant-Bereich",
     footerLegal:
-      "Lieferway GmbH i.G. · Frankfurt am Main. Restaurants liefern selbst — zuerst in 60311 Innenstadt.",
+      "Lieferway.de · Gökhan Güney · Bad König. Restaurants liefern selbst — zuerst in 60311 Innenstadt.",
     footerDemoNote: "Demo ohne echten Zahlungsverkehr.",
     partner: "Partner",
     open: "Geöffnet",
@@ -749,7 +749,7 @@ export const dictionaries = {
     myOrders: "My orders",
     restaurantPanel: "Restaurant area",
     footerLegal:
-      "Lieferway GmbH i.G. · Frankfurt am Main. Restaurants deliver themselves — starting in 60311 Innenstadt.",
+      "Lieferway.de · Gökhan Güney · Bad König. Restaurants deliver themselves — starting in 60311 Innenstadt.",
     footerDemoNote: "Demo — no real payments.",
     partner: "Partners",
     open: "Open",
@@ -1423,7 +1423,7 @@ export const dictionaries = {
     myOrders: "Siparişlerim",
     restaurantPanel: "Restoran alanı",
     footerLegal:
-      "Lieferway GmbH i.G. · Frankfurt am Main. Teslimatı restoran kendisi yapar — önce 60311 Innenstadt.",
+      "Lieferway.de · Gökhan Güney · Bad König. Teslimatı restoran kendisi yapar — önce 60311 Innenstadt.",
     footerDemoNote: "Demo — gerçek ödeme yok.",
     partner: "İş ortakları",
     open: "Açık",
