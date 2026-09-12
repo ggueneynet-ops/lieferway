@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { applyClearedSessionCookie, logSafeError } from "@/lib/auth";
+import { requestOrigin } from "@/lib/public-origin";
 
 async function signOut(req: Request) {
+  const home = new URL("/", requestOrigin(req));
   try {
-    return applyClearedSessionCookie(NextResponse.redirect(new URL("/", req.url), 303));
+    return applyClearedSessionCookie(NextResponse.redirect(home, 303));
   } catch (err) {
     logSafeError("logout", err);
-    return NextResponse.redirect(new URL("/", req.url), 303);
+    return NextResponse.redirect(home, 303);
   }
 }
 

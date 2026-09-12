@@ -8,6 +8,7 @@ import {
   signToken,
   verifyToken,
 } from "../src/lib/auth";
+import { json } from "../src/lib/http";
 
 async function main() {
   const previous = process.env.AUTH_SECRET;
@@ -27,12 +28,17 @@ async function main() {
   assert.deepEqual(verified, session);
   process.env.AUTH_SECRET = previous;
 
-  const res = applySessionCookie(NextResponse.json({ user: session, token }), token);
+  const res = applySessionCookie(json({ user: session, token }), token);
   const cookie = res.cookies.get(AUTH_COOKIE);
   assert.equal(cookie?.value, token);
   const setCookie = res.headers.get("set-cookie") ?? "";
   assert.match(setCookie, new RegExp(`${AUTH_COOKIE}=`));
   assert.match(setCookie, /HttpOnly/i);
+  assert.equal(res.headers.get("access-control-allow-origin"), "*");
+  assert.equal(res.headers.get("access-control-allow-methods"), "GET,POST,PATCH,PUT,DELETE,OPTIONS");
+  const body = await res.json();
+  assert.equal(body.token, token);
+  assert.equal(body.user.email, session.email);
 
   const cleared = applyClearedSessionCookie(NextResponse.json({ ok: true }));
   const clearedHeader = cleared.headers.get("set-cookie") ?? "";

@@ -4,6 +4,17 @@ function stripSlash(url: string) {
   return url.replace(/\/$/, "");
 }
 
+/** Browser-facing origin for redirects from Route Handlers (never 0.0.0.0). */
+export function requestOrigin(req: Request) {
+  const url = new URL(req.url);
+  const host = (req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? url.host)
+    .split(",")[0]
+    .trim()
+    .replace(/^0\.0\.0\.0/, "127.0.0.1");
+  const proto = (req.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "")).split(",")[0].trim();
+  return `${proto}://${host}`;
+}
+
 function isLoopbackOrigin(origin: string) {
   return /localhost|127\.0\.0\.1/i.test(origin);
 }
