@@ -34,8 +34,8 @@ export default function ImprintPage() {
           <h2 className="font-display text-lg font-semibold tracking-tight">Kontakt</h2>
           <p>
             E-Mail:{" "}
-            <a href="mailto:support@lieferway.de" className="font-medium text-[#E91E63] underline-offset-2 hover:underline">
-              support@lieferway.de
+            <a href="mailto:info@lieferway.de" className="font-medium text-[#E91E63] underline-offset-2 hover:underline">
+              info@lieferway.de
             </a>
           </p>
         </section>

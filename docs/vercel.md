@@ -76,6 +76,8 @@ Optional mail (first match wins: Resend → SMTP → webhook → demo log):
 
 ```
 MAIL_FROM=Lieferway <noreply@lieferway.de>
+# Allowed alternative if the mailbox is verified for sending:
+# MAIL_FROM=Lieferway <info@lieferway.de>
 RESEND_API_KEY=
 SMTP_HOST=
 SMTP_PORT=587
