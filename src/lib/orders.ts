@@ -48,6 +48,18 @@ export function paymentStatusFor(method: PaymentMethod, paid: boolean) {
   return paid ? "PAID" : "PENDING";
 }
 
+export function isKitchenVisibleStatus(status: string) {
+  return status !== "PENDING_PAYMENT";
+}
+
+export function isOnlineMethod(method: PaymentMethod | string) {
+  return method !== "CASH";
+}
+
+export function initialOnlineOrderStatus() {
+  return "PENDING_PAYMENT" as const;
+}
+
 export function nextShortCode() {
   const n = Math.floor(10000 + Math.random() * 90000);
   return `LW-${n}`;

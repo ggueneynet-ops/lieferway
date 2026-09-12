@@ -69,7 +69,7 @@ export default async function RestaurantOrdersHistoryPage({
   const toExclusive = toYmd ? startOfBerlinDay(addDaysYmd(toYmd, 1)) : null;
 
   const rows = await prisma.order.findMany({
-    where: { restaurantId: restaurant.id },
+    where: { restaurantId: restaurant.id, status: { not: "PENDING_PAYMENT" } },
     include: {
       customer: { select: { name: true, phone: true } },
       items: { select: { name: true, quantity: true } },

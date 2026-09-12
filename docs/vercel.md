@@ -91,6 +91,16 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
 
+Stripe Connect test mode (never expose the secret or webhook secret to the browser):
+
+```
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+Webhook URL: `https://app.lieferway.de/api/stripe/webhook` (also enable Connect events). Details: [stripe-connect.md](./stripe-connect.md).
+
 ## DNS
 
 Once the Vercel project exists and `app.lieferway.de` is added as a domain:

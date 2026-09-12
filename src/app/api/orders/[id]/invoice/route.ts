@@ -14,11 +14,14 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     const { id } = await params;
     const order = await prisma.order.findUnique({
       where: { id },
-      select: { id: true, customerId: true, shortCode: true },
+      select: { id: true, customerId: true, shortCode: true, status: true, paymentStatus: true },
     });
     if (!order) return fail("Bestellung nicht gefunden.", 404);
     if (session.role !== "ADMIN" && order.customerId !== session.id) {
       return fail("Keine Berechtigung.", 403);
+    }
+    if (order.status === "PENDING_PAYMENT" || order.paymentStatus === "FAILED") {
+      return fail("Rechnung erst nach erfolgreicher Zahlung.", 409);
     }
 
     const invoice = await ensureCustomerInvoice(order.id);

@@ -27,6 +27,13 @@ export function OrderTimeline({
   fulfillmentType?: string | null;
 }) {
   const { t } = useI18n();
+  if (status === "PENDING_PAYMENT") {
+    return (
+      <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        {STATUS_LABEL[locale].PENDING_PAYMENT ?? t.waitingForPayment}
+      </p>
+    );
+  }
   if (status === "REJECTED" || status === "CANCELLED") {
     return (
       <p className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">

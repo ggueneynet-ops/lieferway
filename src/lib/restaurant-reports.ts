@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export const REPORT_EXCLUDED_STATUSES = ["REJECTED", "CANCELLED"];
+export const REPORT_EXCLUDED_STATUSES = ["REJECTED", "CANCELLED", "PENDING_PAYMENT"];
 
 const TZ = "Europe/Berlin";
 

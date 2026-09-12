@@ -67,6 +67,11 @@ model Restaurant {
   isOpen            Boolean  @default(true)
   isActive          Boolean  @default(true)
   hoursJson         String?
+  stripeAccountId           String?  @unique
+  stripeOnboardingComplete  Boolean  @default(false)
+  stripeChargesEnabled      Boolean  @default(false)
+  stripePayoutsEnabled      Boolean  @default(false)
+  stripeDetailsSubmitted    Boolean  @default(false)
   createdAt         DateTime @default(now())
 
   categories   MenuCategory[]
@@ -146,6 +151,19 @@ model Order {
   commissionPercent     Float
   commissionCents       Int
   restaurantPayoutCents Int
+  stripeChargeId        String?
+  stripeTransferId      String?
+  stripeFeeCents        Int      @default(0)
+  applicationFeeCents   Int      @default(0)
+  restaurantNetCents    Int      @default(0)
+  platformNetCents      Int      @default(0)
+  payoutStatus          String   @default("NONE")
+  refundedCents         Int      @default(0)
+  refundedCommissionCents    Int @default(0)
+  refundedRestaurantNetCents Int @default(0)
+  refundedStripeFeeCents     Int @default(0)
+  disputeStatus         String?
+  stripePayoutId        String?
   street                String
   city                  String
   postalCode            String
@@ -160,6 +178,11 @@ model Order {
   review   Review?
   notices  CustomerNotice[]
   invoices Invoice[]
+  refunds  StripeRefund[]
+
+  @@index([stripePaymentIntentId])
+  @@index([stripeChargeId])
+  @@index([status, paymentStatus])
 }
 
 model CustomerNotice {
@@ -222,10 +245,36 @@ model Payout {
   cashCommissionDueCents Int        @default(0)
   cardPayoutCents        Int        @default(0)
   status                 String     @default("PENDING")
+  stripePayoutId         String?    @unique
+  arrivalDate            DateTime?
+  failureMessage         String?
   paidAt                 DateTime?
   createdAt              DateTime   @default(now())
 
   @@unique([restaurantId, weekStart])
+}
+
+model StripeEvent {
+  id          String    @id
+  type        String
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+}
+
+model StripeRefund {
+  id                         String   @id @default(cuid())
+  stripeRefundId             String   @unique
+  orderId                    String
+  order                      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amountCents                Int
+  status                     String
+  reason                     String?
+  commissionReversalCents    Int      @default(0)
+  restaurantNetReversalCents Int      @default(0)
+  stripeFeeReversalCents     Int      @default(0)
+  createdAt                  DateTime @default(now())
+
+  @@index([orderId])
 }
 
 model Invoice {

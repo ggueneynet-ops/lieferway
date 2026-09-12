@@ -7,6 +7,10 @@ import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 import { PAYMENT_METHODS } from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
 import { parseFulfillment } from "@/lib/fulfillment";
+import { createDestinationPaymentIntent } from "@/lib/payments";
+import { applicationFeeAmountCents, restaurantNetAfterStripeFee } from "@/lib/stripe-money";
+import { canAcceptOnlinePayments } from "@/lib/stripe-connect";
+import { isStripeConfigured, stripePublishableKey } from "@/lib/stripe";
 
 export async function OPTIONS() {
   return options();
@@ -24,7 +28,7 @@ export async function GET() {
         : session.role === "COURIER"
           ? { OR: [{ courierId: session.id }, { status: "READY", courierId: null }] }
           : session.role === "RESTAURANT"
-            ? { restaurant: { ownerId: session.id } }
+            ? { restaurant: { ownerId: session.id }, status: { not: "PENDING_PAYMENT" } }
             : { customerId: session.id };
 
   const orders = await prisma.order.findMany({
@@ -138,9 +142,27 @@ export async function POST(req: Request) {
     });
 
     const method = parsed.data.paymentMethod;
-    const paid = method !== "CASH";
-    if (paid && !parsed.data.paymentIntentId) {
-      return fail("Zahlung nicht bestätigt.");
+    const cash = method === "CASH";
+    const applicationFeeCents = applicationFeeAmountCents({
+      foodSubtotalCents,
+      commissionPercent: restaurant.commissionPercent,
+      deliveryFeeCents,
+      discountCents,
+      totalCents: totals.totalCents,
+    });
+    const restaurantNetCents = restaurantNetAfterStripeFee({
+      foodSubtotalCents,
+      commissionCents: totals.commissionCents,
+      stripeFeeCents: 0,
+    });
+
+    if (!cash) {
+      if (!isStripeConfigured()) {
+        return fail("Kartenzahlung ist nicht konfiguriert (Stripe Test Mode).");
+      }
+      if (!canAcceptOnlinePayments(restaurant)) {
+        return fail("Dieses Restaurant hat Stripe Connect noch nicht abgeschlossen.");
+      }
     }
 
     await prisma.user.update({
@@ -148,15 +170,22 @@ export async function POST(req: Request) {
       data: { name: parsed.data.customerName },
     });
 
+    const shortCode = await uniqueShortCode();
+    const status = cash ? "PLACED" : "PENDING_PAYMENT";
+    const customer = await prisma.user.findUnique({
+      where: { id: session.id },
+      select: { email: true },
+    });
+
     const order = await prisma.order.create({
       data: {
-        shortCode: await uniqueShortCode(),
+        shortCode,
         customerId: session.id,
         restaurantId: restaurant.id,
-        status: "PLACED",
+        status,
         paymentMethod: method,
-        paymentStatus: paymentStatusFor(method, paid),
-        stripePaymentIntentId: parsed.data.paymentIntentId ?? null,
+        paymentStatus: paymentStatusFor(method, false),
+        stripePaymentIntentId: null,
         couponId: coupon?.id,
         couponCode: coupon?.code,
         foodSubtotalCents,
@@ -166,6 +195,10 @@ export async function POST(req: Request) {
         commissionPercent: restaurant.commissionPercent,
         commissionCents: totals.commissionCents,
         restaurantPayoutCents: totals.restaurantPayoutCents,
+        applicationFeeCents,
+        restaurantNetCents,
+        platformNetCents: applicationFeeCents,
+        payoutStatus: cash ? "NONE" : "UNPAID",
         street,
         city,
         postalCode,
@@ -189,12 +222,54 @@ export async function POST(req: Request) {
       order.id,
     );
 
-    const { notifyRestaurantOrders } = await import("@/lib/order-events");
-    notifyRestaurantOrders(order.restaurantId);
-    const { notifyCustomerOfOrderStatus } = await import("@/lib/notify-customer");
-    await notifyCustomerOfOrderStatus(order.id, "PLACED");
+    let clientSecret: string | null = null;
+    let paymentIntentId: string | null = null;
+    if (!cash) {
+      try {
+        const intent = await createDestinationPaymentIntent({
+          amountCents: totals.totalCents,
+          applicationFeeCents,
+          destinationAccountId: restaurant.stripeAccountId!,
+          method,
+          metadata: {
+            orderId: order.id,
+            restaurantId: restaurant.id,
+            shortCode: order.shortCode,
+          },
+          customerEmail: customer?.email,
+        });
+        paymentIntentId = intent.id;
+        clientSecret = intent.clientSecret;
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { stripePaymentIntentId: intent.id },
+        });
+      } catch (err) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { status: "CANCELLED", paymentStatus: "FAILED" },
+        });
+        const msg = err instanceof Error ? err.message : "";
+        return fail(msg === "STRIPE_UNCONFIGURED" ? "Stripe Test Mode ist nicht konfiguriert." : "Zahlung konnte nicht gestartet werden.", 502);
+      }
+    }
 
-    return json({ order }, 201);
+    if (cash) {
+      const { notifyRestaurantOrders } = await import("@/lib/order-events");
+      notifyRestaurantOrders(order.restaurantId);
+      const { notifyCustomerOfOrderStatus } = await import("@/lib/notify-customer");
+      await notifyCustomerOfOrderStatus(order.id, "PLACED");
+    }
+
+    return json(
+      {
+        order: { ...order, status, stripePaymentIntentId: paymentIntentId },
+        clientSecret,
+        publishableKey: cash ? null : stripePublishableKey(),
+        requiresPayment: !cash,
+      },
+      201,
+    );
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);

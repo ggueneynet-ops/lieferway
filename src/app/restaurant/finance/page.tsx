@@ -6,6 +6,8 @@ import { formatEUR } from "@/lib/money";
 import { nextPayoutMonday } from "@/lib/hours";
 import { restaurantReportTotals, resolveReportRange, berlinYmd, addDaysYmd } from "@/lib/restaurant-reports";
 import { isBerlinMonthOpen, recentMonthKeys } from "@/lib/invoices";
+import { prisma } from "@/lib/prisma";
+import { remainingOrderTotals } from "@/lib/stripe-money";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +37,27 @@ export default async function RestaurantFinancePage() {
   }).format(next.date);
   const percent = restaurant.commissionPercent;
   const months = recentMonthKeys(4);
+  const [paidOrders, payouts] = await Promise.all([
+    prisma.order.findMany({
+      where: {
+        restaurantId: restaurant.id,
+        status: { notIn: ["PENDING_PAYMENT", "CANCELLED", "REJECTED"] },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+    }),
+    prisma.payout.findMany({
+      where: { restaurantId: restaurant.id },
+      orderBy: { weekStart: "desc" },
+      take: 12,
+    }),
+  ]);
+  const pendingNet = paidOrders
+    .filter((o) => o.paymentMethod !== "CASH" && (o.payoutStatus === "PENDING" || o.payoutStatus === "UNPAID"))
+    .reduce((s, o) => s + remainingOrderTotals(o).remainingRestaurantNetCents, 0);
+  const paidOutNet = paidOrders
+    .filter((o) => o.payoutStatus === "PAID")
+    .reduce((s, o) => s + remainingOrderTotals(o).remainingRestaurantNetCents, 0);
 
   function Block({
     title,
@@ -109,6 +132,82 @@ export default async function RestaurantFinancePage() {
         <Block title={t.rpThisMonth} food={month.foodCents} commission={month.commissionCents} />
         <Block title={t.rpAllTime} food={all.foodCents} commission={all.commissionCents} />
       </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section className="rounded-[20px] border border-[#E8E8EC] bg-white p-5">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">{t.financePending}</h2>
+          <p className="mt-3 font-display text-2xl font-semibold tabular-nums text-[#0F172A]">
+            {formatEUR(pendingNet, locale)}
+          </p>
+        </section>
+        <section className="rounded-[20px] border border-[#E8E8EC] bg-white p-5">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">{t.financePaidOut}</h2>
+          <p className="mt-3 font-display text-2xl font-semibold tabular-nums text-[#0F172A]">
+            {formatEUR(paidOutNet, locale)}
+          </p>
+        </section>
+      </div>
+      <section className="mt-4 overflow-x-auto rounded-[20px] border border-[#E8E8EC] bg-white">
+        <h2 className="px-5 pt-4 text-sm font-semibold">{t.financePayments}</h2>
+        {paidOrders.length === 0 ? (
+          <p className="px-5 py-4 text-sm text-[#6B7280]">{t.noOrders}</p>
+        ) : (
+          <table className="mt-2 w-full min-w-[640px] text-left text-sm">
+            <thead className="border-y border-[#F3F4F6] text-[#64748B]">
+              <tr>
+                <th className="px-5 py-2 font-medium">{t.nr}</th>
+                <th className="px-3 py-2 font-medium">{t.financeGross}</th>
+                <th className="px-3 py-2 font-medium">{t.financeCommission}</th>
+                <th className="px-3 py-2 font-medium">{t.stripeFee}</th>
+                <th className="px-3 py-2 font-medium">{t.restaurantNet}</th>
+                <th className="px-5 py-2 font-medium">{t.payoutStatus}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paidOrders.map((o) => {
+                const left = remainingOrderTotals(o);
+                return (
+                  <tr key={o.id} className="border-b border-[#F3F4F6] last:border-0">
+                    <td className="px-5 py-3 font-medium">{o.shortCode}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(o.totalCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(left.remainingCommissionCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(left.remainingStripeFeeCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(left.remainingRestaurantNetCents, locale)}</td>
+                    <td className="px-5 py-3 text-[#64748B]">
+                      {o.payoutStatus === "PAID"
+                        ? t.payoutPaid
+                        : o.payoutStatus === "FAILED"
+                          ? t.payoutFailed
+                          : o.payoutStatus === "PENDING" || o.payoutStatus === "UNPAID"
+                            ? t.payoutPending
+                            : t.payoutNone}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </section>
+      <section className="mt-4 rounded-[20px] border border-[#E8E8EC] bg-white p-5">
+        <h2 className="text-sm font-semibold">{t.financePayoutHistory}</h2>
+        {payouts.length === 0 ? (
+          <p className="mt-2 text-sm text-[#6B7280]">{t.noOrders}</p>
+        ) : (
+          <ul className="mt-3 space-y-2 text-sm">
+            {payouts.map((p) => (
+              <li key={p.id} className="flex justify-between gap-3">
+                <span>
+                  {p.weekStart.toISOString().slice(0, 10)}
+                  <span className="ml-2 text-[#64748B]">
+                    {p.status === "PAID" ? t.payoutPaid : p.status === "FAILED" ? t.payoutFailed : t.payoutPending}
+                  </span>
+                </span>
+                <span className="tabular-nums font-medium">{formatEUR(p.netPayoutCents, locale)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </RestaurantAppShell>
   );
 }

@@ -41,6 +41,7 @@ export const ROLES = ["CUSTOMER", "RESTAURANT", "COURIER", "ADMIN"] as const;
 export type Role = (typeof ROLES)[number];
 
 export const ORDER_STATUSES = [
+  "PENDING_PAYMENT",
   "PLACED",
   "ACCEPTED",
   "PREPARING",
@@ -54,6 +55,24 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const PAYMENT_METHODS = ["CARD", "APPLE_PAY", "GOOGLE_PAY", "CASH"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export const PAYMENT_STATUSES = [
+  "PENDING",
+  "PAID",
+  "FAILED",
+  "CASH_ON_DELIVERY",
+  "REFUNDED",
+  "PARTIALLY_REFUNDED",
+  "DISPUTED",
+] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const PAYOUT_STATUSES = ["NONE", "UNPAID", "PENDING", "PAID", "FAILED"] as const;
+export type PayoutStatus = (typeof PAYOUT_STATUSES)[number];
+
+/** Kitchen / live boards never see unpaid online orders. */
+export const KITCHEN_HIDDEN_STATUSES = ["PENDING_PAYMENT"] as const;
+export const REPORT_UNPAID_STATUSES = ["PENDING_PAYMENT"] as const;
 
 export const CUISINES = [
   "Türkisch",
