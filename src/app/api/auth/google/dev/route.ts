@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { setSessionCookie } from "@/lib/auth";
+import { applySessionCookie } from "@/lib/auth";
 import {
   completeGoogleCustomer,
   googleConfigured,
@@ -37,6 +37,9 @@ export async function POST(req: Request) {
     url.searchParams.set("error", result.error === "partner" ? "google_partner" : "google");
     return NextResponse.redirect(url, 303);
   }
-  await setSessionCookie(await sessionToken(result.session));
-  return NextResponse.redirect(new URL(withPhoneGate(next, result.phone, result.session.role), req.url), 303);
+  const token = await sessionToken(result.session);
+  return applySessionCookie(
+    NextResponse.redirect(new URL(withPhoneGate(next, result.phone, result.session.role), req.url), 303),
+    token,
+  );
 }

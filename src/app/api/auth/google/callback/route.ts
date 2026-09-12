@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { setSessionCookie } from "@/lib/auth";
+import { applySessionCookie } from "@/lib/auth";
 import {
   completeGoogleCustomer,
   googleCallbackUrl,
@@ -17,7 +17,13 @@ function redirectLogin(origin: string, next: string, error: string) {
   const url = new URL("/login", origin);
   url.searchParams.set("next", next);
   url.searchParams.set("error", error);
-  return NextResponse.redirect(url);
+  return clearOAuthState(NextResponse.redirect(url));
+}
+
+function clearOAuthState<T extends NextResponse>(response: T) {
+  response.cookies.set(oauthStateCookieName, "", { path: "/", maxAge: 0 });
+  response.cookies.delete(oauthStateCookieName);
+  return response;
 }
 
 export async function GET(req: Request) {
@@ -25,13 +31,12 @@ export async function GET(req: Request) {
   const origin = url.origin;
   const jar = await cookies();
   const stateCookie = jar.get(oauthStateCookieName)?.value;
-  jar.delete(oauthStateCookieName);
 
   const verified = await verifyOAuthState(url.searchParams.get("state") || stateCookie);
   const next = verified?.next ?? "/";
 
   if (!googleConfigured()) {
-    return NextResponse.redirect(new URL(`/login/google?next=${encodeURIComponent(next)}`, origin));
+    return clearOAuthState(NextResponse.redirect(new URL(`/login/google?next=${encodeURIComponent(next)}`, origin)));
   }
   if (url.searchParams.get("error")) {
     return redirectLogin(origin, next, "google");
@@ -46,6 +51,9 @@ export async function GET(req: Request) {
   if ("error" in result) {
     return redirectLogin(origin, next, result.error === "partner" ? "google_partner" : "google");
   }
-  await setSessionCookie(await sessionToken(result.session));
-  return NextResponse.redirect(new URL(withPhoneGate(next, result.phone, result.session.role), origin));
+  const token = await sessionToken(result.session);
+  return applySessionCookie(
+    clearOAuthState(NextResponse.redirect(new URL(withPhoneGate(next, result.phone, result.session.role), origin))),
+    token,
+  );
 }

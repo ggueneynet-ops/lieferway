@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { hashPassword, signToken, type SessionUser } from "@/lib/auth";
+import { authSecretBytes, hashPassword, signToken, type SessionUser } from "@/lib/auth";
 import type { Role } from "@/lib/constants";
 import { isStaffArea } from "@/lib/paths";
 
@@ -36,20 +36,18 @@ export function safeNext(raw?: string | null) {
 
 export async function signOAuthState(next: string) {
   const { SignJWT } = await import("jose");
-  const secret = new TextEncoder().encode(process.env.AUTH_SECRET ?? "lieferway-demo-secret-change-in-production");
   return new SignJWT({ next: safeNext(next), v: 1 })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("15m")
-    .sign(secret);
+    .sign(authSecretBytes());
 }
 
 export async function verifyOAuthState(token: string | undefined) {
   if (!token) return null;
   try {
     const { jwtVerify } = await import("jose");
-    const secret = new TextEncoder().encode(process.env.AUTH_SECRET ?? "lieferway-demo-secret-change-in-production");
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, authSecretBytes());
     return { next: safeNext(typeof payload.next === "string" ? payload.next : "/") };
   } catch {
     return null;

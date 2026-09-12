@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { useI18n } from "@/components/locale-provider";
 import { GoogleSignIn } from "@/components/google-sign-in";
-import { loginAction } from "./actions";
 import { isStaffArea, pathIs } from "@/lib/paths";
 
 function LoginForm() {
@@ -44,7 +43,7 @@ function LoginForm() {
       ) : error ? (
         <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.loginFailed}</p>
       ) : null}
-      <form action={loginAction} className="mt-6 space-y-4">
+      <form action="/login/submit" method="post" className="mt-6 space-y-4">
         <input type="hidden" name="next" value={next} />
         <div>
           <Label htmlFor="email">{t.email}</Label>

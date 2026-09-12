@@ -65,6 +65,12 @@ npx prisma migrate deploy
 npx prisma db seed
 ```
 
+`npx prisma db seed` **wipes** restaurants and orders. To restore demo logins (`restaurant@lieferway.de`, `admin@lieferway.de`, … / `lieferway`) on a live database without touching restaurants:
+
+```bash
+npm run db:ensure-demo-users
+```
+
 Invoice PDFs (`data/invoices`) and restaurant logo uploads (`public/uploads/logos`) still use local disk — they will not persist on Vercel. Follow-up is Vercel Blob; it does not block this Prisma switch.
 
 Required env on Vercel:
