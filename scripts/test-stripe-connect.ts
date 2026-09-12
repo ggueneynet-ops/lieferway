@@ -38,7 +38,6 @@ check("100€ food: application_fee = 5% + Stripe estimate (6.75€)", () => {
   assert.equal(stripeFee, 175);
   const fees = computeApplicationFeeCents({
     amountCents: 10000,
-    foodSubtotalCents: 10000,
     commissionPercent: 5,
   });
   assert.equal(fees.netCommissionCents, 500);

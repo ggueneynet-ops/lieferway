@@ -28,8 +28,9 @@ export function estimateStripeFeeCents(amountCents: number, _method?: string) {
 
 export type ApplicationFeeInput = {
   amountCents: number;
-  foodSubtotalCents: number;
   commissionPercent: number;
+  /** Defaults to amountCents (food-only orders). */
+  foodSubtotalCents?: number;
   deliveryFeeCents?: number;
   discountCents?: number;
 };
@@ -59,7 +60,8 @@ export type ApplicationFeeBreakdown = {
 export function computeApplicationFeeCents(opts: ApplicationFeeInput): ApplicationFeeBreakdown {
   const deliveryFeeCents = opts.deliveryFeeCents ?? 0;
   const discountCents = opts.discountCents ?? 0;
-  const netCommissionCents = commissionCents(opts.foodSubtotalCents, opts.commissionPercent);
+  const foodSubtotalCents = opts.foodSubtotalCents ?? opts.amountCents;
+  const netCommissionCents = commissionCents(foodSubtotalCents, opts.commissionPercent);
   const stripeFeeEstimatedCents = estimateStripeFeeCents(opts.amountCents);
   const platformOwned = Math.max(0, netCommissionCents + deliveryFeeCents - discountCents);
   const desired = platformOwned + stripeFeeEstimatedCents;
