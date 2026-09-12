@@ -5,11 +5,8 @@ import { notifyCustomerOfOrderStatus } from "./notify-customer";
 import { regeneratePayouts, weekStart } from "./payouts";
 import { syncRestaurantByStripeAccount } from "./stripe-connect";
 import { getStripe } from "./stripe";
-import {
-  paymentStatusAfterRefund,
-  refundSlice,
-  restaurantNetAfterStripeFee,
-} from "./stripe-money";
+import { paymentStatusAfterRefund, refundSlice } from "./stripe-money";
+import { platformNetAfterStripeFee, stripeFeeVarianceNote } from "./stripe-fees";
 
 export const STRIPE_WEBHOOK_EVENTS = [
   "payment_intent.succeeded",
@@ -113,15 +110,14 @@ export async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
 
   let charge = chargeFromIntent(pi);
   const chargeId = typeof pi.latest_charge === "string" ? pi.latest_charge : charge?.id ?? null;
-  let stripeFeeCents = stripeFeeFromCharge(charge);
-  if (chargeId && stripeFeeCents === 0) {
-    stripeFeeCents = await retrieveFeeCents(chargeId);
+  let stripeFeeActualCents = stripeFeeFromCharge(charge);
+  if (chargeId && stripeFeeActualCents === 0) {
+    stripeFeeActualCents = await retrieveFeeCents(chargeId);
   }
-  const restaurantNetCents = restaurantNetAfterStripeFee({
-    foodSubtotalCents: order.foodSubtotalCents,
-    commissionCents: order.commissionCents,
-    stripeFeeCents,
-  });
+  const estimated = order.stripeFeeEstimatedCents || order.stripeFeeCents;
+  const displayFee = stripeFeeActualCents > 0 ? stripeFeeActualCents : estimated;
+  const transfer =
+    order.restaurantTransferCents || Math.max(0, order.totalCents - order.applicationFeeCents);
   const now = new Date();
   const nextStatus = order.status === "PENDING_PAYMENT" ? "PLACED" : order.status;
 
@@ -132,9 +128,12 @@ export async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
       paymentStatus: "PAID",
       stripeChargeId: chargeId,
       stripeTransferId: transferIdFromCharge(charge),
-      stripeFeeCents,
-      restaurantNetCents,
-      platformNetCents: order.applicationFeeCents,
+      stripeFeeCents: displayFee,
+      stripeFeeActualCents,
+      restaurantTransferCents: transfer,
+      restaurantNetCents: transfer,
+      platformNetCents: platformNetAfterStripeFee(order.applicationFeeCents, displayFee),
+      stripeFeeNote: stripeFeeVarianceNote(estimated, displayFee),
       payoutStatus: "PENDING",
       disputeStatus: null,
     },

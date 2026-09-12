@@ -8,7 +8,7 @@ import { PAYMENT_METHODS } from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
 import { parseFulfillment } from "@/lib/fulfillment";
 import { createDestinationPaymentIntent } from "@/lib/payments";
-import { applicationFeeAmountCents, restaurantNetAfterStripeFee } from "@/lib/stripe-money";
+import { computeApplicationFeeCents } from "@/lib/stripe-fees";
 import { canAcceptOnlinePayments } from "@/lib/stripe-connect";
 import { isStripeConfigured, stripePublishableKey } from "@/lib/stripe";
 
@@ -143,18 +143,23 @@ export async function POST(req: Request) {
 
     const method = parsed.data.paymentMethod;
     const cash = method === "CASH";
-    const applicationFeeCents = applicationFeeAmountCents({
-      foodSubtotalCents,
-      commissionPercent: restaurant.commissionPercent,
-      deliveryFeeCents,
-      discountCents,
-      totalCents: totals.totalCents,
-    });
-    const restaurantNetCents = restaurantNetAfterStripeFee({
-      foodSubtotalCents,
-      commissionCents: totals.commissionCents,
-      stripeFeeCents: 0,
-    });
+    const fees = cash
+      ? {
+          netCommissionCents: totals.commissionCents,
+          stripeFeeEstimatedCents: 0,
+          applicationFeeCents: 0,
+          restaurantTransferCents: totals.restaurantPayoutCents,
+          platformNetCommissionCents: totals.commissionCents,
+        }
+      : computeApplicationFeeCents({
+          amountCents: totals.totalCents,
+          foodSubtotalCents,
+          commissionPercent: restaurant.commissionPercent,
+          deliveryFeeCents,
+          discountCents,
+        });
+    const applicationFeeCents = fees.applicationFeeCents;
+    const restaurantNetCents = fees.restaurantTransferCents;
 
     if (!cash) {
       if (!isStripeConfigured()) {
@@ -196,8 +201,12 @@ export async function POST(req: Request) {
         commissionCents: totals.commissionCents,
         restaurantPayoutCents: totals.restaurantPayoutCents,
         applicationFeeCents,
+        platformNetCommissionCents: fees.platformNetCommissionCents,
+        stripeFeeEstimatedCents: fees.stripeFeeEstimatedCents,
+        stripeFeeCents: fees.stripeFeeEstimatedCents,
+        restaurantTransferCents: fees.restaurantTransferCents,
         restaurantNetCents,
-        platformNetCents: applicationFeeCents,
+        platformNetCents: fees.platformNetCommissionCents,
         payoutStatus: cash ? "NONE" : "UNPAID",
         street,
         city,

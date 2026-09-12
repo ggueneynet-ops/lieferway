@@ -1,27 +1,36 @@
 # Stripe Connect (Test Mode)
 
-Lieferway is a marketplace: the **guest pays Lieferway**, the **restaurant delivers**, and the restaurant keeps food minus commission (default **5 %**). Delivery fee stays with the platform. Stripe processing fees are attributed to the **restaurant net**, so Lieferway keeps the full commission.
+Lieferway is a marketplace: the **guest pays Lieferway**, the **restaurant delivers**, and the restaurant keeps food minus commission (default **5 %**). Delivery fee stays with the platform.
+
+Destination charges take the Stripe processing fee from the **platform** balance. `application_fee_amount` is therefore **not** only 5 % of food — it includes the estimated Stripe fee so Lieferway still nets ~5 % after Stripe.
 
 This document is Test Mode only (`sk_test_`, `pk_test_`, `whsec_`). Do not put secret keys in the frontend or in git.
 
 ## Model
 
 - **Express Connected Accounts** per restaurant
-- **Destination charges**: `PaymentIntent` with
-  - `transfer_data.destination` = restaurant Express account
-  - `application_fee_amount` = food × commission% **plus** delivery **minus** discount (platform share)
-  - `on_behalf_of` = restaurant account so Stripe’s card fee hits restaurant net
+- **Destination charges**: `PaymentIntent` with `transfer_data.destination` + `application_fee_amount`
 - **Payment Element** for card / Apple Pay / Google Pay
-- **Cash** is unchanged (`PLACED` immediately, `CASH_ON_DELIVERY`)
-
-`application_fee_amount` is not only `food × %`. Delivery must stay with Lieferway and discounts are platform-funded, so:
+- **Cash** is unchanged (`PLACED` immediately, `CASH_ON_DELIVERY`) — no application fee
 
 ```
-application_fee = clamp(commission + deliveryFee - discount, 0, total - 1)
-restaurant transfer ≈ total - application_fee
-restaurant net     = food - commission - stripeFee
-platform net       = application_fee  (full ~5 % commission + delivery − discount)
+netCommission     = food × commission%          (default 5 %)
+stripeFeeEstimate = STRIPE_FEE_FIXED_CENTS + round(amount × STRIPE_FEE_PERCENT_BPS / 10_000)
+application_fee   = netCommission + stripeFeeEstimate + delivery − discount
+restaurant xfer   = amount − application_fee
+platform net      = application_fee − actual Stripe fee  ≈ 5 % of food
 ```
+
+Example: **100 €** food, 5 % target, Stripe ~1,5 % + 0,25 € → fee **1,75 €** → `application_fee` **6,75 €**. Platform pays 1,75 € to Stripe and nets **5 €**. Restaurant transfer **93,25 €**.
+
+Fee estimate env (test-mode defaults = DE card pricing; treat as estimates):
+
+```
+STRIPE_FEE_PERCENT_BPS=150    # 1.5 %
+STRIPE_FEE_FIXED_CENTS=25     # 0,25 €
+```
+
+After `payment_intent.succeeded` we store `stripeFeeActualCents` from the charge’s balance transaction. If actual ≠ estimate, `stripeFeeNote` records the variance — we do **not** silently rewrite the transfer.
 
 ## Environment
 
@@ -29,6 +38,8 @@ platform net       = application_fee  (full ~5 % commission + delivery − disco
 STRIPE_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_FEE_PERCENT_BPS=150
+STRIPE_FEE_FIXED_CENTS=25
 ```
 
 Webhook endpoint: `{NEXT_PUBLIC_APP_URL}/api/stripe/webhook`

@@ -90,17 +90,20 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <dd className="tabular-nums">{formatEUR(order.totalCents, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3">
-              <dt className="text-text-secondary">{t.financeCommission}</dt>
-              <dd className="tabular-nums">{formatEUR(order.commissionCents, locale)}</dd>
+              <dt className="text-text-secondary">{t.platformNetCommission}</dt>
+              <dd className="tabular-nums">{formatEUR(order.platformNetCommissionCents || order.commissionCents, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt className="text-text-secondary">{t.stripeFee}</dt>
-              <dd className="tabular-nums">{formatEUR(order.stripeFeeCents, locale)}</dd>
+              <dd className="tabular-nums">{formatEUR(order.stripeFeeActualCents || order.stripeFeeCents, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt className="text-text-secondary">{t.restaurantNet}</dt>
-              <dd className="tabular-nums font-medium">{formatEUR(order.restaurantNetCents || order.restaurantPayoutCents, locale)}</dd>
+              <dd className="tabular-nums font-medium">{formatEUR(order.restaurantTransferCents || order.restaurantNetCents || order.restaurantPayoutCents, locale)}</dd>
             </div>
+            {order.stripeFeeNote ? (
+              <p className="pt-1 text-xs text-text-secondary">{order.stripeFeeNote}</p>
+            ) : null}
             <div className="flex justify-between gap-3">
               <dt className="text-text-secondary">{t.paymentStatus}</dt>
               <dd>{payLabel}</dd>

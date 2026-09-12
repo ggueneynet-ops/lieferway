@@ -156,7 +156,7 @@ export default async function RestaurantFinancePage() {
               <tr>
                 <th className="px-5 py-2 font-medium">{t.nr}</th>
                 <th className="px-3 py-2 font-medium">{t.financeGross}</th>
-                <th className="px-3 py-2 font-medium">{t.financeCommission}</th>
+                <th className="px-3 py-2 font-medium">{t.platformNetCommission}</th>
                 <th className="px-3 py-2 font-medium">{t.stripeFee}</th>
                 <th className="px-3 py-2 font-medium">{t.restaurantNet}</th>
                 <th className="px-5 py-2 font-medium">{t.payoutStatus}</th>
@@ -169,9 +169,9 @@ export default async function RestaurantFinancePage() {
                   <tr key={o.id} className="border-b border-[#F3F4F6] last:border-0">
                     <td className="px-5 py-3 font-medium">{o.shortCode}</td>
                     <td className="px-3 py-3 tabular-nums">{formatEUR(o.totalCents, locale)}</td>
-                    <td className="px-3 py-3 tabular-nums">{formatEUR(left.remainingCommissionCents, locale)}</td>
-                    <td className="px-3 py-3 tabular-nums">{formatEUR(left.remainingStripeFeeCents, locale)}</td>
-                    <td className="px-3 py-3 tabular-nums">{formatEUR(left.remainingRestaurantNetCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(o.platformNetCommissionCents || left.remainingCommissionCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(o.stripeFeeActualCents || o.stripeFeeCents || left.remainingStripeFeeCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(o.restaurantTransferCents || left.remainingRestaurantNetCents, locale)}</td>
                     <td className="px-5 py-3 text-[#64748B]">
                       {o.payoutStatus === "PAID"
                         ? t.payoutPaid

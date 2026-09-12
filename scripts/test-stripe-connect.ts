@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import {
-  applicationFeeAmountCents,
-  estimateEuCardFeeCents,
   paymentStatusAfterRefund,
   refundSlice,
   remainingOrderTotals,
-  restaurantNetAfterStripeFee,
 } from "../src/lib/stripe-money";
+import {
+  computeApplicationFeeCents,
+  DEFAULT_STRIPE_FEE_FIXED_CENTS,
+  DEFAULT_STRIPE_FEE_PERCENT_BPS,
+  estimateStripeFeeCents,
+} from "../src/lib/stripe-fees";
 import { computeOrderTotals } from "../src/lib/orders";
 import { weeklyMondayPayoutSchedule } from "../src/lib/payments";
 import Stripe from "stripe";
@@ -28,37 +31,47 @@ check("commission is food × % (5 % of 2000 = 100)", () => {
   assert.equal(totals.totalCents, 2249);
 });
 
-check("application fee keeps delivery + commission, not Stripe fee", () => {
-  const fee = applicationFeeAmountCents({
+check("100€ food: application_fee = 5% + Stripe estimate (6.75€)", () => {
+  assert.equal(DEFAULT_STRIPE_FEE_PERCENT_BPS, 150);
+  assert.equal(DEFAULT_STRIPE_FEE_FIXED_CENTS, 25);
+  const stripeFee = estimateStripeFeeCents(10000);
+  assert.equal(stripeFee, 175);
+  const fees = computeApplicationFeeCents({
+    amountCents: 10000,
+    foodSubtotalCents: 10000,
+    commissionPercent: 5,
+  });
+  assert.equal(fees.netCommissionCents, 500);
+  assert.equal(fees.applicationFeeCents, 675);
+  assert.equal(fees.restaurantTransferCents, 9325);
+  assert.equal(fees.applicationFeeCents - fees.stripeFeeEstimatedCents, 500);
+});
+
+check("application fee includes Stripe estimate + delivery", () => {
+  const fees = computeApplicationFeeCents({
+    amountCents: 2249,
     foodSubtotalCents: 2000,
     commissionPercent: 5,
     deliveryFeeCents: 249,
     discountCents: 0,
-    totalCents: 2249,
   });
-  assert.equal(fee, 349);
+  const stripeFee = estimateStripeFeeCents(2249);
+  assert.equal(fees.netCommissionCents, 100);
+  assert.equal(fees.applicationFeeCents, 100 + 249 + stripeFee);
+  assert.equal(fees.restaurantTransferCents, 2249 - fees.applicationFeeCents);
+  assert.equal(fees.applicationFeeCents - stripeFee, 349);
 });
 
-check("discount is platform-funded", () => {
-  const fee = applicationFeeAmountCents({
+check("discount is platform-funded (still collect Stripe estimate)", () => {
+  const fees = computeApplicationFeeCents({
+    amountCents: 1749,
     foodSubtotalCents: 2000,
     commissionPercent: 5,
     deliveryFeeCents: 249,
     discountCents: 500,
-    totalCents: 1749,
   });
-  assert.equal(fee, 0);
-});
-
-check("restaurant net = food − commission − stripe fee (platform keeps 5 %)", () => {
-  const stripeFee = estimateEuCardFeeCents(2249);
-  const net = restaurantNetAfterStripeFee({
-    foodSubtotalCents: 2000,
-    commissionCents: 100,
-    stripeFeeCents: stripeFee,
-  });
-  assert.equal(net, 2000 - 100 - stripeFee);
-  assert.ok(net < 1900);
+  const stripeFee = estimateStripeFeeCents(1749);
+  assert.equal(fees.applicationFeeCents, stripeFee);
 });
 
 check("partial refund allocates; last slice closes books", () => {

@@ -1,17 +1,13 @@
-import { commissionCents } from "./money";
+import { computeApplicationFeeCents } from "./stripe-fees";
 
-/** Standard Stripe EEA consumer card fee in test/live (1.5 % + 0,25 €). */
-export function estimateEuCardFeeCents(amountCents: number) {
-  if (amountCents <= 0) return 0;
-  return Math.round(amountCents * 0.015) + 25;
-}
+export {
+  computeApplicationFeeCents,
+  estimateStripeFeeCents,
+  platformNetAfterStripeFee,
+  stripeFeeVarianceNote,
+} from "./stripe-fees";
 
-/**
- * Destination-charge application fee kept by Lieferway.
- * Commission is food × restaurant % (default 5 %). Delivery stays with the
- * platform; discounts are platform-funded. Stripe processing fees are NOT
- * included here — they are attributed to the restaurant (on_behalf_of).
- */
+/** @deprecated use computeApplicationFeeCents — kept for call sites. */
 export function applicationFeeAmountCents(opts: {
   foodSubtotalCents: number;
   commissionPercent: number;
@@ -19,10 +15,21 @@ export function applicationFeeAmountCents(opts: {
   discountCents: number;
   totalCents: number;
 }) {
-  const commission = commissionCents(opts.foodSubtotalCents, opts.commissionPercent);
-  const platformShare = commission + opts.deliveryFeeCents - opts.discountCents;
-  const maxFee = Math.max(0, opts.totalCents - 1);
-  return Math.max(0, Math.min(platformShare, maxFee));
+  return computeApplicationFeeCents({
+    amountCents: opts.totalCents,
+    foodSubtotalCents: opts.foodSubtotalCents,
+    commissionPercent: opts.commissionPercent,
+    deliveryFeeCents: opts.deliveryFeeCents,
+    discountCents: opts.discountCents,
+  }).applicationFeeCents;
+}
+
+export function estimateEuCardFeeCents(amountCents: number) {
+  return computeApplicationFeeCents({
+    amountCents,
+    foodSubtotalCents: amountCents,
+    commissionPercent: 0,
+  }).stripeFeeEstimatedCents;
 }
 
 export function restaurantNetAfterStripeFee(opts: {

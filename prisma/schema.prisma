@@ -154,9 +154,14 @@ model Order {
   stripeChargeId        String?
   stripeTransferId      String?
   stripeFeeCents        Int      @default(0)
+  stripeFeeEstimatedCents Int    @default(0)
+  stripeFeeActualCents  Int      @default(0)
   applicationFeeCents   Int      @default(0)
+  platformNetCommissionCents Int @default(0)
+  restaurantTransferCents Int    @default(0)
   restaurantNetCents    Int      @default(0)
   platformNetCents      Int      @default(0)
+  stripeFeeNote         String?
   payoutStatus          String   @default("NONE")
   refundedCents         Int      @default(0)
   refundedCommissionCents    Int @default(0)

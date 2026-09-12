@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import type { PaymentMethod } from "./constants";
 import { getStripe, isStripeConfigured } from "./stripe";
-import { applicationFeeAmountCents } from "./stripe-money";
+import { computeApplicationFeeCents } from "./stripe-fees";
 
 export type PaymentIntent = {
   id: string;
@@ -29,7 +29,13 @@ export function platformApplicationFeeCents(opts: {
   discountCents: number;
   totalCents: number;
 }) {
-  return applicationFeeAmountCents(opts);
+  return computeApplicationFeeCents({
+    amountCents: opts.totalCents,
+    foodSubtotalCents: opts.foodSubtotalCents,
+    commissionPercent: opts.commissionPercent,
+    deliveryFeeCents: opts.deliveryFeeCents,
+    discountCents: opts.discountCents,
+  }).applicationFeeCents;
 }
 
 export function weeklyMondayPayoutSchedule(): Stripe.AccountUpdateParams.Settings.Payouts.Schedule {
@@ -68,7 +74,6 @@ export async function createDestinationPaymentIntent(
     automatic_payment_methods: { enabled: true },
     application_fee_amount: fee,
     transfer_data: { destination: opts.destinationAccountId },
-    on_behalf_of: opts.destinationAccountId,
     metadata: opts.metadata,
     receipt_email: opts.customerEmail || undefined,
     description: opts.metadata.shortCode
