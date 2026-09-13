@@ -133,14 +133,17 @@ export function rewardDiscountCents(opts: {
 }
 
 /**
- * Stripe application_fee still uses `discountCents` as the **platform-absorbed** slice.
- * Restaurant-funded WayPoints stay out of that number so destination-charge math is unchanged.
+ * Stripe application_fee uses `discountCents` as the **platform-absorbed** slice.
+ * Restaurant Gutscheine are restaurant-funded (100%) — never platform-absorbed.
+ * Only Lieferway-funded WayPoints share reduces application_fee.
+ * `couponDiscountCents` is accepted for call-site compatibility but ignored.
  */
 export function platformAbsorbedDiscountCents(opts: {
-  couponDiscountCents: number;
+  couponDiscountCents?: number;
   wayPointsLieferwayShareCents: number;
 }) {
-  return Math.max(0, opts.couponDiscountCents) + Math.max(0, opts.wayPointsLieferwayShareCents);
+  void opts.couponDiscountCents;
+  return Math.max(0, opts.wayPointsLieferwayShareCents);
 }
 
 export function customerDiscountCents(opts: {

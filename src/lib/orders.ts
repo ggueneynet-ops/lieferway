@@ -1,30 +1,20 @@
 import { prisma } from "./prisma";
 import { commissionCents } from "./money";
 import type { PaymentMethod } from "./constants";
+import {
+  applyCoupon as applyRestaurantCoupon,
+  couponBelowMinimum as couponMinCheck,
+  type CouponLike,
+} from "./coupons";
 
-export type CouponDiscount = {
-  discountPercent: number | null;
-  discountCents: number | null;
-  isActive: boolean;
-  minSubtotalCents?: number | null;
-};
+export type CouponDiscount = CouponLike;
 
 export function couponBelowMinimum(foodSubtotalCents: number, coupon: CouponDiscount | null) {
-  if (!coupon?.isActive) return false;
-  const min = coupon.minSubtotalCents ?? 0;
-  return min > 0 && foodSubtotalCents < min;
+  return couponMinCheck(foodSubtotalCents, coupon);
 }
 
 export function applyCoupon(foodSubtotalCents: number, coupon: CouponDiscount | null) {
-  if (!coupon || !coupon.isActive) return 0;
-  if (couponBelowMinimum(foodSubtotalCents, coupon)) return 0;
-  if (coupon.discountPercent) {
-    return Math.round((foodSubtotalCents * coupon.discountPercent) / 100);
-  }
-  if (coupon.discountCents) {
-    return Math.min(coupon.discountCents, foodSubtotalCents);
-  }
-  return 0;
+  return applyRestaurantCoupon(foodSubtotalCents, coupon);
 }
 
 export function computeOrderTotals(opts: {
@@ -32,14 +22,26 @@ export function computeOrderTotals(opts: {
   deliveryFeeCents: number;
   discountCents: number;
   commissionPercent: number;
+  /**
+   * Restaurant-funded Gutschein amount (cents).
+   * Commission is calculated on food AFTER this coupon (30€−5€ → 25€ → 8% = 2€).
+   * WayPoints discounts do not reduce the commission base here.
+   */
+  restaurantCouponCents?: number;
 }) {
-  const commission = commissionCents(opts.foodSubtotalCents, opts.commissionPercent);
-  const restaurantPayoutCents = opts.foodSubtotalCents - commission;
+  const couponSlice = Math.max(
+    0,
+    Math.min(opts.restaurantCouponCents ?? 0, Math.max(0, opts.foodSubtotalCents)),
+  );
+  const commissionBaseCents = opts.foodSubtotalCents - couponSlice;
+  const commission = commissionCents(commissionBaseCents, opts.commissionPercent);
+  const restaurantPayoutCents = commissionBaseCents - commission;
   const totalCents = opts.foodSubtotalCents - opts.discountCents + opts.deliveryFeeCents;
   return {
     commissionCents: commission,
     restaurantPayoutCents,
     totalCents: Math.max(0, totalCents),
+    commissionBaseCents,
   };
 }
 

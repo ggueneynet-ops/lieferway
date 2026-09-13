@@ -174,9 +174,10 @@ check("shared funding: only Lieferway share hits application_fee", () => {
     wayPointsLieferwayShareCents: split.lieferwayShareCents,
   });
   assert.equal(plan.platformAbsorbedDiscountCents, 150);
+  // Restaurant Gutscheine are never platform-absorbed (couponDiscountCents ignored).
   assert.equal(
     platformAbsorbedDiscountCents({ couponDiscountCents: 200, wayPointsLieferwayShareCents: 150 }),
-    350,
+    150,
   );
 });
 

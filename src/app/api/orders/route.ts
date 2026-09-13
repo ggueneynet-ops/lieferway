@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getSession, requireSession } from "@/lib/auth";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
-import { applyCoupon, computeOrderTotals, couponBelowMinimum, paymentStatusFor, uniqueShortCode } from "@/lib/orders";
+import { applyCoupon, computeOrderTotals, paymentStatusFor, uniqueShortCode } from "@/lib/orders";
 import { checkoutDiscountPlan, isWayPointsParticipating, previewEarnPoints } from "@/lib/waypoints";
 import {
   bestEarnMultiplier,
@@ -10,6 +10,13 @@ import {
   previewCheckoutReward,
   redeemRewardForOrder,
 } from "@/lib/waypoints-service";
+import {
+  couponXorBlocks,
+  recordCouponUsage,
+  reverseCouponUsageForOrder,
+  validateRestaurantCoupon,
+} from "@/lib/coupons";
+import { allowCouponWayPointsStack } from "@/lib/constants";
 import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 import { PAYMENT_METHODS } from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
@@ -132,16 +139,19 @@ export async function POST(req: Request) {
     }
 
     let coupon = null;
+    let couponDiscountCents = 0;
     if (parsed.data.couponCode) {
-      coupon = await prisma.coupon.findUnique({
-        where: { code: parsed.data.couponCode.trim().toUpperCase() },
+      const validated = await validateRestaurantCoupon({
+        restaurantId: restaurant.id,
+        code: parsed.data.couponCode,
+        foodSubtotalCents,
+        fulfillmentType: fulfillment,
+        customerId: session.id,
       });
-      if (!coupon || !coupon.isActive) return fail("Gutschein ungültig.");
-      if (couponBelowMinimum(foodSubtotalCents, coupon)) {
-        return fail("Mindestbestellwert für diesen Gutschein nicht erreicht.");
-      }
+      if (!validated.ok) return fail(validated.error);
+      coupon = validated.coupon;
+      couponDiscountCents = applyCoupon(foodSubtotalCents, coupon);
     }
-    const couponDiscountCents = applyCoupon(foodSubtotalCents, coupon);
     const participates = isWayPointsParticipating(restaurant);
     let wayPointsDiscountCents = 0;
     let wayPointsFundedBy: string | null = null;
@@ -150,7 +160,12 @@ export async function POST(req: Request) {
     let wayPointsRewardId: string | null = null;
     let wayPointsRedeemed = 0;
 
-    if (parsed.data.couponCode && parsed.data.wayPointsRewardId) {
+    if (
+      couponXorBlocks({
+        hasCoupon: Boolean(parsed.data.couponCode),
+        hasWayPoints: Boolean(parsed.data.wayPointsRewardId),
+      })
+    ) {
       return fail("Gutschein und WayPoints können nicht kombiniert werden.");
     }
 
@@ -179,18 +194,21 @@ export async function POST(req: Request) {
       wayPointsLieferwayShareCents,
     });
     let discountCents = plan.customerDiscountCents;
+    // Commission on food AFTER restaurant-funded Gutschein (not after WayPoints).
     const totals = computeOrderTotals({
       foodSubtotalCents,
       deliveryFeeCents,
       discountCents,
       commissionPercent: restaurant.commissionPercent,
+      restaurantCouponCents: couponDiscountCents,
     });
 
     const method = parsed.data.paymentMethod;
     const cash = method === "CASH";
     const feeInput = {
       amountCents: totals.totalCents,
-      foodSubtotalCents,
+      // Commission base = food after restaurant coupon; platformAbsorbed excludes restaurant Gutscheine.
+      foodSubtotalCents: totals.commissionBaseCents,
       commissionPercent: restaurant.commissionPercent,
       deliveryFeeCents,
       discountCents: plan.platformAbsorbedDiscountCents,
@@ -293,6 +311,14 @@ export async function POST(req: Request) {
       wayPointsRewardId,
     );
 
+    if (coupon) {
+      await recordCouponUsage({
+        couponId: coupon.id,
+        orderId: order.id,
+        customerId: session.id,
+      });
+    }
+
     if (wayPointsRewardId) {
       const redeemed = await redeemRewardForOrder({
         userId: session.id,
@@ -300,10 +326,11 @@ export async function POST(req: Request) {
         restaurantId: restaurant.id,
         rewardId: wayPointsRewardId,
         foodSubtotalCents,
-        couponDiscountCents,
+        couponDiscountCents: allowCouponWayPointsStack() ? couponDiscountCents : 0,
         cartMenuItemIds: lines.map((l) => l.menuItemId),
       });
       if (!redeemed.ok) {
+        await reverseCouponUsageForOrder(order.id);
         await prisma.order.update({
           where: { id: order.id },
           data: { status: "CANCELLED", paymentStatus: "FAILED" },
@@ -335,6 +362,7 @@ export async function POST(req: Request) {
           data: { stripePaymentIntentId: intent.id },
         });
       } catch (err) {
+        await reverseCouponUsageForOrder(order.id);
         await prisma.order.update({
           where: { id: order.id },
           data: { status: "CANCELLED", paymentStatus: "FAILED" },

@@ -92,6 +92,7 @@ model Restaurant {
   invoices     Invoice[]
   wayPointsRewards   WayPointsReward[]
   wayPointsCampaigns WayPointsCampaign[]
+  coupons            Coupon[]
 }
 
 model RestaurantServiceArea {
@@ -129,14 +130,51 @@ model MenuItem {
 }
 
 model Coupon {
-  id                String  @id @default(cuid())
-  code              String  @unique
-  description       String
-  discountPercent   Int?
-  discountCents     Int?
-  minSubtotalCents  Int?
-  isActive          Boolean @default(true)
-  orders            Order[]
+  id               String    @id @default(cuid())
+  code             String
+  description      String    @default("")
+  restaurantId     String?
+  restaurant       Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  /// PERCENT | FIXED
+  type             String    @default("PERCENT")
+  discountPercent  Int?
+  discountCents    Int?
+  /// Cap for PERCENT discounts (cents).
+  maxDiscountCents Int?
+  minSubtotalCents Int?
+  validFrom        DateTime?
+  validTo          DateTime?
+  maxTotalUses     Int?
+  usesPerCustomer  Int?
+  usageCount       Int       @default(0)
+  isActive         Boolean   @default(true)
+  /// DELIVERY | PICKUP | BOTH
+  scope            String    @default("BOTH")
+  /// Always RESTAURANT for new coupons (restaurant funds 100%).
+  funding          String    @default("RESTAURANT")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  orders           Order[]
+  usages           CouponUsage[]
+
+  @@unique([restaurantId, code])
+  @@index([code])
+  @@index([restaurantId, isActive])
+}
+
+model CouponUsage {
+  id         String   @id @default(cuid())
+  couponId   String
+  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  orderId    String   @unique
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customerId String
+  /// APPLIED | REVERSED
+  status     String   @default("APPLIED")
+  createdAt  DateTime @default(now())
+
+  @@index([couponId, customerId])
+  @@index([couponId, status])
 }
 
 model Order {
@@ -209,6 +247,7 @@ model Order {
   wayPointsLedger               WayPointsLedger[]
   wayPointsRedemption           WayPointsRedemption?
   wayPointsVouchers             WayPointsVoucher[]
+  couponUsage                   CouponUsage?
 
   @@index([stripePaymentIntentId])
   @@index([stripeChargeId])

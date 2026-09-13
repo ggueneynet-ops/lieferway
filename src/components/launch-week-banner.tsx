@@ -19,9 +19,11 @@ export async function LaunchWeekBanner() {
         aria-hidden
       />
       <div className="relative flex min-h-[6.25rem] flex-col justify-end px-4 py-3.5 sm:min-h-[7rem] sm:px-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">START5</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">
+          {t.launchWeekBadge}
+        </p>
         <p className="mt-0.5 font-display text-[1.05rem] font-semibold leading-snug tracking-tight text-white">
-          {t.launchWeekBannerTitle.replace(/^START5:\s*/i, "")}
+          {t.launchWeekBannerTitle}
         </p>
         <p className="mt-0.5 max-w-[18rem] text-[12px] leading-snug text-white/80">{t.launchWeekBannerSub}</p>
       </div>
