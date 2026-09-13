@@ -124,7 +124,7 @@ export function CheckoutClient() {
   const activeCoupon = usingWp ? null : coupon;
   const couponDiscountCents = applyCoupon(foodSubtotal, activeCoupon);
   const wpDiscountCents = usingWp
-    ? Math.min(selectedWp!.discountCents, Math.max(0, foodSubtotal))
+    ? Math.min(selectedWp?.discountCents ?? 0, Math.max(0, foodSubtotal))
     : 0;
   const discountCents = couponDiscountCents + wpDiscountCents;
   const couponBlocked = couponBelowMinimum(foodSubtotal, activeCoupon);
@@ -447,8 +447,8 @@ export function CheckoutClient() {
             {couponBlocked && activeCoupon ? (
               <p className="mt-2 text-[12px] font-medium text-destructive">
                 {interpolate(t.couponMinNotMet, {
-                  code: coupon.code,
-                  min: formatEUR(coupon.minSubtotalCents ?? 0, locale),
+                  code: activeCoupon.code,
+                  min: formatEUR(activeCoupon.minSubtotalCents ?? 0, locale),
                 })}
               </p>
             ) : null}
