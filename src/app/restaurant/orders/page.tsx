@@ -68,15 +68,38 @@ export default async function RestaurantOrdersHistoryPage({
   const from = fromYmd ? startOfBerlinDay(fromYmd) : null;
   const toExclusive = toYmd ? startOfBerlinDay(addDaysYmd(toYmd, 1)) : null;
 
-  const rows = await prisma.order.findMany({
-    where: { restaurantId: restaurant.id, status: { not: "PENDING_PAYMENT" } },
-    include: {
-      customer: { select: { name: true, phone: true } },
-      items: { select: { name: true, quantity: true } },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 400,
-  });
+  let rows: Array<{
+    id: string;
+    shortCode: string;
+    status: string;
+    fulfillmentType: string;
+    createdAt: Date;
+    foodSubtotalCents: number;
+    customer: { name: string; phone: string | null } | null;
+    items: { name: string; quantity: number }[];
+  }> = [];
+  let loadError = false;
+  try {
+    rows = await prisma.order.findMany({
+      where: { restaurantId: restaurant.id, status: { not: "PENDING_PAYMENT" } },
+      select: {
+        id: true,
+        shortCode: true,
+        status: true,
+        fulfillmentType: true,
+        createdAt: true,
+        foodSubtotalCents: true,
+        customer: { select: { name: true, phone: true } },
+        items: { select: { name: true, quantity: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 400,
+    });
+  } catch (error) {
+    console.error("[restaurant/orders] findMany failed", error);
+    loadError = true;
+    rows = [];
+  }
 
   const dated = rows.filter((o) => inRange(o.createdAt, from, toExclusive));
   const orders = dated.filter((o) => {
@@ -106,6 +129,14 @@ export default async function RestaurantOrdersHistoryPage({
     <RestaurantAppShell title={t.ordersCount} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
       <h1 className="mb-1 text-lg font-semibold">{t.ordersCount}</h1>
       <p className="mb-3 text-sm text-[#6B7280]">{t.ordersHistoryHint}</p>
+      {loadError ? (
+        <div
+          className="mb-3 rounded-[1.35rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          role="status"
+        >
+          {t.kitchenLoadError}
+        </div>
+      ) : null}
       <div className="mb-3 flex flex-wrap gap-2">
         {chips.map((c) => (
           <Link
@@ -169,11 +200,11 @@ export default async function RestaurantOrdersHistoryPage({
                 <StatusBadge status={o.status} locale={locale} fulfillmentType={o.fulfillmentType} />
               </div>
               <p className="mt-1 text-sm text-[#6B7280]">
-                {formatBerlinDateTime(o.createdAt, locale)} · {o.customer.name}
+                {formatBerlinDateTime(o.createdAt, locale)} · {o.customer?.name ?? "—"}
                 {o.fulfillmentType === "PICKUP" ? ` · ${t.fulfillmentPickup}` : ""}
               </p>
               <ul className="mt-2 text-sm text-[#111827]">
-                {o.items.map((i) => (
+                {(o.items ?? []).map((i) => (
                   <li key={`${o.id}-${i.name}-${i.quantity}`}>
                     {i.quantity}× {i.name}
                   </li>

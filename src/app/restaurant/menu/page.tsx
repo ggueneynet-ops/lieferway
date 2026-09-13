@@ -16,20 +16,34 @@ export default async function RestaurantMenuPage() {
       </RestaurantAppShell>
     );
   }
-  const full = await prisma.restaurant.findUnique({
-    where: { id: restaurant.id },
-    include: {
-      categories: { orderBy: { sortOrder: "asc" }, include: { items: { orderBy: { name: "asc" } } } },
-    },
-  });
+
+  let categories: Parameters<typeof MenuEditor>[0]["categories"] = [];
+  let loadError = false;
+  try {
+    const full = await prisma.restaurant.findUnique({
+      where: { id: restaurant.id },
+      include: {
+        categories: { orderBy: { sortOrder: "asc" }, include: { items: { orderBy: { name: "asc" } } } },
+      },
+    });
+    categories = JSON.parse(JSON.stringify(full?.categories ?? []));
+  } catch (error) {
+    console.error("[restaurant/menu] categories failed", error);
+    loadError = true;
+    categories = [];
+  }
 
   return (
     <RestaurantAppShell title={`${t.menuTitle} · ${restaurant.name}`} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
-      <MenuEditor
-        restaurantId={restaurant.id}
-        categories={JSON.parse(JSON.stringify(full?.categories ?? []))}
-        cuisine={restaurant.cuisine}
-      />
+      {loadError ? (
+        <div
+          className="mb-3 rounded-[1.35rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          role="status"
+        >
+          {t.restaurantLoadError}
+        </div>
+      ) : null}
+      <MenuEditor restaurantId={restaurant.id} categories={categories} cuisine={restaurant.cuisine} />
     </RestaurantAppShell>
   );
 }
