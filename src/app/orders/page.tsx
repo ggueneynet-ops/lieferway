@@ -89,6 +89,7 @@ export default async function OrdersPage() {
                         {t.reviewAlready} · {o.review.rating}/5
                       </p>
                     ) : null}
+                    <p className="mt-1 text-sm font-medium text-[#C2185B]">{t.reorderAgain}</p>
                   </div>
                 </Link>
               </li>

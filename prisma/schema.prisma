@@ -29,6 +29,7 @@ model User {
   wayPointsLedger      WayPointsLedger[]
   wayPointsRedemptions WayPointsRedemption[]
   wayPointsVouchers    WayPointsVoucher[]
+  favorites            FavoriteRestaurant[]
 }
 
 model Address {
@@ -93,6 +94,26 @@ model Restaurant {
   wayPointsRewards   WayPointsReward[]
   wayPointsCampaigns WayPointsCampaign[]
   coupons            Coupon[]
+  favorites          FavoriteRestaurant[]
+  offers             RestaurantOffer[]
+
+  /// Vorbestellung (optional). Disabling stops NEW preorders only.
+  preorderEnabled         Boolean  @default(false)
+  preorderMaxDaysAhead    Int      @default(3)
+  preorderMinLeadMinutes  Int      @default(60)
+  /// JSON array of ISO weekdays 1=Mon … 7=Sun, e.g. "[1,2,3,4,5]"
+  preorderWeekdaysJson    String?
+  /// JSON { open: "HH:MM", close: "HH:MM" } window for scheduled slots (Europe/Berlin).
+  preorderHoursJson       String?
+  preorderDelivery        Boolean  @default(true)
+  preorderPickup          Boolean  @default(true)
+  preorderMaxConcurrent   Int?
+
+  /// Restaurant banner on public page
+  bannerText       String?
+  bannerActive     Boolean   @default(false)
+  bannerStartsAt   DateTime?
+  bannerEndsAt     DateTime?
 }
 
 model RestaurantServiceArea {
@@ -230,6 +251,8 @@ model Order {
   /// When status first became PLACED (cash create or card webhook). Used for accept timeout.
   placedAt              DateTime?
   deliveredAt           DateTime?
+  /// null = ASAP; set when restaurant preorder enabled and customer picks a slot
+  scheduledFor          DateTime?
 
   items    OrderItem[]
   review   Review?
@@ -255,6 +278,7 @@ model Order {
   @@index([stripePaymentIntentId])
   @@index([stripeChargeId])
   @@index([status, paymentStatus])
+  @@index([restaurantId, scheduledFor])
 }
 
 model CustomerNotice {
@@ -413,6 +437,45 @@ model PartnerApplication {
 
   @@index([status])
   @@index([email])
+}
+
+
+model FavoriteRestaurant {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, restaurantId])
+  @@index([userId, createdAt])
+  @@index([restaurantId])
+}
+
+/// Restaurant-funded public promos (display). No Lieferway financing.
+model RestaurantOffer {
+  id               String     @id @default(cuid())
+  restaurantId     String
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  title            String
+  description      String     @default("")
+  /// PERCENT | FIXED | INFO
+  type             String     @default("INFO")
+  discountPercent  Int?
+  discountCents    Int?
+  minOrderCents    Int?
+  validFrom        DateTime?
+  validTo          DateTime?
+  isActive         Boolean    @default(true)
+  /// DELIVERY | PICKUP | BOTH
+  scope            String     @default("BOTH")
+  /// Always RESTAURANT — no platform financing
+  funding          String     @default("RESTAURANT")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([restaurantId, isActive])
 }
 
 /// Platform-wide WayPoints config. Single row, id = "default".

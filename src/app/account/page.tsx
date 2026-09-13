@@ -34,6 +34,16 @@ export default async function AccountPage() {
     <>
       <SiteHeader chrome="app" />
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6 sm:py-10">
+        <Link
+          href="/account/favorites"
+          className="mb-6 flex items-center justify-between rounded-2xl border border-[#F8BBD0]/80 bg-white px-4 py-4 text-[#0F172A] shadow-sm"
+        >
+          <span>
+            <span className="block text-[15px] font-semibold">{t.favTitle}</span>
+            <span className="block text-[12px] text-[#64748B]">{t.favAccountHint}</span>
+          </span>
+          <span className="text-lg font-semibold text-[#E91E63]">→</span>
+        </Link>
         <ProfileCard
           name={db.name}
           email={db.email}

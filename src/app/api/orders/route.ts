@@ -25,6 +25,7 @@ import { createDestinationPaymentIntent } from "@/lib/payments";
 import { computeApplicationFeeCents } from "@/lib/stripe-fees";
 import { canAcceptOnlinePayments } from "@/lib/stripe-connect";
 import { isStripeConfigured, stripePublishableKey } from "@/lib/stripe";
+import { validateScheduledFor } from "@/lib/preorder";
 
 export async function OPTIONS() {
   return options();
@@ -72,6 +73,8 @@ const createSchema = z.object({
   couponCode: z.string().optional(),
   wayPointsRewardId: z.string().optional(),
   fulfillmentType: z.enum(["DELIVERY", "PICKUP"]).optional(),
+  /** ISO or Berlin wall `YYYY-MM-DDTHH:mm` — only when restaurant preorder enabled */
+  scheduledFor: z.string().optional().nullable(),
 });
 
 export async function POST(req: Request) {
@@ -94,7 +97,7 @@ export async function POST(req: Request) {
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: parsed.data.restaurantId },
     });
-    if (!restaurant || !restaurant.isActive || !restaurant.isOpen) {
+    if (!restaurant || !restaurant.isActive) {
       return fail("Restaurant nimmt gerade keine Bestellungen an.");
     }
 
@@ -102,6 +105,38 @@ export async function POST(req: Request) {
     const pickup = fulfillment === "PICKUP";
     if (pickup && restaurant.pickupAllowed === false) {
       return fail("Dieses Restaurant bietet keine Abholung an.");
+    }
+
+    let scheduledFor: Date | null = null;
+    const wantsPreorder = Boolean(parsed.data.scheduledFor && String(parsed.data.scheduledFor).trim());
+    if (wantsPreorder) {
+      const validated = validateScheduledFor({
+        settings: restaurant,
+        scheduledForIso: parsed.data.scheduledFor,
+        fulfillmentType: fulfillment,
+      });
+      if (!validated.ok) return fail(validated.error);
+      scheduledFor = validated.scheduledFor;
+      if (restaurant.preorderMaxConcurrent != null && restaurant.preorderMaxConcurrent > 0) {
+        const windowMs = 30 * 60_000;
+        const from = new Date(scheduledFor.getTime() - windowMs);
+        const to = new Date(scheduledFor.getTime() + windowMs);
+        const concurrent = await prisma.order.count({
+          where: {
+            restaurantId: restaurant.id,
+            scheduledFor: { gte: from, lte: to },
+            status: { notIn: ["CANCELLED", "REJECTED"] },
+          },
+        });
+        if (concurrent >= restaurant.preorderMaxConcurrent) {
+          return fail("Für diesen Zeitraum sind keine weiteren Vorbestellungen möglich.");
+        }
+      }
+    } else if (!restaurant.isOpen) {
+      if (restaurant.preorderEnabled) {
+        return fail("Restaurant ist geschlossen — bitte eine Vorbestell-Zeit wählen.");
+      }
+      return fail("Restaurant nimmt gerade keine Bestellungen an.");
     }
     const street = pickup
       ? restaurant.address
@@ -278,6 +313,7 @@ export async function POST(req: Request) {
         postalCode,
         notes: parsed.data.notes,
         fulfillmentType: fulfillment,
+        scheduledFor,
         wayPointsRewardId,
         wayPointsDiscountCents,
         wayPointsFundedBy,

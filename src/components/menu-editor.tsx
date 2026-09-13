@@ -118,7 +118,12 @@ export async function MenuEditor({
                           <p className={item.isAvailable ? "font-medium" : "text-text-secondary line-through"}>
                             {item.name}
                           </p>
-                          <p className="text-sm text-text-secondary">{formatEUR(item.priceCents, locale)}</p>
+                          <p className="text-sm text-text-secondary">
+                            {formatEUR(item.priceCents, locale)} ·{" "}
+                            <span className={item.isAvailable ? "text-emerald-700" : "text-destructive"}>
+                              {item.isAvailable ? t.rpStatusAvailable : t.rpStatusSoldOut}
+                            </span>
+                          </p>
                         </div>
                         <div className="flex shrink-0 flex-col items-end gap-2">
                           <form action="/restaurant/menu/price" method="post" className="flex items-center gap-1">
@@ -141,7 +146,7 @@ export async function MenuEditor({
                           <form action="/restaurant/menu/toggle" method="post">
                             <input type="hidden" name="id" value={item.id} />
                             <button type="submit" className="h-11 rounded-xl border border-border px-3 text-sm">
-                              {item.isAvailable ? t.rpSoldOut : t.rpAvailable}
+                              {item.isAvailable ? t.rpStatusSoldOut : t.rpStatusAvailable}
                             </button>
                           </form>
                           <form action="/restaurant/menu/delete" method="post">

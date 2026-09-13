@@ -14,6 +14,7 @@ export function PersonalOrderLink({
 }) {
   const { t } = useI18n();
   const url = `${origin.replace(/\/$/, "")}/${slug}`;
+  const shareUrl = `${origin.replace(/\/$/, "")}/r/${slug}`;
   const qrSrc = `/api/restaurants/${encodeURIComponent(slug)}/qr`;
 
   async function copy() {
@@ -31,6 +32,9 @@ export function PersonalOrderLink({
       <p className="mt-1 text-sm leading-relaxed text-[#6B7280]">{t.rpPersonalLinkHint}</p>
       <p className="mt-3 break-all rounded-xl bg-[#FCE4EC] px-3 py-2.5 text-[13px] font-medium text-[#C2185B]">
         {url}
+      </p>
+      <p className="mt-2 break-all text-[12px] text-[#9CA3AF]">
+        {t.rpShareAlias}: {shareUrl}
       </p>
       <div className="mt-3 flex justify-center rounded-2xl border border-[#F3F4F6] bg-[#FAFAFA] p-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -20,6 +20,7 @@ import { StripePaymentForm } from "@/components/stripe-payment-form";
 import { QtyStepper } from "@/components/cart-panel";
 import { FulfillmentToggle } from "@/components/fulfillment-toggle";
 import { isPickup } from "@/lib/fulfillment";
+import { CheckoutPreorder } from "@/components/checkout-preorder";
 
 export function CheckoutClient() {
   const { cart, foodSubtotal, clear, setQty, setFulfillment } = useCart();
@@ -59,6 +60,7 @@ export function CheckoutClient() {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [phone, setPhone] = useState("");
   const [fullName, setFullName] = useState("");
+  const [scheduledFor, setScheduledFor] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -217,6 +219,7 @@ export function CheckoutClient() {
           couponCode: activeCoupon && !couponBlocked ? activeCoupon.code : undefined,
           wayPointsRewardId: usingWp ? selectedWp?.rewardId : undefined,
           fulfillmentType: pickup ? "PICKUP" : "DELIVERY",
+          scheduledFor: scheduledFor || undefined,
         }),
       });
       const data = await res.json();
@@ -356,6 +359,12 @@ export function CheckoutClient() {
                 </div>
               </div>
             </section>
+            <CheckoutPreorder
+              restaurantSlug={cart.restaurantSlug}
+              fulfillmentType={pickup ? "PICKUP" : "DELIVERY"}
+              value={scheduledFor}
+              onChange={setScheduledFor}
+            />
             <section className="rounded-[20px] border border-[#E8E8EC] bg-white px-5 py-4 sm:px-6">
               <h2 className="font-display text-base font-semibold tracking-tight text-[#111827]">
                 {pickup ? t.pickupAtCounter : t.restaurantDelivers}
