@@ -9,11 +9,13 @@ import { formatEUR } from "@/lib/money";
 import { OrderPoller } from "@/components/order-poller";
 import { ReviewForm } from "@/components/review-form";
 import { getCopy } from "@/lib/get-locale";
+import { formatBerlinDateTime } from "@/lib/datetime";
 import { interpolate } from "@/lib/i18n";
 import { isPickup } from "@/lib/fulfillment";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { OrderPayPanel } from "@/components/order-pay-panel";
+import { ReorderButton } from "@/components/reorder-button";
 
 export default async function OrderDetailPage({
   params,
@@ -107,6 +109,16 @@ export default async function OrderDetailPage({
             <h1 className="font-display text-2xl font-semibold tracking-tight">{order.restaurant.name}</h1>
             <StatusBadge status={order.status} locale={locale} fulfillmentType={order.fulfillmentType} />
           </div>
+          {session.role === "CUSTOMER" || session.role === "ADMIN" ? (
+            <div className="mt-4">
+              <ReorderButton orderId={order.id} cuisine={order.restaurant.cuisine} />
+            </div>
+          ) : null}
+          {order.scheduledFor ? (
+            <p className="mt-3 text-sm font-medium text-[#C2185B]">
+              {t.preorderScheduled}: {formatBerlinDateTime(order.scheduledFor, locale)}
+            </p>
+          ) : null}
           {latestNotice ? (
             <p className="mt-4 rounded-2xl border border-primary/20 bg-primary-soft px-4 py-3 text-sm text-ink">
               <span className="font-semibold">{latestNotice.title}</span>

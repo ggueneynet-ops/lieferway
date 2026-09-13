@@ -17,6 +17,8 @@ import { formatDistanceKm, normalizePlz } from "@/lib/plz";
 import { distanceFromOrigin, parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 import { RestaurantPublicTabs } from "@/components/restaurant-public-tabs";
+import { FavoriteButton } from "@/components/favorite-button";
+import { isBannerLive, isOfferLive } from "@/lib/preorder";
 
 export async function RestaurantPublicMenu({ slug }: { slug: string }) {
   const { t, locale } = await getCopy();
@@ -37,6 +39,11 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
         orderBy: { createdAt: "desc" },
         take: 30,
         include: { customer: { select: { name: true } } },
+      },
+      offers: {
+        where: { isActive: true, funding: "RESTAURANT" },
+        orderBy: { createdAt: "desc" },
+        take: 10,
       },
     },
   });
@@ -101,6 +108,7 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
             <h1 className="font-display text-2xl font-semibold tracking-tight text-[#111827] sm:text-3xl">
               {restaurant.name}
             </h1>
+            <FavoriteButton restaurantId={restaurant.id} />
             {restaurant.wayPointsEnabled && !restaurant.wayPointsDisabledByAdmin ? (
               <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-[#C2185B] shadow-sm ring-1 ring-[#F8BBD0]/80">
                 ✦ {t.wpBadge}
@@ -136,6 +144,35 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
           {!restaurant.isOpen && (
             <p className="mt-2 text-sm font-medium text-destructive">{t.closedNow}</p>
           )}
+
+          {isBannerLive(restaurant) ? (
+            <div className="mt-4 rounded-2xl border border-[#F8BBD0] bg-[#FFF7FA] px-4 py-3 text-sm text-[#C2185B]">
+              <p className="font-semibold">{t.bannerPublicLabel}</p>
+              <p className="mt-1 leading-relaxed text-[#9D174D]">{restaurant.bannerText}</p>
+            </div>
+          ) : null}
+          {restaurant.offers.filter((o) => isOfferLive(o)).length > 0 ? (
+            <div className="mt-4 space-y-2">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">{t.offerPublicLabel}</p>
+              <ul className="space-y-2">
+                {restaurant.offers.filter((o) => isOfferLive(o)).map((o) => (
+                  <li key={o.id} className="rounded-2xl border border-[#E8E8EC] bg-white px-4 py-3">
+                    <p className="text-[15px] font-semibold text-[#0F172A]">{o.title}</p>
+                    {o.description ? <p className="mt-0.5 text-sm text-[#64748B]">{o.description}</p> : null}
+                    <p className="mt-1 text-xs font-medium text-[#C2185B]">
+                      {o.type === "PERCENT"
+                        ? `${o.discountPercent ?? 0} %`
+                        : o.type === "FIXED"
+                          ? formatEUR(o.discountCents ?? 0, locale)
+                          : t.offerTypeInfo}
+                      {o.minOrderCents ? ` · ${t.minOrder} ${formatEUR(o.minOrderCents, locale)}` : ""}
+                      {` · ${o.scope === "PICKUP" ? t.fulfillmentPickup : o.scope === "DELIVERY" ? t.fulfillmentDelivery : t.rgScopeBoth}`}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           <div className="mt-4 flex flex-wrap gap-1.5">
             {facts.map((fact) => (
