@@ -57,9 +57,6 @@ export function PaymentPicker({
           <h2 className="font-display text-lg font-semibold tracking-tight">{t.payToPlatform}</h2>
           <p className="mt-1 text-sm text-[#6B7280]">{t.payHint}</p>
         </div>
-        <span className="shrink-0 rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
-          
-        </span>
       </div>
       <p className="mt-2 text-[12px] text-[#9CA3AF]">{t.demoPaymentNote}</p>
 
@@ -105,9 +102,6 @@ export function PaymentPicker({
         </button>
       </div>
 
-      {method !== "CASH" ? (
-        
-      ) : null}
     </section>
   );
 }
