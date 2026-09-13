@@ -14,6 +14,7 @@ import { parseLatLng, resolveOrigin, resolveUserRadius } from "@/lib/radius";
 import { HomeSearch } from "@/components/home-search";
 import { AddressFirst } from "@/components/address-first";
 import { LaunchWeekBanner } from "@/components/launch-week-banner";
+import { WayPointsBanner } from "@/components/waypoints-banner";
 import { RadiusFilter } from "@/components/radius-filter";
 import { SPLASH_COOKIE } from "@/lib/splash";
 
@@ -70,6 +71,12 @@ export default async function Home({
               </div>
               <CuisineRow locale={locale} plz={plz} q={q} cuisine={cuisine} km={km} allLabel={copy.all} />
             </section>
+
+            <WayPointsBanner
+              title={copy.wpBannerTitle}
+              subtitle={copy.wpBannerSub}
+              cta={copy.wpBannerCta}
+            />
 
             <LaunchWeekBanner />
 

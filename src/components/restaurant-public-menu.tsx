@@ -101,6 +101,11 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
             <h1 className="font-display text-2xl font-semibold tracking-tight text-[#111827] sm:text-3xl">
               {restaurant.name}
             </h1>
+            {restaurant.wayPointsEnabled && !restaurant.wayPointsDisabledByAdmin ? (
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-[#C2185B] shadow-sm ring-1 ring-[#F8BBD0]/80">
+                ✦ {t.wpBadge}
+              </span>
+            ) : null}
             {restaurant.launchWeekFreeDelivery ? (
               <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-[#E91E63] shadow-sm ring-1 ring-[#EEEFF2]">
                 {t.launchWeekBadge}
@@ -122,6 +127,9 @@ export async function RestaurantPublicMenu({ slug }: { slug: string }) {
               </span>
             )}
           </div>
+          {restaurant.wayPointsEnabled && !restaurant.wayPointsDisabledByAdmin ? (
+            <p className="mt-2 text-sm text-[#64748B]">{t.wpHere}</p>
+          ) : null}
           {restaurant.launchWeekFreeDelivery ? (
             <p className="mt-2 text-sm text-[#64748B]">{t.launchWeekFreeHint}</p>
           ) : null}

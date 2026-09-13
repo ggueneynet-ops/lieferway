@@ -25,6 +25,11 @@ function addDays(d: Date, n: number) {
 }
 
 async function main() {
+  await prisma.wayPointsLedger.deleteMany();
+  await prisma.wayPointsRedemption.deleteMany();
+  await prisma.wayPointsVoucher.deleteMany();
+  await prisma.wayPointsReward.deleteMany();
+  await prisma.wayPointsCampaign.deleteMany();
   await prisma.invoice.deleteMany();
   await prisma.customerNotice.deleteMany();
   await prisma.review.deleteMany();
@@ -988,6 +993,12 @@ async function main() {
         status: "CONTACTED",
       },
     ],
+  });
+
+  await prisma.wayPointsSettings.upsert({
+    where: { id: "default" },
+    update: {},
+    create: { id: "default", pointsPerEuro: 10 },
   });
 
   console.log("Lieferway seed ready.");

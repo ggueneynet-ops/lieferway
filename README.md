@@ -20,6 +20,8 @@ Password for all accounts: `lieferway`
 
 Coupons: `START5` (5 € ab 20 € Speisen), `LOCAL5` (5 % auf Speisen), `WILLKOMMEN10` (10 %), `FRANKFURT` (5 € ab 20 €), `HOSGELDIN` (3 €). Launch Week: selected restaurants (`pasta-e-basta`, `mainhattan-burger`, `green-bowl`) show **0 € Liefergebühr**.
 
+WayPoints (optional loyalty): restaurant **Mehr → WayPoints** (default off). Earn rate is admin-configurable (default 1 € = 10 WP), credited on **DELIVERED**. See [docs/waypoints.md](docs/waypoints.md).
+
 ## Run locally
 
 Postgres is required (SQLite is gone).

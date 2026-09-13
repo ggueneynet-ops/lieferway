@@ -3,6 +3,13 @@ import { getSession, requireSession } from "@/lib/auth";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { applyCoupon, computeOrderTotals, couponBelowMinimum, paymentStatusFor, uniqueShortCode } from "@/lib/orders";
+import { checkoutDiscountPlan, isWayPointsParticipating, previewEarnPoints } from "@/lib/waypoints";
+import {
+  bestEarnMultiplier,
+  getWayPointsSettings,
+  previewCheckoutReward,
+  redeemRewardForOrder,
+} from "@/lib/waypoints-service";
 import { listedDeliveryFeeCents } from "@/lib/delivery-fee";
 import { PAYMENT_METHODS } from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
@@ -56,6 +63,7 @@ const createSchema = z.object({
   postalCode: z.string().optional(),
   notes: z.string().optional(),
   couponCode: z.string().optional(),
+  wayPointsRewardId: z.string().optional(),
   fulfillmentType: z.enum(["DELIVERY", "PICKUP"]).optional(),
 });
 
@@ -133,7 +141,40 @@ export async function POST(req: Request) {
         return fail("Mindestbestellwert für diesen Gutschein nicht erreicht.");
       }
     }
-    const discountCents = applyCoupon(foodSubtotalCents, coupon);
+    const couponDiscountCents = applyCoupon(foodSubtotalCents, coupon);
+    const participates = isWayPointsParticipating(restaurant);
+    let wayPointsDiscountCents = 0;
+    let wayPointsFundedBy: string | null = null;
+    let wayPointsRestaurantShareCents = 0;
+    let wayPointsLieferwayShareCents = 0;
+    let wayPointsRewardId: string | null = null;
+    let wayPointsRedeemed = 0;
+
+    if (parsed.data.wayPointsRewardId) {
+      const preview = await previewCheckoutReward({
+        userId: session.id,
+        restaurantId: restaurant.id,
+        rewardId: parsed.data.wayPointsRewardId,
+        foodSubtotalCents,
+        couponDiscountCents,
+        cartMenuItemIds: lines.map((l) => l.menuItemId),
+      });
+      if (!preview.ok) return fail(preview.error);
+      wayPointsRewardId = preview.quote.rewardId;
+      wayPointsDiscountCents = preview.quote.discountCents;
+      wayPointsFundedBy = preview.quote.fundedBy;
+      wayPointsRestaurantShareCents = preview.quote.restaurantShareCents;
+      wayPointsLieferwayShareCents = preview.quote.lieferwayShareCents;
+      wayPointsRedeemed = preview.quote.pointsCost;
+    }
+
+    const plan = checkoutDiscountPlan({
+      foodSubtotalCents,
+      couponDiscountCents,
+      wayPointsDiscountCents,
+      wayPointsLieferwayShareCents,
+    });
+    let discountCents = plan.customerDiscountCents;
     const totals = computeOrderTotals({
       foodSubtotalCents,
       deliveryFeeCents,
@@ -143,6 +184,13 @@ export async function POST(req: Request) {
 
     const method = parsed.data.paymentMethod;
     const cash = method === "CASH";
+    const feeInput = {
+      amountCents: totals.totalCents,
+      foodSubtotalCents,
+      commissionPercent: restaurant.commissionPercent,
+      deliveryFeeCents,
+      discountCents: plan.platformAbsorbedDiscountCents,
+    };
     const fees = cash
       ? {
           netCommissionCents: totals.commissionCents,
@@ -151,13 +199,7 @@ export async function POST(req: Request) {
           restaurantTransferCents: totals.restaurantPayoutCents,
           platformNetCommissionCents: totals.commissionCents,
         }
-      : computeApplicationFeeCents({
-          amountCents: totals.totalCents,
-          foodSubtotalCents,
-          commissionPercent: restaurant.commissionPercent,
-          deliveryFeeCents,
-          discountCents,
-        });
+      : computeApplicationFeeCents(feeInput);
     const applicationFeeCents = fees.applicationFeeCents;
     const restaurantNetCents = fees.restaurantTransferCents;
 
@@ -213,6 +255,13 @@ export async function POST(req: Request) {
         postalCode,
         notes: parsed.data.notes,
         fulfillmentType: fulfillment,
+        wayPointsRewardId,
+        wayPointsDiscountCents,
+        wayPointsFundedBy,
+        wayPointsRestaurantShareCents,
+        wayPointsLieferwayShareCents,
+        wayPointsRedeemed,
+        wayPointsEligible: participates,
         items: { create: lines },
       },
       include: {
@@ -221,7 +270,7 @@ export async function POST(req: Request) {
       },
     });
     await prisma.$executeRawUnsafe(
-      `UPDATE "Order" SET "fulfillmentType" = $1, "deliveryFeeCents" = $2, "totalCents" = $3, "street" = $4, "city" = $5, "postalCode" = $6 WHERE "id" = $7`,
+      `UPDATE "Order" SET "fulfillmentType" = $1, "deliveryFeeCents" = $2, "totalCents" = $3, "street" = $4, "city" = $5, "postalCode" = $6, "discountCents" = $8, "applicationFeeCents" = $9, "wayPointsDiscountCents" = $10, "wayPointsFundedBy" = $11, "wayPointsRestaurantShareCents" = $12, "wayPointsLieferwayShareCents" = $13, "wayPointsRedeemed" = $14, "wayPointsEligible" = $15, "wayPointsRewardId" = $16 WHERE "id" = $7`,
       fulfillment,
       deliveryFeeCents,
       totals.totalCents,
@@ -229,7 +278,35 @@ export async function POST(req: Request) {
       city,
       postalCode,
       order.id,
+      discountCents,
+      applicationFeeCents,
+      wayPointsDiscountCents,
+      wayPointsFundedBy,
+      wayPointsRestaurantShareCents,
+      wayPointsLieferwayShareCents,
+      wayPointsRedeemed,
+      participates,
+      wayPointsRewardId,
     );
+
+    if (wayPointsRewardId) {
+      const redeemed = await redeemRewardForOrder({
+        userId: session.id,
+        orderId: order.id,
+        restaurantId: restaurant.id,
+        rewardId: wayPointsRewardId,
+        foodSubtotalCents,
+        couponDiscountCents,
+        cartMenuItemIds: lines.map((l) => l.menuItemId),
+      });
+      if (!redeemed.ok) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { status: "CANCELLED", paymentStatus: "FAILED" },
+        });
+        return fail(redeemed.error);
+      }
+    }
 
     let clientSecret: string | null = null;
     let paymentIntentId: string | null = null;
@@ -270,12 +347,30 @@ export async function POST(req: Request) {
       await notifyCustomerOfOrderStatus(order.id, "PLACED");
     }
 
+    const settings = participates ? await getWayPointsSettings() : { pointsPerEuro: 0 };
+    const multiplier = participates ? await bestEarnMultiplier(restaurant.id) : 1;
+    const earnPreview = participates
+      ? previewEarnPoints({
+          foodSubtotalCents,
+          pointsPerEuro: settings.pointsPerEuro,
+          multiplier,
+        })
+      : 0;
+
     return json(
       {
         order: { ...order, status, stripePaymentIntentId: paymentIntentId },
         clientSecret,
         publishableKey: cash ? null : stripePublishableKey(),
         requiresPayment: !cash,
+        wayPoints: participates
+          ? {
+              eligible: true,
+              earnPreview,
+              redeemed: wayPointsRedeemed,
+              discountCents: wayPointsDiscountCents,
+            }
+          : { eligible: false },
       },
       201,
     );

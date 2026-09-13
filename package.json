@@ -16,7 +16,8 @@
     "test:auth": "tsx scripts/test-auth-session.ts",
     "db:reset": "prisma migrate reset --force",
     "setup": "prisma generate && prisma migrate deploy && tsx prisma/seed.ts",
-    "test:stripe": "tsx scripts/test-stripe-connect.ts"
+    "test:stripe": "tsx scripts/test-stripe-connect.ts",
+    "test:waypoints": "tsx scripts/test-waypoints.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
