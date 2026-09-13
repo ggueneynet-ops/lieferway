@@ -154,7 +154,8 @@ check("auth register + partner + stripe wire senders", () => {
   const stripe = fs.readFileSync(path.join(root, "src/lib/stripe-webhooks.ts"), "utf8");
   assert.ok(stripe.includes("sendPaymentFailed"));
   assert.ok(stripe.includes("sendOrderRefunded"));
-  assert.ok(stripe.includes("sendCriticalPaymentOrWebhookError"));
+  assert.ok(stripe.includes("alertCritical") || stripe.includes("sendCriticalPaymentOrWebhookError"));
+  assert.ok(fs.existsSync(path.join(root, "src/lib/alerts.ts")));
 });
 
 console.log("\nAll email system checks passed.");

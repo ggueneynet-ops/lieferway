@@ -4,6 +4,7 @@ import { fail, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { bonHtml, buildBonOrder } from "@/lib/bon";
 import { getCopy } from "@/lib/get-locale";
+import { alertCritical, safeErrorMessage } from "@/lib/alerts";
 
 export async function OPTIONS() {
   return options();
@@ -61,6 +62,11 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);
     if (msg === "FORBIDDEN") return fail("Keine Berechtigung.", 403);
+    await alertCritical({
+      kind: "printer_failure",
+      dedupeKey: `bon_api:${msg || "error"}:${Math.floor(Date.now() / 60_000)}`,
+      detail: `GET /api/restaurant/orders/[id]/bon failed: ${safeErrorMessage(e)}`,
+    });
     return fail("Lieferbon nicht verfügbar.", 500);
   }
 }

@@ -26,6 +26,7 @@ import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { applyRefundToOrder } from "@/lib/stripe-webhooks";
 import { remainingOrderTotals } from "@/lib/stripe-money";
 import { restaurantAcceptTimeoutMinutes } from "@/lib/constants";
+import { alertCritical } from "@/lib/alerts";
 
 import {
   acceptTimeoutCutoff,
@@ -73,6 +74,24 @@ async function logRelease(opts: {
       reason: opts.reason,
       detail: opts.detail,
       amountCents: opts.amountCents,
+    });
+    const kind =
+      opts.action === "REFUND" || opts.action === "EXPIRE"
+        ? "refund_failure"
+        : opts.action === "CANCEL_PI"
+          ? "payment_capture_failure"
+          : "refund_failure";
+    await alertCritical({
+      kind,
+      dedupeKey: `${opts.action}:${opts.orderId}:${opts.reason}:${opts.detail ?? "fail"}`,
+      detail: `${opts.action} ${opts.reason}: ${opts.detail ?? "failed"}`,
+      orderId: opts.orderId,
+      metadata: {
+        action: opts.action,
+        reason: opts.reason,
+        amountCents: opts.amountCents ?? null,
+        stripeId: opts.stripeId ?? null,
+      },
     });
   }
 }

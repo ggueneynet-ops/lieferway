@@ -22,6 +22,7 @@ import { PAYMENT_METHODS } from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
 import { parseFulfillment } from "@/lib/fulfillment";
 import { createDestinationPaymentIntent } from "@/lib/payments";
+import { alertCritical, isCriticalDatabaseError, safeErrorMessage } from "@/lib/alerts";
 import { computeApplicationFeeCents } from "@/lib/stripe-fees";
 import { canAcceptOnlinePayments } from "@/lib/stripe-connect";
 import { getStripe, isStripeConfigured, stripePublishableKey } from "@/lib/stripe";
@@ -447,6 +448,17 @@ export async function POST(req: Request) {
         });
         if (existing) return replayOrderResponse(existing.id);
       }
+      const kind = isCriticalDatabaseError(createErr) ? "database_error" : "order_creation_failure";
+      await alertCritical({
+        kind,
+        dedupeKey: `order_create:${session.id}:${idempotencyKey ?? Date.now()}`,
+        detail: `prisma.order.create failed: ${safeErrorMessage(createErr)}`,
+        restaurantId: restaurant.id,
+        metadata: { prismaCode: code ?? null },
+      });
+      if (createErr && typeof createErr === "object") {
+        (createErr as { __lwAlerted?: boolean }).__lwAlerted = true;
+      }
       throw createErr;
     }
     await prisma.$executeRawUnsafe(
@@ -526,6 +538,14 @@ export async function POST(req: Request) {
           data: { status: "CANCELLED", paymentStatus: "FAILED" },
         });
         const msg = err instanceof Error ? err.message : "";
+        await alertCritical({
+          kind: "payment_capture_failure",
+          dedupeKey: `pi_create:${order.id}`,
+          detail: `createDestinationPaymentIntent failed: ${safeErrorMessage(err)}`,
+          orderCode: order.shortCode,
+          orderId: order.id,
+          restaurantId: order.restaurantId,
+        });
         return fail(msg === "STRIPE_UNCONFIGURED" ? "Stripe Test Mode ist nicht konfiguriert." : "Zahlung konnte nicht gestartet werden.", 502);
       }
     }
@@ -568,6 +588,22 @@ export async function POST(req: Request) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);
     if (msg === "FORBIDDEN") return fail("Keine Berechtigung.", 403);
+    const already = e && typeof e === "object" && (e as { __lwAlerted?: boolean }).__lwAlerted;
+    if (!already) {
+      if (isCriticalDatabaseError(e)) {
+        await alertCritical({
+          kind: "database_error",
+          dedupeKey: `orders_post_db:${Date.now()}`,
+          detail: `POST /api/orders DB error: ${safeErrorMessage(e)}`,
+        });
+      } else {
+        await alertCritical({
+          kind: "order_creation_failure",
+          dedupeKey: `orders_post:${safeErrorMessage(e).slice(0, 80)}:${Date.now()}`,
+          detail: `POST /api/orders failed: ${safeErrorMessage(e)}`,
+        });
+      }
+    }
     throw e;
   }
 }

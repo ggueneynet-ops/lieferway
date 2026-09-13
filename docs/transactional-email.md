@@ -40,7 +40,7 @@ EMAIL_OPS_TO=info@lieferway.de  # critical payment/webhook alerts
 
 See `EMAIL_EVENT_REGISTRY` in `src/lib/email/events.ts` for wired vs TODO.
 
-Wired in this PR: `user_registered`, order lifecycle via `notifyCustomerOfOrderStatus`, `payment_failed`, `order_refunded`, `partner_application_received`, `partner_approved`, `critical_payment_or_webhook_error`.
+Wired: `user_registered`, order lifecycle via `notifyCustomerOfOrderStatus`, `payment_failed`, `order_refunded`, `partner_application_received`, `partner_approved`, `critical_payment_or_webhook_error` (ops — see `src/lib/alerts.ts` / `docs/critical-alerts.md`).
 
 TODO (templates + senders registered, no product flow yet): `email_verification`, `restaurant_payout_summary`.
 `password_reset` is wired via `/api/auth/password-reset/*` (hashed single-use tokens).
