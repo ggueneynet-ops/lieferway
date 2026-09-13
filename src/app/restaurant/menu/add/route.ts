@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const name = String(form.get("name") ?? "").trim();
     const priceCents = eurosToCents(String(form.get("price") ?? ""));
     const categoryName = String(form.get("categoryName") ?? "").trim();
-    let categoryId = String(form.get("categoryId") ?? "");
+    let categoryId = String(form.get("categoryId") ?? "").trim();
     const imageRaw = String(form.get("imageUrl") ?? "").trim();
 
     if (name.length < 2 || priceCents <= 0) {
@@ -44,12 +44,21 @@ export async function POST(req: Request) {
       return redirectMenuError("Bitte eine Kategorie wählen oder neu anlegen.");
     }
 
+    // Ensure category belongs to this restaurant (no cross-tenant id from tampered form).
+    const catOk = await prisma.menuCategory.findFirst({
+      where: { id: categoryId, restaurantId: restaurant.id },
+      select: { id: true },
+    });
+    if (!catOk) {
+      return redirectMenuError("Kategorie ungültig. Bitte neu wählen.");
+    }
+
     const imageUrl =
       imageRaw && (imageRaw.startsWith("/") || imageRaw.startsWith("http"))
         ? imageRaw
         : dishPhoto(null, restaurant.cuisine, name);
 
-    await prisma.menuItem.create({
+    const created = await prisma.menuItem.create({
       data: {
         restaurantId: restaurant.id,
         categoryId,
@@ -59,12 +68,32 @@ export async function POST(req: Request) {
         imageUrl,
         isAvailable: true,
       },
+      select: { id: true, name: true },
     });
-    return redirectMenu("/restaurant/menu?ok=1");
+
+    const verify = await prisma.menuItem.findFirst({
+      where: { id: created.id, restaurantId: restaurant.id },
+      select: { id: true },
+    });
+    if (!verify) {
+      console.error("[restaurant/menu/add] create returned but row missing", created.id);
+      return redirectMenuError("Gericht wurde nicht gespeichert. Bitte erneut versuchen.");
+    }
+
+    const qs = new URLSearchParams({ ok: "1", name: created.name });
+    return redirectMenu(`/restaurant/menu?${qs.toString()}`);
   } catch (error) {
     console.error("[restaurant/menu/add]", error);
     if (isAuthFailure(error)) {
       return redirectMenu("/login?next=/restaurant/menu");
+    }
+    const detail = error instanceof Error ? error.message : "";
+    // Surface common prisma hints without leaking internals to strangers
+    if (/Unique constraint|P2002/i.test(detail)) {
+      return redirectMenuError("Dieses Gericht gibt es schon.");
+    }
+    if (/Foreign key|P2003/i.test(detail)) {
+      return redirectMenuError("Kategorie ungültig. Bitte neu anlegen.");
     }
     return redirectMenuError("Gericht konnte nicht gespeichert werden. Bitte erneut versuchen.");
   }
