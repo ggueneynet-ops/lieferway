@@ -600,3 +600,25 @@ model WayPointsVoucher {
 
   @@index([userId, redeemedAt])
 }
+
+/// Idempotent transactional email send log (unique eventKey prevents duplicate sends).
+model EmailSendLog {
+  id                String    @id @default(cuid())
+  eventKey          String    @unique
+  eventType         String
+  toEmail           String
+  subject           String
+  status            String    @default("PENDING")
+  provider          String?
+  providerMessageId String?
+  attemptCount      Int       @default(0)
+  lastError         String?
+  metadataJson      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  sentAt            DateTime?
+
+  @@index([eventType, createdAt])
+  @@index([toEmail, createdAt])
+  @@index([status, updatedAt])
+}

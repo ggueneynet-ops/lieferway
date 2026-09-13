@@ -72,10 +72,12 @@ NEXT_PUBLIC_APP_URL=https://app.lieferway.de
 EXPO_PUBLIC_API_URL=https://app.lieferway.de
 ```
 
-Optional mail (first match wins: Resend → SMTP → webhook → demo log):
+Optional transactional mail (see `docs/transactional-email.md`; Resend → SMTP → webhook → console):
 
 ```
-MAIL_FROM=Lieferway <noreply@lieferway.de>
+EMAIL_FROM=Lieferway <noreply@lieferway.de>
+EMAIL_REPLY_TO=info@lieferway.de
+# MAIL_FROM=Lieferway <noreply@lieferway.de>
 # Allowed alternative if the mailbox is verified for sending:
 # MAIL_FROM=Lieferway <info@lieferway.de>
 RESEND_API_KEY=

@@ -7,6 +7,9 @@ import { syncRestaurantByStripeAccount } from "./stripe-connect";
 import { getStripe } from "./stripe";
 import { paymentStatusAfterRefund, refundSlice } from "./stripe-money";
 import { platformNetAfterStripeFee, stripeFeeVarianceNote } from "./stripe-fees";
+import { sendCriticalPaymentOrWebhookError, sendOrderRefunded, sendPaymentFailed } from "./email";
+import { formatEUR } from "./money";
+import { parseLocale } from "./i18n";
 
 export const STRIPE_WEBHOOK_EVENTS = [
   "payment_intent.succeeded",
@@ -162,6 +165,30 @@ export async function handlePaymentIntentFailed(pi: Stripe.PaymentIntent) {
       payoutStatus: "UNPAID",
     },
   });
+  try {
+    const full = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: {
+        customer: { select: { email: true, name: true, locale: true } },
+        restaurant: { select: { name: true } },
+      },
+    });
+    if (full?.customer?.email) {
+      await sendPaymentFailed({
+        orderId: full.id,
+        paymentIntentId: pi.id,
+        to: full.customer.email,
+        vars: {
+          locale: parseLocale(full.customer.locale),
+          name: full.customer.name,
+          restaurant: full.restaurant.name,
+          orderCode: full.shortCode,
+        },
+      });
+    }
+  } catch (mailErr) {
+    console.error("stripe.payment_failed.email", mailErr);
+  }
   return { ok: true, orderId: order.id, kitchen: false };
 }
 
@@ -277,7 +304,34 @@ export async function applyRefundToOrder(opts: {
     await reverseCouponUsageForOrder(order.id);
   }
 
-return { ok: true, orderId: order.id, slice };
+  try {
+    const full = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: {
+        customer: { select: { email: true, name: true, locale: true } },
+        restaurant: { select: { name: true } },
+      },
+    });
+    if (full?.customer?.email && slice.amountCents > 0) {
+      const locale = parseLocale(full.customer.locale);
+      await sendOrderRefunded({
+        orderId: full.id,
+        stripeRefundId: opts.stripeRefundId,
+        to: full.customer.email,
+        vars: {
+          locale,
+          name: full.customer.name,
+          restaurant: full.restaurant.name,
+          orderCode: full.shortCode,
+          amountLabel: formatEUR(slice.amountCents, locale),
+        },
+      });
+    }
+  } catch (mailErr) {
+    console.error("stripe.refund.email", mailErr);
+  }
+
+  return { ok: true, orderId: order.id, slice };
 }
 
 export async function handleChargeRefunded(charge: Stripe.Charge) {
@@ -485,6 +539,15 @@ export async function handleStripeEvent(event: Stripe.Event) {
     return { ok: true, type: event.type };
   } catch (e) {
     await releaseStripeEvent(event.id);
+    try {
+      const detail = e instanceof Error ? `${event.type}: ${e.message}` : `${event.type}: unknown error`;
+      await sendCriticalPaymentOrWebhookError({
+        dedupeKey: `${event.id}:handler`,
+        detail,
+      });
+    } catch (mailErr) {
+      console.error("stripe.critical.email", mailErr);
+    }
     throw e;
   }
 }

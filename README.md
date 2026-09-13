@@ -84,7 +84,7 @@ Required env on Vercel:
 | `NEXT_PUBLIC_APP_URL` | `https://app.lieferway.de` |
 | `EXPO_PUBLIC_API_URL` | `https://app.lieferway.de` |
 
-Optional: `MAIL_FROM`, `RESEND_API_KEY` / `SMTP_*` / `MAIL_WEBHOOK_URL`, `LIEFERWAY_LEGAL_*`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+Transactional email: see `docs/transactional-email.md`. Optional: `EMAIL_FROM` / `MAIL_FROM`, `RESEND_API_KEY` / `SMTP_*` / `MAIL_WEBHOOK_URL`, `LIEFERWAY_LEGAL_*`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
 
 Stripe Connect test mode (card / wallets): `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`. Setup: [docs/stripe-connect.md](docs/stripe-connect.md).
 
