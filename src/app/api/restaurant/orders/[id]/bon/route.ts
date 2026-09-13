@@ -64,7 +64,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     if (msg === "FORBIDDEN") return fail("Keine Berechtigung.", 403);
     await alertCritical({
       kind: "printer_failure",
-      dedupeKey: `bon_api:${msg || "error"}:${Date.now() // 60_000}`,
+      dedupeKey: `bon_api:${msg || "error"}:${Math.floor(Date.now() / 60_000)}`,
       detail: `GET /api/restaurant/orders/[id]/bon failed: ${safeErrorMessage(e)}`,
     });
     return fail("Lieferbon nicht verfügbar.", 500);
