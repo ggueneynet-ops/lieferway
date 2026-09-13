@@ -1,93 +1,186 @@
 # Partner-Hilfe
 
-Antworten für Partnerrestaurants zu Provision, Lieferung, Bestellungen, Auszahlung, Erstattung und WayPoints. Support: [info@lieferway.de](mailto:info@lieferway.de).
+Lieferway Partner-Hilfe
 
-## Provision & Vertrag
+Dieser Bereich richtet sich an Restaurantpartner von Lieferway.
 
-### Wie hoch ist die Lieferway-Provision?
 
-Die Plattformprovision beträgt 8 % auf die Speisen. Liefergebühr, die Sie selbst festlegen, und Trinkgeld gehören nicht zur Provisionsbasis in gleicher Weise; maßgeblich ist die Abrechnung im Panel. Stripe-Zahlungsgebühren für Karte, Apple Pay und Google Pay fallen zusätzlich an und werden in der Auszahlung ausgewiesen. Es gibt kein Setup-Entgelt.
+1. Wie funktioniert Lieferway für Restaurants?
 
-### Gibt es eine Vertragsbindung oder Mindestlaufzeit?
+Lieferway vermittelt Bestellungen zwischen Kunden und teilnehmenden Restaurants.
 
-Nein. Die Partnerschaft ist ohne Mindestlaufzeit gedacht. Sie können die Zusammenarbeit beenden; offene Bestellungen, Auszahlungen und gesetzliche Aufbewahrung bleiben davon unberührt. Eine Anfrage unter Restaurant werden ist noch kein Live-Gang — der Zugang folgt nach Freigabe.
+Bestellungen werden über das Lieferway-System an das Restaurant übermittelt.
 
-### Wie werde ich Partner?
+Das Restaurant übernimmt die Zubereitung sowie die eigene Lieferung an den Kunden.
 
-Senden Sie die Anfrage unter Restaurant werden (`/partner/anmelden`). Lieferway prüft und schaltet frei. Danach melden Sie sich unter Anmelden mit E-Mail und Passwort an. Eine Selbst-Registrierung wie beim Kundenkonto gibt es für Restaurants nicht. Google-Anmeldung ist für Partnerkonten nicht vorgesehen.
+Lieferway bietet derzeit keinen eigenen Kurierdienst an.
 
-## Lieferung
 
-### Wer liefert die Bestellungen?
+2. Wie hoch ist die Lieferway Provision?
 
-Sie liefern selbst — mit eigenen Fahrern oder einem Dienst, den Sie beauftragen. Lieferway stellt keinen Kurier und vermittelt keine Plattformfahrer. In der Karte erscheint der Hinweis, dass das Restaurant liefert.
+Die aktuelle Lieferway Standard-Provision beträgt:
 
-### Gibt es Lieferway-Kuriere?
+8 % pro provisionspflichtiger Bestellung.
 
-Nein. Es gibt keinen Lieferway-Kurier und keine öffentliche Fahrer-Anmeldung über Lieferway. Küche, Annahme und Auslieferung liegen bei Ihnen.
+Die genaue Abrechnung erfolgt gemäß der mit dem Restaurant vereinbarten Konditionen.
 
-### Wie stelle ich Liefergebiet, Lieferzeit und Mindestbestellwert ein?
 
-Unter Mehr → Lieferung setzen Sie Lieferradius, Liefergebühr, Zeitspanne, Mindestbestellwert und ob Abholung erlaubt ist. Gäste außerhalb Ihres Gebiets sollen Sie nicht als lieferbar sehen. Änderungen gelten für neue Bestellungen.
+3. Fallen zusätzliche Kurierkosten an?
 
-## Bestellungen & Küche
+Nein.
 
-### Wie nehme ich Bestellungen an?
+Da Lieferway keinen eigenen Kurierdienst bereitstellt, entstehen über Lieferway keine zusätzlichen Lieferkurier-Gebühren.
 
-Neue Aufträge erscheinen unter Heute bzw. Bestellungen. Online bezahlte Bestellungen sieht die Küche erst nach erfolgreicher Zahlung. Sie nehmen an, setzen die Zubereitungszeit und führen den Status weiter (in Zubereitung, unterwegs bzw. abholbereit, geliefert oder abgeholt). Ablehnen ist möglich, wenn Sie nicht liefern können.
+Das Restaurant organisiert seine Lieferung selbst.
 
-### Wie pflege ich Speisekarte und Öffnungszeiten?
 
-Unter Menü legen Sie Gerichte an, ändern Preise und markieren Ausverkauft. Unter Mehr → Öffnungszeiten pflegen Sie die Zeiten je Wochentag. Geschlossen nimmt in der Regel keine neuen Bestellungen an.
+4. Wie erhalte ich neue Bestellungen?
 
-### Was ist der persönliche Lieferway-Link?
+Neue Bestellungen erscheinen im Lieferway Restaurantbereich.
 
-Unter Mehr bzw. Einstellungen finden Sie Ihren Kurzlink und QR-Code (zum Beispiel für Instagram, Google oder das Schaufenster). Gäste landen direkt in Ihrer Speisekarte. Den Slug legt die Freigabe fest; Änderungen nur über Support oder Verwaltung.
+Je nach Systemkonfiguration erhält das Restaurant zusätzlich eine Benachrichtigung.
 
-## Zahlung & Auszahlung
+Bestellungen sollten möglichst schnell angenommen oder abgelehnt werden.
 
-### Wie funktioniert Stripe Connect?
 
-Für Kartenzahlungen verbinden Sie ein Stripe-Express-Konto unter Einstellungen. Gäste zahlen an Lieferway; der Restaurantanteil geht per Destination Charge an Ihr Connected Account. Ohne abgeschlossenes Onboarding können Sie in der Regel keine Kartenzahlung annehmen. Testhinweise gelten nur, solange der Testmodus aktiv ist.
+5. Was passiert, wenn ich eine Bestellung ablehne?
 
-### Wann wird ausgezahlt?
+Wird eine noch nicht endgültig abgeschlossene Bestellung abgelehnt, soll der Zahlungsprozess automatisch durch Lieferway verarbeitet werden.
 
-Auszahlungen sind für Montag vorgesehen, sobald Stripe Connect aktiv ist und auszahlbare Beträge vorliegen. Im Bereich Finanzen sehen Sie Umsatz (Speisen), Provision, Stripe-Gebühr und den auszahlbaren Betrag. Barumsätze hat der Gast bereits bei Ihnen entrichtet; die Plattformprovision dafür erscheint gesondert im Ledger.
+Eine manuelle Bearbeitung im Stripe Dashboard soll im normalen Betrieb nicht erforderlich sein.
 
-### Bekomme ich eine Provisionsrechnung?
 
-Ja. Lieferway stellt die Plattformprovision periodisch in Rechnung. Die Entwürfe bzw. Belege erscheinen in der Abrechnung. Die steuerliche Rechnung an den Gast über Speisen stellen Sie selbst.
+6. Wie storniere ich eine bereits angenommene Bestellung?
 
-### Was gilt für Barzahlung?
+Wenn eine angenommene Bestellung aus einem wichtigen Grund nicht ausgeführt werden kann, soll sie direkt über den Lieferway Restaurantbereich storniert werden können.
 
-Bar bei Lieferung oder Abholung zahlt der Gast direkt an Sie. Die Bestellung erscheint nach dem Absenden in der Küche (ohne vorherigen Stripe-Einzug). Eine Erstattung über Stripe ist bei Barzahlung nicht möglich.
+Ist eine Rückerstattung erforderlich, wird diese über den Lieferway-Workflow ausgelöst.
 
-## Erstattungen
+Im normalen Betrieb soll kein separater Login beim Zahlungsanbieter notwendig sein.
 
-### Wie erstattet ein Restaurant eine Bestellung?
 
-Erstattungen von Online-Zahlungen lösen Sie im Lieferway-Panel aus (vollständig oder teilweise), nicht im Stripe-Dashboard. Nur so bleiben Provision, Auszahlung und Belege korrekt. Stripe bucht auf das ursprüngliche Zahlungsmittel des Gastes zurück. Barzahlungen klären Sie direkt mit dem Gast.
+7. Wie funktioniert eine vollständige Rückerstattung?
 
-### Warum nicht im Stripe-Dashboard erstatten?
+Bei einer vollständigen Rückerstattung wird der komplette erstattungsfähige Betrag an den Kunden zurückgezahlt.
 
-Eine manuelle Erstattung im Stripe-Dashboard umgeht die Lieferway-Buchung. Provision, Restaurantnetto und Auszahlung können dann nicht mehr automatisch ausgeglichen werden. Nutzen Sie ausschließlich das Panel bzw. den von Lieferway vorgesehenen Erstattungsweg.
+Bei einer vollständig stornierten Bestellung wird entsprechend der Lieferway-Abrechnungslogik keine reguläre Provision für die nicht ausgeführte Bestellung berechnet.
 
-## WayPoints
 
-### Was sind WayPoints für Partner?
+8. Wie funktioniert eine Teilrückerstattung?
 
-WayPoints ist das optionale Treueprogramm. Gäste können bei teilnehmenden Betrieben Punkte sammeln und Prämien einlösen. Die Kosten einer Prämie tragen Sie, Lieferway oder beide — je nach Einstellung der Prämie (Restaurant / Lieferway / geteilt).
+Wenn beispielsweise ein Artikel fehlt, kann über Lieferway eine Teilrückerstattung vorgenommen werden.
 
-### Muss ich WayPoints anbieten?
+Dabei wird nur der entsprechende Teilbetrag an den Kunden zurückgezahlt.
 
-Nein. Die Teilnahme ist ein Opt-in. Standard ist aus. Ohne Aktivierung gibt es in Ihrem Betrieb weder Gutschrift noch Einlösung; Stripe, Provision und Auszahlung bleiben unverändert. Die Einstellung finden Sie im Restaurantbereich unter Mehr, sobald WayPoints freigeschaltet ist.
+Die Rückerstattung und die entsprechende Abrechnung werden dokumentiert.
 
-### Was passiert mit WayPoints bei Storno oder Erstattung?
 
-Bei Stornierung, Ablehnung oder voller Erstattung werden Gutschriften zurückgenommen und eingelöste Punkte wiederhergestellt, damit weder Gast noch Abrechnung doppelt belastet werden. Details stehen in der WayPoints-Ansicht, sobald das Programm aktiv ist.
+9. Was ist WayPoints?
 
-## Support
+WayPoints ist das freiwillige Kundenbindungsprogramm von Lieferway.
 
-### Wen kontaktiere ich als Partner?
+Restaurants können selbst entscheiden, ob sie daran teilnehmen möchten.
 
-Schreiben Sie an [info@lieferway.de](mailto:info@lieferway.de). Bitte Betriebsname, Bestellnummer und Ihr Anliegen nennen. Für Gäste gilt die öffentliche Hilfe; diese Partner-Hilfe richtet sich an die Küche und die Inhaber.
+
+10. Muss mein Restaurant an WayPoints teilnehmen?
+
+Nein.
+
+WayPoints ist freiwillig.
+
+Restaurants können Lieferway vollständig für normale Bestellungen nutzen, ohne am WayPoints-Programm teilzunehmen.
+
+
+11. Welche Vorteile bietet WayPoints?
+
+Teilnehmende Restaurants können Kunden zusätzliche Anreize für Wiederholungsbestellungen bieten.
+
+Mögliche Prämien können beispielsweise sein:
+
+- Gratis Getränk
+- Gratis Beilage
+- Gratis Dessert
+- fixer Rabatt
+- prozentualer Rabatt
+- zeitlich begrenzte Aktionen
+
+
+12. Wer trägt die Kosten einer WayPoints-Prämie?
+
+Dies hängt von der jeweiligen Kampagne ab.
+
+Mögliche Varianten:
+
+- Restaurant finanziert
+- Lieferway finanziert
+- Kosten werden geteilt
+
+Bei normalen vom Restaurant erstellten Aktionen soll standardmäßig das Restaurant als Kostenträger hinterlegt werden.
+
+
+13. Wie aktiviere ich WayPoints?
+
+Im Restaurantbereich soll es unter:
+
+Marketing → WayPoints
+
+eine entsprechende Einstellung geben.
+
+Über:
+
+„Am WayPoints-Programm teilnehmen“
+
+kann die Teilnahme aktiviert oder deaktiviert werden.
+
+
+14. Kann ich eigene Prämien erstellen?
+
+Ja.
+
+Teilnehmende Restaurants sollen eigene WayPoints-Prämien und Aktionen erstellen können.
+
+Die verfügbaren Einstellungen können unter anderem umfassen:
+
+- Titel
+- Beschreibung
+- benötigte WayPoints
+- Rabattart
+- Mindestbestellwert
+- Laufzeit
+- Nutzungslimit
+- Aktiv / Inaktiv
+
+
+15. Was passiert, wenn ich WayPoints später deaktiviere?
+
+Das Restaurant kann weiterhin normal Bestellungen über Lieferway erhalten.
+
+Es werden jedoch keine neuen WayPoints über dieses Restaurant vergeben und WayPoints-Aktionen des Restaurants werden entsprechend deaktiviert.
+
+
+16. Wie werden Zahlungen abgewickelt?
+
+Online-Zahlungen werden über das in Lieferway integrierte Zahlungssystem abgewickelt.
+
+Die dazugehörigen Bestell-, Zahlungs-, Provisions- und Auszahlungsinformationen sollen im System nachvollziehbar dokumentiert werden.
+
+
+17. Muss ich mich für Rückerstattungen direkt bei Stripe anmelden?
+
+Im normalen Tagesgeschäft soll dies nicht erforderlich sein.
+
+Stornierungen, vollständige Rückerstattungen und Teilrückerstattungen sollen direkt über das Lieferway Restaurant- bzw. Admin-Panel ausgelöst werden.
+
+
+18. Wo sehe ich meine Abrechnungen?
+
+Restaurantpartner sollen ihre relevanten Bestell-, Provisions-, Erstattungs- und Auszahlungsinformationen innerhalb des Lieferway Partnerbereichs einsehen können.
+
+
+19. Wie erreiche ich den Lieferway Partner-Support?
+
+Bei technischen Fragen, Fragen zu Bestellungen oder zur Abrechnung:
+
+info@lieferway.de
+
+Bitte möglichst Restaurantname und gegebenenfalls Bestellnummer angeben.
