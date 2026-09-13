@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import type { Role } from "@/lib/constants";
 import { getCopy } from "@/lib/get-locale";
-import { LocaleToggle } from "@/components/locale-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { LogoutButton } from "@/components/logout-button";
 
 export async function PanelShell({
@@ -91,7 +91,7 @@ export async function PanelShell({
           <h1 className="min-w-0 truncate text-base font-semibold tracking-tight text-ink">{title}</h1>
           <div className="flex shrink-0 items-center gap-2">
             <LogoutButton label={t.logout} variant="header" />
-            <LocaleToggle />
+            <LanguageSwitcher />
           </div>
         </header>
         <div className="p-3 md:p-5">{children}</div>

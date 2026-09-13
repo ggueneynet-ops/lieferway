@@ -12,12 +12,14 @@ import type { Locale } from "@/lib/i18n";
 export function Providers({
   children,
   initialLocale = "de",
+  initialChosen = false,
 }: {
   children: React.ReactNode;
   initialLocale?: Locale;
+  initialChosen?: boolean;
 }) {
   return (
-    <LocaleProvider initialLocale={initialLocale}>
+    <LocaleProvider initialLocale={initialLocale} initialChosen={initialChosen}>
       <LocationProvider>
         <CartProvider>
           {children}

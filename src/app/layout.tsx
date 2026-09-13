@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-import { cookies } from "next/headers";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
-import { LOCALE_COOKIE } from "@/lib/constants";
-import { parseLocale } from "@/lib/i18n";
+import { getStoredLocaleChoice } from "@/lib/get-locale";
 import "./globals.css";
 
 const inter = Inter({
@@ -46,11 +44,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const locale = parseLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  const { locale, chosen } = await getStoredLocaleChoice();
   return (
     <html lang={locale} className={`${inter.variable} ${jakarta.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
-        <Providers initialLocale={locale}>
+        <Providers initialLocale={locale} initialChosen={chosen}>
           {children}
           <Toaster richColors position="top-center" />
         </Providers>

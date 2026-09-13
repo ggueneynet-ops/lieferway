@@ -5,14 +5,13 @@ import {
   CITY_COOKIE,
   GEO_LIVE_COOKIE,
   GEO_SOURCE_COOKIE,
-  LOCALE_COOKIE,
   PLZ_COOKIE,
   RADIUS_COOKIE,
   STREET_COOKIE,
   isActiveDeliveryLocation,
 } from "@/lib/constants";
-import { parseLocale, type Locale } from "@/lib/i18n";
-import { LocaleToggle } from "@/components/locale-toggle";
+import { getRequestLocale } from "@/lib/get-locale";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { CartButton } from "@/components/cart-button";
 import { AccountMenu } from "@/components/account-menu";
 import { resolveUserRadius } from "@/lib/radius";
@@ -34,7 +33,7 @@ export async function SiteHeader({
 } = {}) {
   const user = await getSession();
   const cookieStore = await cookies();
-  const locale: Locale = parseLocale(cookieStore.get(LOCALE_COOKIE)?.value);
+  const locale = await getRequestLocale();
   const trusted = isActiveDeliveryLocation(
     cookieStore.get(GEO_SOURCE_COOKIE)?.value,
     cookieStore.get(GEO_LIVE_COOKIE)?.value,
@@ -62,18 +61,13 @@ export async function SiteHeader({
           />
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
-          {app ? null : (
-            <div className="hidden sm:block">
-              <LocaleToggle />
-            </div>
-          )}
+          <LanguageSwitcher />
           {app ? null : <CartButton compact />}
           <AccountMenu
             className={app ? "" : "hidden sm:block"}
             user={user}
             locale={locale}
             iconOnly={app}
-            localeInMenu={app ? "always" : "mobile"}
           />
         </div>
       </div>

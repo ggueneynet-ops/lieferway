@@ -15,6 +15,7 @@ import { HomeSearch } from "@/components/home-search";
 import { AddressFirst } from "@/components/address-first";
 import { LaunchWeekBanner } from "@/components/launch-week-banner";
 import { WayPointsBanner } from "@/components/waypoints-banner";
+import { FirstVisitLanguagePicker } from "@/components/first-visit-language-picker";
 import { RadiusFilter } from "@/components/radius-filter";
 import { SPLASH_COOKIE } from "@/lib/splash";
 
@@ -63,6 +64,7 @@ export default async function Home({
       {splashDone ? null : <SplashIntro />}
       <SiteHeader plz={plz} q={q} cuisine={cuisine} km={km} />
       <main className="flex-1 bg-[#FFFFFF]">
+        <FirstVisitLanguagePicker />
         {hasAddress ? (
           <div className="lw-wrap flex flex-col gap-5 pb-6 pt-3 sm:gap-6 sm:pt-4">
             <HomeSearch initialQ={q ?? ""} plz={plz} cuisine={cuisine} km={km} />

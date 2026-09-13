@@ -11,7 +11,13 @@ export async function GET() {
   if (!session) return fail("Nicht angemeldet.", 401);
   const db = await prisma.user.findUnique({
     where: { id: session.id },
-    select: { phone: true },
+    select: { phone: true, locale: true },
   });
-  return json({ user: { ...session, phone: db?.phone ?? null } });
+  return json({
+    user: {
+      ...session,
+      phone: db?.phone ?? null,
+      locale: db?.locale ?? session.locale,
+    },
+  });
 }

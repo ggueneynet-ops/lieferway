@@ -6,7 +6,7 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LocaleToggle } from "@/components/locale-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { useI18n } from "@/components/locale-provider";
 
 function ForgotForm() {
@@ -46,7 +46,7 @@ function ForgotForm() {
     <div className="mx-auto flex min-h-full w-full max-w-md flex-col justify-center px-4 py-16">
       <div className="flex items-center justify-between">
         <Logo />
-        <LocaleToggle />
+        <LanguageSwitcher />
       </div>
       <h1 className="mt-8 font-display text-2xl font-semibold text-ink">{t.forgotPassword}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t.forgotPasswordHint}</p>

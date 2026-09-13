@@ -5,7 +5,6 @@ import { UserRound } from "lucide-react";
 import type { SessionUser } from "@/lib/auth";
 import { t, type Locale } from "@/lib/i18n";
 import { LogoutButton } from "@/components/logout-button";
-import { LocaleToggle } from "@/components/locale-toggle";
 
 function initials(name: string, email: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -20,16 +19,13 @@ export function AccountMenu({
   locale,
   className = "",
   iconOnly = false,
-  localeInMenu = "mobile",
 }: {
   user: SessionUser | null;
   locale: Locale;
   className?: string;
   iconOnly?: boolean;
-  localeInMenu?: "mobile" | "always";
 }) {
   const copy = t(locale);
-  const localeClass = localeInMenu === "always" ? "" : "sm:hidden";
 
   if (!user) {
     return (
@@ -42,10 +38,6 @@ export function AccountMenu({
           <span className="hidden sm:inline">{copy.login}</span>
         </summary>
         <div className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded-xl border border-border bg-surface py-2 shadow-lg">
-          <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">{copy.language}</p>
-          <div className="px-3 pb-2">
-            <LocaleToggle />
-          </div>
           <Link href="/login" className="block px-3 py-2.5 text-sm font-medium hover:bg-muted">
             {copy.login}
           </Link>
@@ -71,10 +63,6 @@ export function AccountMenu({
       </summary>
       <div className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded-xl border border-border bg-surface py-1 shadow-lg">
         <p className="truncate px-3 py-2 text-xs text-text-secondary">{user.email}</p>
-        <div className={`px-3 pb-2 pt-1 ${localeClass}`}>
-          <p className="pb-1.5 text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">{copy.language}</p>
-          <LocaleToggle />
-        </div>
         {user.role === "CUSTOMER" ? (
           <>
             <Link href="/account" className="block px-3 py-2.5 text-sm hover:bg-muted">
