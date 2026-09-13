@@ -19,7 +19,8 @@
     "test:stripe": "tsx scripts/test-stripe-connect.ts",
     "test:waypoints": "tsx scripts/test-waypoints.ts",
     "test:coupons": "tsx scripts/test-coupons.ts",
-    "test:payment-lifecycle": "tsx scripts/test-payment-lifecycle.ts"
+    "test:payment-lifecycle": "tsx scripts/test-payment-lifecycle.ts",
+    "test:email": "tsx scripts/test-email-system.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

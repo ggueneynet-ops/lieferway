@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { createRestaurantRecord } from "@/lib/create-restaurant";
 import { normalizePlz } from "@/lib/plz";
 import { parseSlugInput } from "@/lib/slug";
+import { sendPartnerApplicationReceived, sendPartnerApproved } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -72,6 +73,16 @@ export async function submitPartnerApplication(
       status: "PENDING",
     },
   });
+  try {
+    await sendPartnerApplicationReceived({
+      applicationId: application.id,
+      email,
+      contactName,
+      businessName,
+    });
+  } catch (mailErr) {
+    console.error("partner.apply.email", mailErr);
+  }
   return { application };
 }
 
@@ -119,6 +130,18 @@ export async function approvePartnerApplication(
       adminNote: note,
     },
   });
+
+  try {
+    await sendPartnerApproved({
+      applicationId: app.id,
+      email: result.restaurant.owner.email,
+      contactName: result.restaurant.owner.name,
+      businessName: app.businessName,
+      password: result.password,
+    });
+  } catch (mailErr) {
+    console.error("partner.approve.email", mailErr);
+  }
 
   return { restaurant: result.restaurant, password: result.password, note };
 }

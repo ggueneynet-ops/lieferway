@@ -3,6 +3,7 @@ import { applySessionCookie, hashPassword, logSafeError, signToken } from "@/lib
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { normalizePhone } from "@/lib/phone";
+import { sendUserRegistered } from "@/lib/email";
 
 export async function OPTIONS() {
   return options();
@@ -48,6 +49,16 @@ export async function POST(req: Request) {
       locale: user.locale,
     };
     const token = await signToken(session);
+    try {
+      await sendUserRegistered({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        locale: (user.locale === "en" || user.locale === "tr" ? user.locale : "de"),
+      });
+    } catch (mailErr) {
+      console.error("auth.register.email", mailErr);
+    }
     return applySessionCookie(json({ user: session, token }, 201), token);
   } catch (err) {
     logSafeError("auth.register", err);
