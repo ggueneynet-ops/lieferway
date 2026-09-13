@@ -27,7 +27,8 @@
     "test:checkout": "tsx scripts/test-checkout-guards.ts",
     "test:authz": "tsx scripts/test-route-guards.ts",
     "test:settlement": "tsx scripts/test-settlement.ts",
-    "test:alerts": "tsx scripts/test-alerts.ts"
+    "test:alerts": "tsx scripts/test-alerts.ts",
+    "test:e2e-sandbox": "tsx scripts/test-e2e-sandbox-coverage.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
