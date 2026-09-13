@@ -50,6 +50,7 @@ export const FRANKFURT_PLZ: PlzPlace[] = [
 ];
 
 export const DEMO_PLZ_CHIPS = [
+  { plz: "64732", label: "64732 Bad König" },
   { plz: "60311", label: "60311 Innenstadt" },
   { plz: "60316", label: "60316 Nordend" },
   { plz: "60487", label: "60487 Bockenheim" },
@@ -61,7 +62,7 @@ export const DEMO_PLZ_CHIPS = [
 export const DEFAULT_NEW_RESTAURANT_PLZS = ["60311", "60313", "60329", "60314", "60316"];
 
 /** Demo marketplace default when the user has not chosen a place yet. */
-export const DEFAULT_DEMO_PLZ = "60311";
+export const DEFAULT_DEMO_PLZ = "64732";
 export const FRANKFURT_CENTER = { lat: 50.1109, lng: 8.6821 };
 
 export function isFrankfurtServicePlz(plz?: string | null) {
@@ -83,7 +84,7 @@ export function defaultDemoPlace() {
   return {
     street: "",
     postalCode: place.plz,
-    city: "Frankfurt am Main",
+    city: "Bad König",
     lat: place.lat,
     lng: place.lng,
     district: place.district,

@@ -386,7 +386,7 @@ export function LocationPicker({
                     pick({
                       street: "",
                       postalCode: meta.plz,
-                      city: "Frankfurt am Main",
+                      city: meta.district,
                       lat: meta.lat,
                       lng: meta.lng,
                     });

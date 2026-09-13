@@ -30,7 +30,7 @@ export async function submitPartnerApplication(
   const cuisine = raw.cuisine.trim() || "Sonstiges";
   const street = raw.street.trim();
   const postalCode = normalizePlz(raw.postalCode);
-  const city = (raw.city ?? "Frankfurt am Main").trim() || "Frankfurt am Main";
+  const city = (raw.city ?? "").trim();
   const contactName = raw.contactName.trim();
   const email = raw.email.toLowerCase().trim();
   const phone = raw.phone.trim();

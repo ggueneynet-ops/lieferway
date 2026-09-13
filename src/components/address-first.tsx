@@ -29,7 +29,7 @@ export function AddressFirst({
     const place: DeliveryPlace = {
       street: "",
       postalCode: meta.plz,
-      city: "Frankfurt am Main",
+      city: meta.district,
       lat: meta.lat,
       lng: meta.lng,
     };

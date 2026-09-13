@@ -43,7 +43,7 @@ export type ApplicationFeeBreakdown = {
   /** application_fee_amount sent to Stripe */
   applicationFeeCents: number;
   restaurantTransferCents: number;
-  /** What Lieferway keeps after paying Stripe (target ~5 % of food). */
+  /** What Lieferway keeps after paying Stripe (target ~8 % of food). */
   platformNetCommissionCents: number;
 };
 
@@ -52,9 +52,9 @@ export type ApplicationFeeBreakdown = {
  *                 + delivery − discount (delivery stays with the platform).
  *
  * Platform net after Stripe = application_fee − actual Stripe fee
- * ≈ food × commission% (default 5 %). Restaurant transfer = amount − application_fee.
+ * ≈ food × commission% (default 8 %). Restaurant transfer = amount − application_fee.
  *
- * Example: 100 € food, 5 %, Stripe ~1.5 % + 0,25 € → fee 1,75 €
+ * Example: 100 € food, 8 %, Stripe ~1.5 % + 0,25 € → fee 1,75 €
  * → application_fee 6,75 € → platform nets 5 €, restaurant 93,25 €.
  */
 export function computeApplicationFeeCents(opts: ApplicationFeeInput): ApplicationFeeBreakdown {

@@ -98,10 +98,10 @@ export async function createRestaurantRecord(
         ownerId = owner.id;
       }
 
-      const postalCode = (input.postalCode ?? "").replace(/\D/g, "").slice(0, 5) || "60311";
-      const place = lookupPlz(postalCode) ?? lookupPlz("60311");
-      const address = (input.address ?? "").trim() || `${postalCode} Frankfurt am Main`;
-      const city = (input.city ?? "").trim() || "Frankfurt am Main";
+      const postalCode = (input.postalCode ?? "").replace(/\D/g, "").slice(0, 5) || "";
+      const place = lookupPlz(postalCode) ?? null;
+      const address = (input.address ?? "").trim() || postalCode;
+      const city = (input.city ?? "").trim() || "";
       const servicePlzs = Array.from(new Set([postalCode, ...DEFAULT_NEW_RESTAURANT_PLZS]));
 
       const logoParsed = parseLogoUrl(input.logoUrl ?? "");
@@ -118,7 +118,7 @@ export async function createRestaurantRecord(
           address,
           city,
           postalCode,
-          district: place?.district ?? "Innenstadt",
+          district: place?.district ?? "",
           lat: place?.lat ?? 50.1109,
           lng: place?.lng ?? 8.6821,
           maxDeliveryKm: DEFAULT_RESTAURANT_RADIUS_KM,

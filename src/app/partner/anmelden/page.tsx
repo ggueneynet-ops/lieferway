@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Restaurant werden",
-  description: "Listen Sie Ihr Restaurant bei Lieferway in Frankfurt. Anfrage senden – Zugang erst nach Freigabe.",
+  description: "Listen Sie Ihr Restaurant bei Lieferway. Anfrage senden – Zugang erst nach Freigabe.",
 };
 
 export const dynamic = "force-dynamic";
@@ -200,7 +200,7 @@ export default async function PartnerApplyPage({
                     <input
                       id="city"
                       name="city"
-                      defaultValue="Frankfurt am Main"
+                      defaultValue=""
                       className="mt-1 h-12 w-full rounded-xl border border-border bg-background px-3 text-base"
                     />
                   </div>

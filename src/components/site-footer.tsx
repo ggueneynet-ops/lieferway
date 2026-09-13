@@ -22,6 +22,10 @@ export async function SiteFooter({
         </>
       ) : null}
       <span aria-hidden>·</span>
+      <Link href="/agb" className="hover:text-ink">
+        AGB
+      </Link>
+      <span aria-hidden>·</span>
       <Link href="/datenschutz" className="hover:text-ink">
         {t.privacy}
       </Link>
@@ -48,7 +52,7 @@ export async function SiteFooter({
         <div>
           <Logo size="sm" />
           <p className="mt-4 max-w-md text-sm leading-relaxed text-[#111827]">{t.footerLegal}</p>
-          <p className="mt-1.5 max-w-md text-[11px] leading-relaxed text-[#9CA3AF]">{t.footerDemoNote}</p>
+          <p className="mt-2 text-[12px] text-[#9CA3AF]">© 2026 Lieferway</p>
         </div>
         <nav className="flex flex-col gap-2.5 text-sm text-text-secondary">
           {partner ? null : (
@@ -69,6 +73,9 @@ export async function SiteFooter({
               {t.partnerHelp}
             </Link>
           ) : null}
+          <Link href="/agb" className="hover:text-ink">
+            AGB
+          </Link>
           <Link href="/datenschutz" className="hover:text-ink">
             {t.privacy}
           </Link>

@@ -1,4 +1,4 @@
-export const DEFAULT_COMMISSION_PERCENT = 5;
+export const DEFAULT_COMMISSION_PERCENT = 8;
 
 /** Inner-city venues with 0 € Liefergebühr during Launch Week. */
 export const LAUNCH_WEEK_RESTAURANT_SLUGS = [
@@ -32,7 +32,7 @@ export function isTrustedGeoSource(value?: string | null) {
 export function isActiveDeliveryLocation(source?: string | null, live?: string | null) {
   return source === "manual" || (source === "gps" && live === "1");
 }
-export const CITY = "Frankfurt am Main";
+export const CITY = ""; // set from user location; do not hard-market a city
 export const RADIUS_PRESETS = [3, 5, 10] as const;
 export const DEFAULT_RADIUS_KM = 5;
 export const DEFAULT_RESTAURANT_RADIUS_KM = 8;
