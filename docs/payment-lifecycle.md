@@ -43,9 +43,8 @@ CRON_SECRET=…                          # Bearer for /api/cron/expire-orders
 
 `vercel.json` schedules a **daily** safety-net cron (`0 8 * * *` UTC) — Vercel Hobby only allows one run/day.
 
-For the 15-minute accept SLA, also ping `GET /api/cron/expire-orders` every 5 minutes:
-- GitHub Action `.github/workflows/expire-orders.yml` (set secrets `EXPIRE_ORDERS_URL` + `CRON_SECRET`), or
-- any external cron, or
-- Vercel Pro (then you may change the schedule back to `*/5 * * * *`).
+For the 15-minute accept SLA, also ping `GET /api/cron/expire-orders` every 5 minutes via any external cron
+(cron-job.org, GitHub Action in another repo, `curl -H "Authorization: Bearer $CRON_SECRET" …`),
+or upgrade to Vercel Pro and set the schedule back to `*/5 * * * *`.
 
 Clock uses `Order.placedAt` (fallback `createdAt`).
