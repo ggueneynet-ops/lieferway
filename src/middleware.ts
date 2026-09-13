@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE } from "@/lib/constants";
+import { AUTH_COOKIE, verifySessionToken } from "@/lib/auth-edge";
 import { pathIs } from "@/lib/paths";
+import type { Role } from "@/lib/constants";
 
 /** Public marketplace — never treat `/restaurants/:slug` as the staff `/restaurant` panel. */
 const PUBLIC = ["/restaurants", "/cart", "/partner"];
 
-const PROTECTED = [
+const PROTECTED: { prefix: string; roles: Role[] }[] = [
   { prefix: "/admin", roles: ["ADMIN"] },
   { prefix: "/restaurant", roles: ["RESTAURANT", "ADMIN"] },
   { prefix: "/courier", roles: ["COURIER", "ADMIN"] },
@@ -44,6 +45,22 @@ export async function middleware(req: NextRequest) {
       const url = req.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("next", req.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
+    const session = await verifySessionToken(token);
+    if (!session) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("next", req.nextUrl.pathname);
+      url.searchParams.set("error", "1");
+      const res = NextResponse.redirect(url);
+      res.cookies.set(AUTH_COOKIE, "", { path: "/", maxAge: 0 });
+      return res;
+    }
+    if (!rule.roles.includes(session.role)) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/";
+      url.search = "";
       return NextResponse.redirect(url);
     }
     return NextResponse.next();

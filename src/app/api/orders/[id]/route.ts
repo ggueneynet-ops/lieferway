@@ -1,8 +1,9 @@
 import { getSession, requireSession } from "@/lib/auth";
+import { canViewOrder } from "@/lib/order-access";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { regeneratePayouts } from "@/lib/payouts";
-import type { OrderStatus, Role } from "@/lib/constants";
+import type { OrderStatus } from "@/lib/constants";
 import { parsePrepMinutes } from "@/lib/prep";
 import { isPickup } from "@/lib/fulfillment";
 import { CUSTOMER_CANCELLABLE_STATUSES } from "@/lib/constants";
@@ -19,13 +20,6 @@ const include = {
   courier: { select: { name: true, phone: true } },
 } as const;
 
-function canView(role: Role, userId: string, order: { customerId: string; courierId: string | null; restaurant: { ownerId?: string } | null }, ownerId?: string) {
-  if (role === "ADMIN") return true;
-  if (role === "CUSTOMER") return order.customerId === userId;
-  if (role === "COURIER") return order.courierId === userId || !order.courierId;
-  if (role === "RESTAURANT") return ownerId === userId;
-  return false;
-}
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -39,7 +33,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     },
   });
   if (!order) return fail("Bestellung nicht gefunden.", 404);
-  if (!canView(session.role, session.id, order, order.restaurant.ownerId)) {
+  if (!canViewOrder(session.role, session.id, { customerId: order.customerId, courierId: order.courierId, restaurantOwnerId: order.restaurant.ownerId })) {
     return fail("Keine Berechtigung.", 403);
   }
   return json({ order });

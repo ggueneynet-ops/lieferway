@@ -42,7 +42,8 @@ See `EMAIL_EVENT_REGISTRY` in `src/lib/email/events.ts` for wired vs TODO.
 
 Wired in this PR: `user_registered`, order lifecycle via `notifyCustomerOfOrderStatus`, `payment_failed`, `order_refunded`, `partner_application_received`, `partner_approved`, `critical_payment_or_webhook_error`.
 
-TODO (templates + senders registered, no product flow yet): `email_verification`, `password_reset`, `restaurant_payout_summary`.
+TODO (templates + senders registered, no product flow yet): `email_verification`, `restaurant_payout_summary`.
+`password_reset` is wired via `/api/auth/password-reset/*` (hashed single-use tokens).
 
 ## Constraints
 

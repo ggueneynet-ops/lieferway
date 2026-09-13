@@ -35,7 +35,16 @@ export default async function OrderDetailPage({
     },
   });
   if (!order) notFound();
-  if (session.role === "CUSTOMER" && order.customerId !== session.id) redirect("/orders");
+  const { canAccessOrderDetailPage } = await import("@/lib/order-access");
+  if (
+    !canAccessOrderDetailPage(session.role, session.id, {
+      customerId: order.customerId,
+      courierId: order.courierId,
+      restaurantOwnerId: order.restaurant.ownerId,
+    })
+  ) {
+    redirect("/orders");
+  }
 
   await prisma.customerNotice.updateMany({
     where: { orderId: order.id, userId: session.id, readAt: null },

@@ -4,6 +4,7 @@ import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { normalizePhone } from "@/lib/phone";
 import { sendUserRegistered } from "@/lib/email";
+import { AUTH_RATE, clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
 
 export async function OPTIONS() {
   return options();
@@ -19,6 +20,12 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const limited = rateLimit({
+      key: `register:${clientIpFromRequest(req)}`,
+      limit: AUTH_RATE.register.limit,
+      windowMs: AUTH_RATE.register.windowMs,
+    });
+    if (!limited.ok) return fail("Zu viele Registrierungen. Bitte später erneut versuchen.", 429);
     const body = await req.json().catch(() => null);
     if (body && typeof body === "object" && "role" in body && body.role && body.role !== "CUSTOMER") {
       return fail("Nur Kundinnen und Kunden können sich registrieren.", 403);

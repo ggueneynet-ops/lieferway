@@ -36,8 +36,14 @@ function LoginForm() {
         <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.googlePartnerBlocked}</p>
       ) : error === "google" ? (
         <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.googleFailed}</p>
+      ) : error === "rate" ? (
+        <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.passwordResetRateLimited}</p>
       ) : error ? (
         <p className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{t.loginFailed}</p>
+      ) : params.get("reset") === "1" ? (
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          {t.passwordResetDone}
+        </p>
       ) : null}
       <form action="/login/submit" method="post" className="mt-6 space-y-4">
         <input type="hidden" name="next" value={next} />
@@ -70,6 +76,13 @@ function LoginForm() {
         <Button className="h-12 w-full text-base" type="submit">
           {t.continue}
         </Button>
+        {!partner ? (
+          <p className="text-sm">
+            <Link href="/login/forgot" className="font-medium text-primary">
+              {t.forgotPassword}
+            </Link>
+          </p>
+        ) : null}
       </form>
       {!partner ? <GoogleSignIn next={next} showApple /> : null}
       {restaurantLogin ? (

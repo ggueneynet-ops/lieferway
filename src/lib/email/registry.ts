@@ -11,7 +11,7 @@ export const EMAIL_EVENT_REGISTRY: Record<
 > = {
   user_registered: { status: "wired", notes: "POST /api/auth/register" },
   email_verification: { status: "todo", notes: "No email-verification flow in codebase yet" },
-  password_reset: { status: "todo", notes: "No password-reset flow in codebase yet" },
+  password_reset: { status: "wired", notes: "POST /api/auth/password-reset/request → /login/reset" },
   order_created: { status: "wired", notes: "notifyCustomerOfOrderStatus(PLACED) / Stripe PI succeeded" },
   order_accepted: { status: "wired", notes: "notifyCustomerOfOrderStatus(ACCEPTED|PREPARING)" },
   order_rejected: { status: "wired", notes: "notifyCustomerOfOrderStatus(REJECTED)" },

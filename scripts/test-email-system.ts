@@ -45,7 +45,7 @@ check("wired vs todo split documented in registry", () => {
   assert.equal(EMAIL_EVENT_REGISTRY.payment_failed.status, "wired");
   assert.equal(EMAIL_EVENT_REGISTRY.partner_approved.status, "wired");
   assert.equal(EMAIL_EVENT_REGISTRY.email_verification.status, "todo");
-  assert.equal(EMAIL_EVENT_REGISTRY.password_reset.status, "todo");
+  assert.equal(EMAIL_EVENT_REGISTRY.password_reset.status, "wired");
   assert.equal(EMAIL_EVENT_REGISTRY.restaurant_payout_summary.status, "todo");
 });
 

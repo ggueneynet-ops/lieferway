@@ -30,6 +30,7 @@ model User {
   wayPointsRedemptions WayPointsRedemption[]
   wayPointsVouchers    WayPointsVoucher[]
   favorites            FavoriteRestaurant[]
+  passwordResetTokens  PasswordResetToken[]
 }
 
 model Address {
@@ -644,3 +645,18 @@ model AuditLog {
   @@index([actorId, createdAt])
 }
 
+
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// SHA-256 hex of the opaque reset token (never store plaintext).
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}

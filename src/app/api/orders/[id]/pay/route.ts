@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/auth";
+import { canAccessOrderPayment } from "@/lib/order-access";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { createDestinationPaymentIntent } from "@/lib/payments";
@@ -21,7 +22,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     },
   });
   if (!order) return fail("Bestellung nicht gefunden.", 404);
-  if (session.role === "CUSTOMER" && order.customerId !== session.id) {
+  if (!canAccessOrderPayment(session.role, session.id, order)) {
     return fail("Keine Berechtigung.", 403);
   }
   if (order.paymentMethod === "CASH") {
