@@ -5,6 +5,7 @@ export type ReleaseReason =
   | "customer_cancel"
   | "restaurant_timeout"
   | "admin_refund"
+  | "admin_cancel"
   | "payment_canceled";
 
 export function refundIdempotencyKey(orderId: string, reason: ReleaseReason, amountCents: number) {

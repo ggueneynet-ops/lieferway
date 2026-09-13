@@ -7,7 +7,9 @@ import { getCopy } from "@/lib/get-locale";
 import { formatBerlinDateTime } from "@/lib/datetime";
 import Link from "next/link";
 import { AdminRefundForm } from "@/components/admin-refund-form";
+import { AdminCancelForm } from "@/components/admin-cancel-form";
 import { remainingOrderTotals } from "@/lib/stripe-money";
+import { ADMIN_CANCELLABLE_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +23,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       restaurant: { select: { id: true, name: true } },
       customer: { select: { name: true, email: true, phone: true } },
       refunds: { orderBy: { createdAt: "desc" } },
+      paymentReleaseLogs: { orderBy: { createdAt: "desc" }, take: 15 },
     },
   });
   if (!order) notFound();
@@ -160,6 +163,27 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             </ul>
           ) : null}
         </div>
+        <div className="rounded-2xl border bg-white p-4">
+          <h2 className="font-semibold">{t.adminCancel}</h2>
+          <AdminCancelForm
+            orderId={order.id}
+            cancellable={(ADMIN_CANCELLABLE_STATUSES as readonly string[]).includes(order.status)}
+          />
+        </div>
+        {order.paymentReleaseLogs.length > 0 ? (
+          <div className="rounded-2xl border bg-white p-4">
+            <h2 className="font-semibold">{t.adminPaymentReleaseLogs}</h2>
+            <ul className="mt-3 space-y-1 text-sm text-text-secondary">
+              {order.paymentReleaseLogs.map((log) => (
+                <li key={log.id}>
+                  {formatBerlinDateTime(log.createdAt, locale)} · {log.action} · {log.reason} · {log.status}
+                  {log.amountCents != null ? ` · ${formatEUR(log.amountCents, locale)}` : ""}
+                  {log.detail ? ` · ${log.detail}` : ""}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <div className="rounded-2xl border bg-white p-4">
           <h2 className="font-semibold">{t.adminComplaints}</h2>
           <p className="mt-1 text-sm text-text-secondary">{t.adminComplaintsStub}</p>

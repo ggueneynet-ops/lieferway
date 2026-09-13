@@ -622,3 +622,23 @@ model EmailSendLog {
   @@index([toEmail, createdAt])
   @@index([status, updatedAt])
 }
+
+/// Admin / privileged action audit trail (who did what, when).
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorId      String?
+  actorEmail   String?
+  /// ORDER_CANCEL | ORDER_REFUND | RESTAURANT_FREEZE | RESTAURANT_UNFREEZE | COMMISSION_UPDATE | WAYPOINTS_ADJUST | …
+  action       String
+  entityType   String
+  entityId     String?
+  summary      String
+  metadataJson String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action, createdAt])
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt])
+}
+
