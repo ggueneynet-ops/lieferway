@@ -3,10 +3,11 @@ import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseHours, serializeHours, WEEKDAYS, type WeekHours } from "@/lib/hours";
+import { isAuthFailure } from "@/lib/restaurant-menu-actions";
 
-function redirectTo() {
+function redirectTo(path = "/restaurant/hours?ok=1") {
   revalidatePath("/restaurant/hours");
-  return new NextResponse(null, { status: 303, headers: { Location: "/restaurant/hours?ok=1" } });
+  return new NextResponse(null, { status: 303, headers: { Location: path } });
 }
 
 export async function POST(req: Request) {
@@ -14,9 +15,17 @@ export async function POST(req: Request) {
     const session = await requireSession(["RESTAURANT", "ADMIN"]);
     const restaurant =
       session.role === "ADMIN"
-        ? await prisma.restaurant.findFirst({ where: { slug: "anadolu-grill" } })
-        : await prisma.restaurant.findUnique({ where: { ownerId: session.id } });
-    if (!restaurant) return redirectTo();
+        ? await prisma.restaurant.findFirst({
+            where: { slug: "anadolu-grill" },
+            select: { id: true, hoursJson: true },
+          })
+        : await prisma.restaurant.findUnique({
+            where: { ownerId: session.id },
+            select: { id: true, hoursJson: true },
+          });
+    if (!restaurant) {
+      return redirectTo("/restaurant/hours?error=" + encodeURIComponent("Restaurant nicht gefunden."));
+    }
     const form = await req.formData();
     const hours = parseHours(restaurant.hoursJson);
     const next = { ...hours } as WeekHours;
@@ -32,7 +41,11 @@ export async function POST(req: Request) {
       data: { hoursJson: serializeHours(next) },
     });
     return redirectTo();
-  } catch {
-    return new NextResponse(null, { status: 303, headers: { Location: "/login?next=/restaurant/hours" } });
+  } catch (error) {
+    console.error("[restaurant/hours/save]", error);
+    if (isAuthFailure(error)) {
+      return redirectTo("/login?next=/restaurant/hours");
+    }
+    return redirectTo("/restaurant/hours?error=" + encodeURIComponent("Öffnungszeiten konnten nicht gespeichert werden."));
   }
 }

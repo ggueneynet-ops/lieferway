@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseLogoUrl, saveRestaurantLogoFile } from "@/lib/logo-upload";
+import { isAuthFailure } from "@/lib/restaurant-menu-actions";
 
 function redirectTo(path: string) {
   revalidatePath("/");
@@ -17,8 +18,8 @@ export async function POST(req: Request) {
     const id = String(form.get("id") ?? "");
     const restaurant =
       session.role === "ADMIN"
-        ? await prisma.restaurant.findUnique({ where: { id } })
-        : await prisma.restaurant.findUnique({ where: { ownerId: session.id } });
+        ? await prisma.restaurant.findUnique({ where: { id }, select: { id: true } })
+        : await prisma.restaurant.findUnique({ where: { ownerId: session.id }, select: { id: true } });
     if (!restaurant) {
       return redirectTo("/restaurant/settings?error=" + encodeURIComponent("Restaurant nicht gefunden."));
     }
@@ -44,7 +45,11 @@ export async function POST(req: Request) {
       data: { logoUrl },
     });
     return redirectTo("/restaurant/settings?ok=logo");
-  } catch {
-    return redirectTo("/login?next=/restaurant");
+  } catch (error) {
+    console.error("[restaurant/logo]", error);
+    if (isAuthFailure(error)) {
+      return redirectTo("/login?next=/restaurant/settings");
+    }
+    return redirectTo("/restaurant/settings?error=" + encodeURIComponent("Logo konnte nicht gespeichert werden."));
   }
 }

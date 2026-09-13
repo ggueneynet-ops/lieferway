@@ -6,7 +6,12 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export default async function RestaurantMenuPage() {
+export default async function RestaurantMenuPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; ok?: string }>;
+}) {
+  const q = await searchParams;
   const { restaurant } = await requireOwnedRestaurant();
   const { t } = await getCopy();
   if (!restaurant) {
@@ -35,6 +40,22 @@ export default async function RestaurantMenuPage() {
 
   return (
     <RestaurantAppShell title={`${t.menuTitle} · ${restaurant.name}`} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
+      {q.ok ? (
+        <div
+          className="mb-3 rounded-[1.35rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950"
+          role="status"
+        >
+          {t.menuSavedOk}
+        </div>
+      ) : null}
+      {q.error ? (
+        <div
+          className="mb-3 rounded-[1.35rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          role="alert"
+        >
+          {q.error}
+        </div>
+      ) : null}
       {loadError ? (
         <div
           className="mb-3 rounded-[1.35rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"

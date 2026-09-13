@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     const form = await req.formData();
-    const owned = await prisma.restaurant.findUnique({ where: { ownerId: session.id } });
+    const owned = await prisma.restaurant.findUnique({ where: { ownerId: session.id }, select: { id: true } });
     const id =
       owned?.id ??
       (session.role === "ADMIN" ? String(form.get("id") ?? "") : "");
