@@ -109,7 +109,7 @@ const PARTNER_ORDER = [
   "Support",
 ];
 
-export async function loadLegalMarkdown(slug: "impressum" | "datenschutz" | "hilfe" | "partner-hilfe") {
+export async function loadLegalMarkdown(slug: "impressum" | "datenschutz" | "hilfe" | "partner-hilfe" | "agb") {
   return readFile(path.join(LEGAL_DIR, `${slug}.md`), "utf8");
 }
 
