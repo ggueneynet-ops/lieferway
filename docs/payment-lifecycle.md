@@ -29,6 +29,7 @@ Order statuses stay: `PENDING_PAYMENT` → `PLACED` → kitchen flow / `REJECTED
 2. **No accept within timeout** → cron `/api/cron/expire-orders` → `REJECTED` + same release + customer notice (email via existing notify stub)
 3. **Customer cancel** only in `PENDING_PAYMENT` | `PLACED` → `CANCELLED` + release
 4. **Admin refund** → `POST /api/admin/orders/[id]/refund` (idempotent Stripe key, `REFUND_PENDING` while in flight)
+4b. **Admin cancel** → `POST /api/admin/orders/[id]/cancel` → `CANCELLED` + release reason `admin_cancel` (AuditLog)
 5. Full refund path always runs WayPoints + coupon reverse (webhook `applyRefundToOrder` + reject/cancel hooks)
 6. Duplicate Stripe webhooks: `StripeEvent.id` + `StripeRefund.stripeRefundId` + refund idempotency keys
 7. Failed refunds: `PaymentReleaseLog` (`status=FAILED`) + console.error; order stays `REFUND_PENDING` for retry

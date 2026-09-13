@@ -4,6 +4,7 @@ import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { parseCampaignType, parseFundedBy } from "@/lib/waypoints";
 import { adminAdjustWayPoints, adminWayPointsOverview, setPointsPerEuro } from "@/lib/waypoints-service";
+import { writeAuditLog } from "@/lib/audit";
 
 export async function OPTIONS() {
   return options();
@@ -88,7 +89,7 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    await requireSession(["ADMIN"]);
+    const session = await requireSession(["ADMIN"]);
     const body = await req.json().catch(() => null);
     if (body?.adjust && typeof body.adjust === "object") {
       const email = String(body.adjust.userEmail ?? "").trim();
@@ -99,6 +100,14 @@ export async function PATCH(req: Request) {
       }
       try {
         const result = await adminAdjustWayPoints({ userEmail: email, delta, reason });
+        await writeAuditLog({
+          actor: session,
+          action: "WAYPOINTS_ADJUST",
+          entityType: "User",
+          entityId: result.userId,
+          summary: `WayPoints adjust ${result.email} by ${result.delta}`,
+          metadata: { email: result.email, delta: result.delta, reason, balance: result.balance },
+        });
         return json({ adjustment: result });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "";

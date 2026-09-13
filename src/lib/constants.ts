@@ -74,6 +74,18 @@ export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
  */
 export const CUSTOMER_CANCELLABLE_STATUSES = ["PENDING_PAYMENT", "PLACED"] as const;
 
+/**
+ * Admin may cancel further along the kitchen flow (not after delivery / already terminal).
+ */
+export const ADMIN_CANCELLABLE_STATUSES = [
+  "PENDING_PAYMENT",
+  "PLACED",
+  "ACCEPTED",
+  "PREPARING",
+  "READY",
+  "OUT_FOR_DELIVERY",
+] as const;
+
 /** Default minutes a restaurant has to accept a PLACED order before auto-expire. */
 export const DEFAULT_RESTAURANT_ACCEPT_TIMEOUT_MINUTES = 15;
 

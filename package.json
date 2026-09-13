@@ -22,7 +22,8 @@
     "test:payment-lifecycle": "tsx scripts/test-payment-lifecycle.ts",
     "test:email": "tsx scripts/test-email-system.ts",
     "test:browser-notifications": "tsx scripts/test-browser-notifications.ts",
-    "test:bon": "tsx scripts/test-bon-layout.ts"
+    "test:bon": "tsx scripts/test-bon-layout.ts",
+    "test:admin-audit": "tsx scripts/test-admin-audit.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

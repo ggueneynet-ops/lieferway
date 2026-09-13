@@ -4,6 +4,7 @@ import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { remainingOrderTotals } from "@/lib/stripe-money";
 import { releaseOrderPayment } from "@/lib/payment-lifecycle";
+import { writeAuditLog } from "@/lib/audit";
 
 export async function OPTIONS() {
   return options();
@@ -17,7 +18,7 @@ const schema = z.object({
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["ADMIN"]);
+    const session = await requireSession(["ADMIN"]);
     const { id } = await params;
     const body = await req.json().catch(() => null);
     const parsed = schema.safeParse(body ?? {});
@@ -51,6 +52,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (!release.ok) {
       return fail(release.error || "Erstattung fehlgeschlagen.", 502);
     }
+
+    await writeAuditLog({
+      actor: session,
+      action: "ORDER_REFUND",
+      entityType: "Order",
+      entityId: order.id,
+      summary: `Admin refund ${order.shortCode} (${amount}¢)`,
+      metadata: {
+        shortCode: order.shortCode,
+        amountCents: amount,
+        full: parsed.data.full || !parsed.data.amountCents,
+        release,
+      },
+    });
 
     const updated = await prisma.order.findUnique({
       where: { id: order.id },
