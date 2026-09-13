@@ -152,7 +152,7 @@ OAuth is wired into the existing JWT session (same cookie as email/password). We
 
 ## Customer notifications
 
-The restaurant **Annehmen** / **Ablehnen** path (and later Unterwegs / Geliefert) writes a `CustomerNotice` and emails the customer’s account address.
+The restaurant **Annehmen** / **Ablehnen** path (and later Unterwegs / Geliefert) writes a `CustomerNotice` and emails the customer’s account address. The same hook powers optional **Browser Notifications** (see `docs/browser-notifications.md` — HTTPS required; no service worker).
 
 Copy is **German by default**, using `user.locale` when set (`de` / `en` / `tr`).
 

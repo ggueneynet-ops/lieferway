@@ -20,7 +20,8 @@
     "test:waypoints": "tsx scripts/test-waypoints.ts",
     "test:coupons": "tsx scripts/test-coupons.ts",
     "test:payment-lifecycle": "tsx scripts/test-payment-lifecycle.ts",
-    "test:email": "tsx scripts/test-email-system.ts"
+    "test:email": "tsx scripts/test-email-system.ts",
+    "test:browser-notifications": "tsx scripts/test-browser-notifications.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

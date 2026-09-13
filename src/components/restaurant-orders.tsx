@@ -14,6 +14,16 @@ import { parsePrepMinutes, PREP_CHIPS } from "@/lib/prep";
 import { PrintBonButton } from "@/components/print-bon-button";
 import { playKitchenBell, startKeepAlive, stopKeepAlive, unlockKitchenBell } from "@/lib/kitchen-gong";
 import { isPickup } from "@/lib/fulfillment";
+import {
+  KITCHEN_NOTIF_PROMPT_KEY,
+  getNotificationPermission,
+  getSoftPromptState,
+  isSecureNotificationContext,
+  notifyKitchenNewOrder,
+  requestNotificationPermission,
+  setSoftPromptState,
+  type NotifPermission,
+} from "@/lib/browser-notifications";
 
 const MUTE_KEY = "lw_kitchen_mute";
 const ALERT_MS = 1150;
@@ -45,6 +55,8 @@ export function RestaurantOrders({
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem(MUTE_KEY) === "1";
   });
+  const [notifPerm, setNotifPerm] = useState<NotifPermission>("unsupported");
+  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [flash, setFlash] = useState(false);
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const [live, setLive] = useState(false);
@@ -56,6 +68,8 @@ export function RestaurantOrders({
   mutedRef.current = muted;
   const incomingKeyRef = useRef("");
   const { t, locale } = useI18n();
+  const tRef = useRef(t);
+  tRef.current = t;
   const baseTitle = `${restaurantName} · ${t.restaurantOrders}`;
 
   const applySnapshot = useCallback((data: Snapshot) => {
@@ -68,9 +82,20 @@ export function RestaurantOrders({
       const fresh = next.filter((o) => o.status === "PLACED" && !seenRef.current!.has(o.id));
       if (fresh.length > 0) {
         setFlash(true);
-        window.setTimeout(() => setFlash(false), 2800);
+        window.setTimeout(() => setFlash(false), 3600);
         setHighlight(new Set(fresh.map((o) => o.id)));
         window.setTimeout(() => setHighlight(new Set()), 8000);
+        // Browser Notification once per order id (deduped). Gong loop unchanged.
+        const copy = tRef.current;
+        for (const o of fresh) {
+          notifyKitchenNewOrder({
+            orderId: o.id,
+            shortCode: o.shortCode,
+            title: interpolate(copy.kitchenBrowserTitle, { code: o.shortCode }),
+            body: interpolate(copy.kitchenBrowserBody, { count: String(fresh.length) }),
+            href: "/restaurant",
+          });
+        }
       }
       ids.forEach((id) => seenRef.current!.add(id));
     }
@@ -288,6 +313,35 @@ export function RestaurantOrders({
     if (res.ok) setOpen(!open);
   }
 
+  useEffect(() => {
+    const perm = getNotificationPermission();
+    setNotifPerm(perm);
+    const soft = getSoftPromptState(KITCHEN_NOTIF_PROMPT_KEY);
+    const secure = isSecureNotificationContext();
+    setShowNotifPrompt(secure && perm === "default" && soft === "unknown");
+  }, []);
+
+  async function enableBrowserNotifs() {
+    if (!isSecureNotificationContext()) {
+      toast.error(t.browserNotifInsecure);
+      return;
+    }
+    setSoftPromptState(KITCHEN_NOTIF_PROMPT_KEY, "asked");
+    setShowNotifPrompt(false);
+    const result = await requestNotificationPermission();
+    setNotifPerm(result);
+    if (result === "granted") {
+      toast.success(t.browserNotifOn);
+    } else if (result === "denied") {
+      toast.error(t.browserNotifDenied);
+    }
+  }
+
+  function dismissNotifPrompt() {
+    setSoftPromptState(KITCHEN_NOTIF_PROMPT_KEY, "dismissed");
+    setShowNotifPrompt(false);
+  }
+
   function toggleMute() {
     unlockKitchenBell();
     const next = !muted;
@@ -309,7 +363,7 @@ export function RestaurantOrders({
   return (
     <div className={flash ? "lw-kitchen-flash -mx-3 rounded-xl px-3 py-1 md:-mx-5 md:px-5" : ""}>
       {flash ? (
-        <p className="mb-2 rounded-xl bg-primary px-3 py-3 text-center text-lg font-semibold text-primary-foreground">
+        <p className="mb-2 animate-pulse rounded-xl bg-primary px-3 py-3 text-center text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/40">
           {t.newOrderAlert}
         </p>
       ) : null}
@@ -334,7 +388,34 @@ export function RestaurantOrders({
           <Button variant="outline" size="sm" className="h-10" onClick={toggleMute}>
             {muted ? t.soundOff : t.soundOn}
           </Button>
+          {notifPerm === "granted" ? (
+            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+              {t.browserNotifOn}
+            </span>
+          ) : notifPerm === "denied" ? (
+            <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800">
+              {t.browserNotifDenied}
+            </span>
+          ) : notifPerm === "default" ? (
+            <Button variant="outline" size="sm" className="h-10" onClick={() => void enableBrowserNotifs()}>
+              {t.browserNotifEnableBtn}
+            </Button>
+          ) : null}
         </div>
+        {showNotifPrompt ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-[13px]">
+            <p className="min-w-0 flex-1 text-ink">
+              <span className="font-semibold">{t.browserNotifEnable}</span>
+              <span className="mt-0.5 block text-text-secondary">{t.browserNotifEnableHint}</span>
+            </p>
+            <Button size="sm" className="h-9" onClick={() => void enableBrowserNotifs()}>
+              {t.browserNotifEnableBtn}
+            </Button>
+            <Button variant="ghost" size="sm" className="h-9" onClick={dismissNotifPrompt}>
+              {t.browserNotifLater}
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       <section className="mb-5">

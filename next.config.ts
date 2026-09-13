@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: [
-          { key: "Permissions-Policy", value: "geolocation=(self)" },
+          { key: "Permissions-Policy", value: "geolocation=(self), notifications=(self)" },
           { key: "Feature-Policy", value: 'geolocation \'self\'' },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
