@@ -180,8 +180,9 @@ export default async function RestaurantOrdersHistoryPage({
                 ))}
               </ul>
               <p className="mt-1 text-sm font-medium">{formatEUR(o.foodSubtotalCents, locale)}</p>
-              <div className="mt-3">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <PrintBonButton orderId={o.id} />
+                <PrintBonButton orderId={o.id} reprint />
               </div>
             </li>
           ))}
