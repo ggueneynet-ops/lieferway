@@ -255,6 +255,7 @@ export async function POST(req: Request) {
         paymentMethod: method,
         paymentStatus: paymentStatusFor(method, false),
         stripePaymentIntentId: null,
+        placedAt: cash ? new Date() : null,
         couponId: coupon?.id,
         couponCode: coupon?.code,
         foodSubtotalCents,

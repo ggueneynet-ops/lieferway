@@ -109,3 +109,8 @@ Duplicate webhook deliveries are ignored (`StripeEvent` unique id; existing `Str
 - Decline: `4000 0000 0000 0002`
 
 Never send `STRIPE_SECRET_KEY` or `STRIPE_WEBHOOK_SECRET` to the browser. Only `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is public.
+
+
+## Accept timeout + cancel/refund
+
+See [payment-lifecycle.md](./payment-lifecycle.md). Summary: **no manual capture**. On restaurant reject, customer cancel (allowed stages), or accept timeout, unpaid PaymentIntents are canceled and captured charges are refunded (`reverse_transfer` + `refund_application_fee`) with idempotency keys. Failed attempts are logged in `PaymentReleaseLog`.
