@@ -115,6 +115,19 @@ function LoginForm() {
           </Link>
         </p>
       )}
+      <nav className="mt-10 flex flex-wrap justify-center gap-x-3 gap-y-1 text-[12px] text-[#9CA3AF]">
+        <Link href="/datenschutz" className="hover:text-ink">
+          {t.privacy}
+        </Link>
+        <span aria-hidden>·</span>
+        <Link href="/impressum" className="hover:text-ink">
+          {t.imprint}
+        </Link>
+        <span aria-hidden>·</span>
+        <Link href="/hilfe" className="hover:text-ink">
+          {t.help}
+        </Link>
+      </nav>
     </div>
   );
 }
