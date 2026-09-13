@@ -27,7 +27,7 @@ export function CheckoutClient() {
   const router = useRouter();
   const [street, setStreet] = useState("Berger Straße 142");
   const [postalCode, setPostalCode] = useState("60316");
-  const [city, setCity] = useState("Frankfurt am Main");
+  const [city, setCity] = useState("");
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<PaymentMethod>("CARD");
   const [card, setCard] = useState("4242 4242 4242 4242");

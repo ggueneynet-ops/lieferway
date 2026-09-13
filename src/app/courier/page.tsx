@@ -26,7 +26,7 @@ export default async function CourierPage() {
   });
 
   return (
-    <PanelShell roles={["COURIER"]} title="Auslieferung · Frankfurt">
+    <PanelShell roles={["COURIER"]} title="Auslieferung">
       <CourierBoard initial={JSON.parse(JSON.stringify(orders))} courierId={session.id} />
     </PanelShell>
   );

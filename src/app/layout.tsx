@@ -29,11 +29,11 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Lieferway – Essen bestellen in Frankfurt",
+    default: "Lieferway – Essen in deiner Nähe bestellen",
     template: "%s · Lieferway",
   },
   description:
-    "Lieferway: Essen bestellen in Frankfurt am Main. Lokale Küchen, Lieferung durch das Restaurant.",
+    "Lieferway: Essen in deiner Nähe bestellen. Lokale Küchen, Lieferung durch das Restaurant.",
   icons: {
     icon: [
       { url: "/icon-pin-fork.svg?v=34", type: "image/svg+xml" },

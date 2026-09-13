@@ -22,10 +22,6 @@ function LoginForm() {
   const { t } = useI18n();
   const [email, setEmail] = useState(emailParam);
   const [password, setPassword] = useState("");
-  const [helpOpen, setHelpOpen] = useState(false);
-
-  const demoEmail = restaurantLogin ? "restaurant@lieferway.de" : partner ? "admin@lieferway.de" : "kunde@lieferway.de";
-
   return (
     <div className="mx-auto flex min-h-full w-full max-w-md flex-col justify-center px-4 py-16">
       <div className="flex items-center justify-between">
@@ -76,27 +72,6 @@ function LoginForm() {
         </Button>
       </form>
       {!partner ? <GoogleSignIn next={next} showApple /> : null}
-      <details
-        className="mt-5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2 text-sm"
-        open={helpOpen}
-        onToggle={(e) => setHelpOpen((e.target as HTMLDetailsElement).open)}
-      >
-        <summary className="cursor-pointer text-[13px] font-medium text-[#6B7280]">{t.demoHelp}</summary>
-        <div className="mt-2 space-y-2 text-[12px] text-[#6B7280]">
-          <p className="font-medium text-[#4B5563]">{demoEmail}</p>
-          <p>{t.demoHelpPassword}</p>
-          <button
-            type="button"
-            className="text-[12px] font-medium text-primary"
-            onClick={() => {
-              setEmail(demoEmail);
-              setPassword("lieferway");
-            }}
-          >
-            {t.fillDemo}
-          </button>
-        </div>
-      </details>
       {restaurantLogin ? (
         <div className="mt-6 space-y-2 text-sm text-muted-foreground">
           <p>{t.partnerNoSignup}</p>
