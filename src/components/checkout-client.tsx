@@ -425,7 +425,12 @@ export function CheckoutClient() {
             >
               {busy ? t.processing : t.placeOrder}
             </Button>
-            <p className="mt-2 hidden text-center text-[11px] text-[#9CA3AF] lg:block">{t.demoPaymentNote}</p>
+            <p className="mt-2 hidden text-center text-[11px] text-[#9CA3AF] lg:block">
+              {t.demoPaymentNote}{" "}
+              <Link href="/datenschutz" className="underline-offset-2 hover:underline">
+                {t.privacy}
+              </Link>
+            </p>
           </aside>
         </div>
         <div className="h-24 lg:hidden" aria-hidden />

@@ -5,6 +5,7 @@ import { getCopy } from "@/lib/get-locale";
 import { LogoutButton } from "@/components/logout-button";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { RestaurantTabBar } from "@/components/restaurant-tab-bar";
+import { SiteFooter } from "@/components/site-footer";
 
 export async function RestaurantAppShell({
   children,
@@ -40,7 +41,10 @@ export async function RestaurantAppShell({
       <div className="hidden border-b border-[#F8BBD0]/40 bg-white px-4 py-2.5 md:block">
         <p className="text-[15px] font-semibold text-[#111827]">{title}</p>
       </div>
-      <main className="mx-auto w-full max-w-lg flex-1 px-3 pb-24 pt-3 md:max-w-2xl md:px-4">{children}</main>
+      <main className="mx-auto w-full max-w-lg flex-1 px-3 pb-4 pt-3 md:max-w-2xl md:px-4">{children}</main>
+      <div className="pb-24">
+        <SiteFooter compact partner />
+      </div>
       <RestaurantTabBar home={t.rpHome} orders={t.ordersCount} menu={t.navMenu} more={t.rpMore} />
     </div>
   );
