@@ -43,9 +43,19 @@ export default async function Home({
     lat: gps?.lat ?? null,
     lng: gps?.lng ?? null,
   });
-  const filtered = hasAddress
-    ? await listMarketplaceRestaurants({ q, cuisine, plz, km, origin })
-    : [];
+
+  // Never let a Prisma/Neon blip blank the homepage (Next.js global error UI).
+  let filtered: Awaited<ReturnType<typeof listMarketplaceRestaurants>> = [];
+  let marketplaceLoadError = false;
+  if (hasAddress) {
+    try {
+      filtered = await listMarketplaceRestaurants({ q, cuisine, plz, km, origin });
+    } catch (error) {
+      console.error("[home] listMarketplaceRestaurants failed", error);
+      marketplaceLoadError = true;
+      filtered = [];
+    }
+  }
   const cardCopy = restaurantCardCopy(copy);
 
   return (
@@ -80,6 +90,17 @@ export default async function Home({
 
             <LaunchWeekBanner />
 
+            {marketplaceLoadError ? (
+              <div
+                className="rounded-[1.35rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+                role="status"
+              >
+                {locale === "en"
+                  ? "Restaurants are temporarily unavailable. Please reload in a moment."
+                  : "Restaurants sind vorübergehend nicht verfügbar. Bitte lade die Seite gleich erneut."}
+              </div>
+            ) : null}
+
             <section id="restaurants">
               <div className="mb-3.5 flex items-center justify-between gap-3">
                 {plz ? <RadiusFilter plz={plz} q={q} cuisine={cuisine} km={km} /> : <span />}
@@ -90,13 +111,17 @@ export default async function Home({
               {filtered.length === 0 ? (
                 <div className="rounded-[1.35rem] border border-[#E8E8EC] bg-white px-4 py-12 text-center">
                   <p className="text-[#6B7280]">
-                    {plz && km != null
-                      ? interpolate(copy.noDeliveryInRadius, { plz, km: String(km) })
-                      : plz
-                        ? interpolate(copy.noDeliveryToPlz, { plz })
-                        : copy.noResults}
+                    {marketplaceLoadError
+                      ? locale === "en"
+                        ? "We could not load restaurants right now."
+                        : "Restaurants konnten gerade nicht geladen werden."
+                      : plz && km != null
+                        ? interpolate(copy.noDeliveryInRadius, { plz, km: String(km) })
+                        : plz
+                          ? interpolate(copy.noDeliveryToPlz, { plz })
+                          : copy.noResults}
                   </p>
-                  {plz ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
+                  {plz && !marketplaceLoadError ? <p className="mt-2 text-sm text-[#6B7280]">{copy.plzTryExamples}</p> : null}
                 </div>
               ) : (
                 <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
