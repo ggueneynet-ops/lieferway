@@ -133,9 +133,7 @@ Lieferway kann diese AGB ändern, soweit dies aus rechtlichen, technischen oder 
 
 14.2 Gegenüber Unternehmern ist Gerichtsstand – soweit gesetzlich zulässig – Bad König bzw. der Sitz von Lieferway. Gegenüber Verbrauchern gelten die gesetzlichen Gerichtsstandsregelungen; es wird kein von Gesetzes wegen unwirksamer Gerichtsstand vereinbart.
 
-14.3 Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/
-
-14.4 Lieferway ist nicht verpflichtet und grundsätzlich nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+14.3 Lieferway ist nicht verpflichtet und grundsätzlich nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
 
 ## 15. Schlussbestimmungen
 
