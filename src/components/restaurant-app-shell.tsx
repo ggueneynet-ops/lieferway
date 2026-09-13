@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getCopy } from "@/lib/get-locale";
 import { LogoutButton } from "@/components/logout-button";
-import { LocaleToggle } from "@/components/locale-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { RestaurantTabBar } from "@/components/restaurant-tab-bar";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -35,7 +35,7 @@ export async function RestaurantAppShell({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <LogoutButton label={t.logout} variant="header" />
-          <LocaleToggle />
+          <LanguageSwitcher />
         </div>
       </header>
       <div className="hidden border-b border-[#F8BBD0]/40 bg-white px-4 py-2.5 md:block">

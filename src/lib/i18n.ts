@@ -3,9 +3,25 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "de";
 
 export function parseLocale(value?: string | null): Locale {
-  if (value === "en" || value === "tr" || value === "de") return value;
+  if (!value) return DEFAULT_LOCALE;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "en" || normalized === "tr" || normalized === "de") return normalized;
   return DEFAULT_LOCALE;
 }
+
+/** Browser / Accept-Language suggestion. User choice always wins once stored. */
+export function suggestLocaleFromBrowser(value?: string | null): Locale {
+  const primary = (value ?? "").split(",")[0]?.split(";")[0]?.trim().toLowerCase() ?? "";
+  if (primary === "de" || primary.startsWith("de-")) return "de";
+  if (primary === "tr" || primary.startsWith("tr-")) return "tr";
+  return "en";
+}
+
+export const LANGUAGE_LABELS: Record<Locale, string> = {
+  de: "Deutsch",
+  en: "English",
+  tr: "Türkçe",
+};
 
 export function dateLocale(locale: Locale) {
   return locale === "tr" ? "tr-TR" : locale === "en" ? "en-GB" : "de-DE";
@@ -939,7 +955,11 @@ export const dictionaries = {
     settleRestaurant: "Restaurant",
     settleMarkPaid: "Als gezahlt",
     settlePeriodSummary: "Abrechnung im Zeitraum",
-    offerPublicLabel: "Aktuelle Angebote"
+    offerPublicLabel: "Aktuelle Angebote",
+    chooseLanguage: "Sprache wählen",
+    langNameDe: "Deutsch",
+    langNameEn: "English",
+    langNameTr: "Türkçe"
   },
   en: {
     brand: "Lieferway",
@@ -1868,7 +1888,11 @@ export const dictionaries = {
     settleRestaurant: "Restaurant",
     settleMarkPaid: "Mark paid",
     settlePeriodSummary: "Settlement for period",
-    offerPublicLabel: "Current offers"
+    offerPublicLabel: "Current offers",
+    chooseLanguage: "Choose language",
+    langNameDe: "Deutsch",
+    langNameEn: "English",
+    langNameTr: "Türkçe"
   },
   tr: {
     brand: "Lieferway",
@@ -2797,7 +2821,11 @@ export const dictionaries = {
     settleRestaurant: "Restoran",
     settleMarkPaid: "Ödendi işaretle",
     settlePeriodSummary: "Dönem özeti",
-    offerPublicLabel: "Güncel kampanyalar"
+    offerPublicLabel: "Güncel kampanyalar",
+    chooseLanguage: "Dil seç",
+    langNameDe: "Deutsch",
+    langNameEn: "English",
+    langNameTr: "Türkçe"
   },
 } as const;
 

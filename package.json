@@ -28,7 +28,8 @@
     "test:authz": "tsx scripts/test-route-guards.ts",
     "test:settlement": "tsx scripts/test-settlement.ts",
     "test:alerts": "tsx scripts/test-alerts.ts",
-    "test:e2e-sandbox": "tsx scripts/test-e2e-sandbox-coverage.ts"
+    "test:e2e-sandbox": "tsx scripts/test-e2e-sandbox-coverage.ts",
+    "test:i18n": "tsx scripts/test-i18n-language.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

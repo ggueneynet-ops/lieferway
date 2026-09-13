@@ -11,7 +11,12 @@ export function isLaunchWeekRestaurant(slug: string) {
   return (LAUNCH_WEEK_RESTAURANT_SLUGS as readonly string[]).includes(slug);
 }
 export const AUTH_COOKIE = "lw_session";
-export const LOCALE_COOKIE = "lw_locale";
+/** Canonical language cookie + localStorage key. */
+export const LOCALE_COOKIE = "lieferway_language";
+export const LOCALE_STORAGE_KEY = "lieferway_language";
+/** Pre-language-selector cookie/storage. Still read for migration. */
+export const LEGACY_LOCALE_COOKIE = "lw_locale";
+export const LEGACY_LOCALE_STORAGE_KEY = "lw_locale";
 export const PLZ_COOKIE = "lw_plz";
 export const RADIUS_COOKIE = "lw_km";
 export const LAT_COOKIE = "lw_lat";

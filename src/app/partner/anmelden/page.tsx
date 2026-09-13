@@ -1,5 +1,5 @@
 import { Logo } from "@/components/logo";
-import { LocaleToggle } from "@/components/locale-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { getCopy } from "@/lib/get-locale";
 import { CUISINES } from "@/lib/constants";
@@ -31,7 +31,7 @@ export default async function PartnerApplyPage({
             <Link href="/login?next=/restaurant" className="text-sm font-medium text-ink hover:text-primary">
               {t.alreadyPartner}
             </Link>
-            <LocaleToggle />
+            <LanguageSwitcher />
           </div>
         </div>
       </header>
