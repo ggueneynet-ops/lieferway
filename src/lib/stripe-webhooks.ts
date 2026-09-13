@@ -327,6 +327,15 @@ export async function applyRefundToOrder(opts: {
         },
       });
     }
+    // In-app + browser notice (shared CustomerNotice hook). Email already sent above.
+    const paymentStatus = paymentStatusAfterRefund(
+      order.refundedCents + slice.amountCents,
+      order.totalCents,
+    );
+    if (paymentStatus === "REFUNDED") {
+      const { notifyCustomerOfOrderStatus } = await import("./notify-customer");
+      await notifyCustomerOfOrderStatus(order.id, "REFUNDED");
+    }
   } catch (mailErr) {
     console.error("stripe.refund.email", mailErr);
   }

@@ -16,7 +16,7 @@ export const EMAIL_EVENT_REGISTRY: Record<
   order_accepted: { status: "wired", notes: "notifyCustomerOfOrderStatus(ACCEPTED|PREPARING)" },
   order_rejected: { status: "wired", notes: "notifyCustomerOfOrderStatus(REJECTED)" },
   order_cancelled: { status: "wired", notes: "notifyCustomerOfOrderStatus(CANCELLED)" },
-  order_refunded: { status: "wired", notes: "applyRefundToOrder when refund succeeds" },
+  order_refunded: { status: "wired", notes: "applyRefundToOrder → sendOrderRefunded + notifyCustomerOfOrderStatus(REFUNDED) notice" },
   payment_failed: { status: "wired", notes: "handlePaymentIntentFailed" },
   order_ready: { status: "wired", notes: "notifyCustomerOfOrderStatus(READY)" },
   order_out_for_delivery: { status: "wired", notes: "notifyCustomerOfOrderStatus(OUT_FOR_DELIVERY)" },

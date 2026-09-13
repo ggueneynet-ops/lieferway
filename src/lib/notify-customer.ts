@@ -8,6 +8,7 @@ function noticeId() {
   return `c${randomBytes(12).toString("hex")}`;
 }
 
+/** Statuses that create a CustomerNotice (in-app + browser poller). Email via orderStatusToEvent when mapped. */
 const NOTIFY_STATUSES = new Set([
   "PLACED",
   "ACCEPTED",
@@ -17,6 +18,7 @@ const NOTIFY_STATUSES = new Set([
   "DELIVERED",
   "REJECTED",
   "CANCELLED",
+  "REFUNDED",
 ]);
 
 function noticeCopy(
@@ -34,28 +36,34 @@ function noticeCopy(
         ? t.orderNoticeRejected
         : status === "CANCELLED"
           ? t.orderNoticeCancelled
-          : status === "READY"
-            ? pickup
-              ? t.orderNoticePickupReady
-              : t.orderNoticeReady
-            : status === "OUT_FOR_DELIVERY"
-              ? t.orderNoticeOut
-              : status === "DELIVERED"
-                ? pickup
-                  ? t.orderNoticePickedUp
-                  : t.orderNoticeDelivered
-                : t.orderNoticeAccepted;
-  const statusLabel = orderStatusLabel(
-    locale,
-    status === "PREPARING" || status === "ACCEPTED" ? "ACCEPTED" : status,
-    fulfillment,
-  );
+          : status === "REFUNDED"
+            ? t.orderNoticeRefunded
+            : status === "READY"
+              ? pickup
+                ? t.orderNoticePickupReady
+                : t.orderNoticeReady
+              : status === "OUT_FOR_DELIVERY"
+                ? t.orderNoticeOut
+                : status === "DELIVERED"
+                  ? pickup
+                    ? t.orderNoticePickedUp
+                    : t.orderNoticeDelivered
+                  : status === "PREPARING"
+                    ? t.orderNoticePreparing
+                    : t.orderNoticeAccepted;
+  const statusLabel = orderStatusLabel(locale, status, fulfillment);
   return {
     title: `${vars.restaurant} · ${statusLabel}`,
     body: interpolate(template, vars),
   };
 }
 
+/**
+ * Shared order-status notification hook used by kitchen accept, order PATCH,
+ * Stripe PLACED, cancel/reject, and (notice-only) full refunds.
+ * Creates at most one CustomerNotice per (orderId, status). Email is sent when
+ * orderStatusToEvent(status) is set — REFUNDED skips email here (sendOrderRefunded already ran).
+ */
 export async function notifyCustomerOfOrderStatus(orderId: string, status: string) {
   if (!NOTIFY_STATUSES.has(status)) return;
   try {
@@ -130,6 +138,9 @@ export async function notifyCustomerOfOrderStatus(orderId: string, status: strin
         attachments,
       });
       mailed = { ok: result.ok || result.skipped, mock: result.mock, channel: result.channel };
+    } else if (status === "REFUNDED") {
+      // Email already sent via sendOrderRefunded; notice is for in-app / browser only.
+      mailed = { ok: true, mock: false, channel: "order_refunded" };
     }
 
     try {
