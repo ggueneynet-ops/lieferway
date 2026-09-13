@@ -201,6 +201,8 @@ model CouponUsage {
 model Order {
   id                    String   @id @default(cuid())
   shortCode             String   @unique
+  /// Client checkout idempotency (double-submit / refresh). Unique when set.
+  idempotencyKey        String?  @unique
   customerId            String
   customer              User     @relation("CustomerOrders", fields: [customerId], references: [id])
   restaurantId          String
