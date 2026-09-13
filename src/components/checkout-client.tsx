@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/cart-provider";
@@ -21,6 +21,33 @@ import { QtyStepper } from "@/components/cart-panel";
 import { FulfillmentToggle } from "@/components/fulfillment-toggle";
 import { isPickup } from "@/lib/fulfillment";
 import { CheckoutPreorder } from "@/components/checkout-preorder";
+
+
+const IDEMPOTENCY_KEY = "lw_checkout_idem";
+
+function readOrCreateIdempotencyKey() {
+  if (typeof window === "undefined") return "";
+  try {
+    const existing = window.sessionStorage.getItem(IDEMPOTENCY_KEY);
+    if (existing && existing.length >= 8) return existing;
+    const key =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `lw_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    window.sessionStorage.setItem(IDEMPOTENCY_KEY, key);
+    return key;
+  } catch {
+    return `lw_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  }
+}
+
+function clearIdempotencyKey() {
+  try {
+    window.sessionStorage.removeItem(IDEMPOTENCY_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function CheckoutClient() {
   const { cart, foodSubtotal, clear, setQty, setFulfillment } = useCart();
@@ -57,6 +84,7 @@ export function CheckoutClient() {
   } | null>(null);
   const [wpRewardId, setWpRewardId] = useState<string>("");
   const [busy, setBusy] = useState(false);
+  const submittingRef = useRef(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [phone, setPhone] = useState("");
   const [fullName, setFullName] = useState("");
@@ -179,6 +207,7 @@ export function CheckoutClient() {
   async function pay() {
     const current = cart;
     if (!current) return;
+    if (submittingRef.current || busy || payClient) return;
     if (!authed) {
       router.push("/login?next=/checkout");
       return;
@@ -193,8 +222,12 @@ export function CheckoutClient() {
     }
     const pickup = isPickup(current.fulfillmentType) && current.pickupAllowed;
     if (!pickup) {
-      if (street.trim().length < 3 || postalCode.trim().length < 4 || city.trim().length < 2) {
+      if (street.trim().length < 3 || city.trim().length < 2) {
         toast.error(t.address);
+        return;
+      }
+      if (!/^\d{5}$/.test(postalCode.replace(/\D/g, "").slice(0, 5))) {
+        toast.error(t.invalidPlz);
         return;
       }
     }
@@ -202,14 +235,20 @@ export function CheckoutClient() {
       toast.error(t.minNotMet);
       return;
     }
+    submittingRef.current = true;
     setBusy(true);
     try {
+      const idempotencyKey = readOrCreateIdempotencyKey();
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           restaurantId: current.restaurantId,
-          items: current.items.map((i) => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
+          items: current.items.map((i) => ({
+            menuItemId: i.menuItemId,
+            quantity: i.quantity,
+            expectedPriceCents: i.priceCents,
+          })),
           paymentMethod: method,
           customerName: fullName.trim(),
           street: pickup ? current.restaurantAddress || street : street,
@@ -220,11 +259,19 @@ export function CheckoutClient() {
           wayPointsRewardId: usingWp ? selectedWp?.rewardId : undefined,
           fulfillmentType: pickup ? "PICKUP" : "DELIVERY",
           scheduledFor: scheduledFor || undefined,
+          idempotencyKey,
+          expectedDeliveryFeeCents: pickup ? 0 : current.deliveryFeeCents,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) {
+        if (data.code === "PRICE_CHANGED" || data.code === "FEE_CHANGED" || data.code === "STALE_CART") {
+          throw new Error(data.error || t.staleCartHint);
+        }
+        throw new Error(data.error || t.error);
+      }
       if (method === "CASH" || !data.requiresPayment) {
+        clearIdempotencyKey();
         clear();
         router.push(`/orders/${data.order.id}`);
         toast.success(t.orderPlaced);
@@ -233,6 +280,7 @@ export function CheckoutClient() {
       if (!data.clientSecret || !data.publishableKey) {
         throw new Error(t.restaurantNotOnboarded);
       }
+      // Keep idempotency key until payment finishes so refresh cannot spawn a second order.
       setPayClient({
         orderId: data.order.id,
         clientSecret: data.clientSecret,
@@ -240,6 +288,7 @@ export function CheckoutClient() {
       });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t.error);
+      submittingRef.current = false;
     } finally {
       setBusy(false);
     }
@@ -247,6 +296,7 @@ export function CheckoutClient() {
 
   async function finishPaid() {
     if (!payClient) return;
+    clearIdempotencyKey();
     clear();
     const orderId = payClient.orderId;
     for (let i = 0; i < 20; i++) {

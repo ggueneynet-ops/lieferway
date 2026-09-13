@@ -24,8 +24,17 @@ import { parseFulfillment } from "@/lib/fulfillment";
 import { createDestinationPaymentIntent } from "@/lib/payments";
 import { computeApplicationFeeCents } from "@/lib/stripe-fees";
 import { canAcceptOnlinePayments } from "@/lib/stripe-connect";
-import { isStripeConfigured, stripePublishableKey } from "@/lib/stripe";
+import { getStripe, isStripeConfigured, stripePublishableKey } from "@/lib/stripe";
 import { validateScheduledFor } from "@/lib/preorder";
+import {
+  assertCartLinesAgainstMenu,
+  assertDeliveryAddress,
+  assertDeliveryCoverage,
+  assertDeliveryFeeMatches,
+  assertMinOrder,
+  normalizeIdempotencyKey,
+  restaurantAcceptingOrders,
+} from "@/lib/checkout-guards";
 
 export async function OPTIONS() {
   return options();
@@ -62,7 +71,16 @@ export async function GET() {
 
 const createSchema = z.object({
   restaurantId: z.string(),
-  items: z.array(z.object({ menuItemId: z.string(), quantity: z.number().int().min(1).max(20) })).min(1),
+  items: z
+    .array(
+      z.object({
+        menuItemId: z.string(),
+        quantity: z.number().int().min(1).max(20),
+        /** Cart unit price — reject when menu price drifted (stale cart). */
+        expectedPriceCents: z.number().int().nonnegative().optional(),
+      }),
+    )
+    .min(1),
   paymentMethod: z.enum(PAYMENT_METHODS),
   paymentIntentId: z.string().optional(),
   customerName: z.string().trim().min(2).max(80),
@@ -75,7 +93,53 @@ const createSchema = z.object({
   fulfillmentType: z.enum(["DELIVERY", "PICKUP"]).optional(),
   /** ISO or Berlin wall `YYYY-MM-DDTHH:mm` — only when restaurant preorder enabled */
   scheduledFor: z.string().optional().nullable(),
+  /** Client UUID — same key must not create two orders (double-click / refresh). */
+  idempotencyKey: z.string().trim().min(8).max(80).optional(),
+  /** Cart delivery fee snapshot for DELIVERY; server is source of truth. */
+  expectedDeliveryFeeCents: z.number().int().nonnegative().optional(),
 });
+
+function failCode(message: string, code: string, status = 400, extra?: Record<string, unknown>) {
+  return json({ error: message, code, ...extra }, status);
+}
+
+async function replayOrderResponse(orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      items: true,
+      restaurant: { select: { name: true, slug: true, imageUrl: true, address: true } },
+    },
+  });
+  if (!order) return fail("Bestellung nicht gefunden.", 404);
+  const cash = order.paymentMethod === "CASH";
+  let clientSecret: string | null = null;
+  if (!cash && order.stripePaymentIntentId && order.status === "PENDING_PAYMENT") {
+    try {
+      const pi = await getStripe().paymentIntents.retrieve(order.stripePaymentIntentId);
+      if (
+        pi.status === "requires_payment_method" ||
+        pi.status === "requires_confirmation" ||
+        pi.status === "requires_action"
+      ) {
+        clientSecret = pi.client_secret ?? null;
+      }
+    } catch {
+      clientSecret = null;
+    }
+  }
+  return json(
+    {
+      order,
+      clientSecret,
+      publishableKey: cash ? null : stripePublishableKey(),
+      requiresPayment: !cash && order.status === "PENDING_PAYMENT",
+      replayed: true,
+      wayPoints: { eligible: Boolean(order.wayPointsEligible) },
+    },
+    200,
+  );
+}
 
 export async function POST(req: Request) {
   try {
@@ -83,6 +147,18 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => null);
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) return fail("Bestellung unvollständig.");
+
+    const idempotencyKey = normalizeIdempotencyKey(parsed.data.idempotencyKey);
+    if (parsed.data.idempotencyKey && !idempotencyKey) {
+      return fail("Ungültiger Idempotency-Key.");
+    }
+    if (idempotencyKey) {
+      const existing = await prisma.order.findFirst({
+        where: { idempotencyKey, customerId: session.id },
+        select: { id: true },
+      });
+      if (existing) return replayOrderResponse(existing.id);
+    }
 
     if (session.role === "CUSTOMER") {
       const customer = await prisma.user.findUnique({
@@ -96,9 +172,10 @@ export async function POST(req: Request) {
 
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: parsed.data.restaurantId },
+      include: { serviceAreas: { select: { postalCode: true } } },
     });
-    if (!restaurant || !restaurant.isActive) {
-      return fail("Restaurant nimmt gerade keine Bestellungen an.");
+    if (!restaurant) {
+      return failCode("Restaurant nimmt gerade keine Bestellungen an.", "RESTAURANT_UNAVAILABLE");
     }
 
     const fulfillment = parseFulfillment(parsed.data.fulfillmentType);
@@ -132,21 +209,52 @@ export async function POST(req: Request) {
           return fail("Für diesen Zeitraum sind keine weiteren Vorbestellungen möglich.");
         }
       }
-    } else if (!restaurant.isOpen) {
-      if (restaurant.preorderEnabled) {
-        return fail("Restaurant ist geschlossen — bitte eine Vorbestell-Zeit wählen.");
-      }
-      return fail("Restaurant nimmt gerade keine Bestellungen an.");
     }
-    const street = pickup
-      ? restaurant.address
-      : (parsed.data.street ?? "").trim();
-    const city = pickup ? restaurant.city : (parsed.data.city ?? "").trim();
-    const postalCode = pickup ? restaurant.postalCode : (parsed.data.postalCode ?? "").trim();
-    if (!pickup && (street.length < 3 || city.length < 2 || postalCode.length < 4)) {
-      return fail("Bitte Lieferadresse angeben.");
+
+    const accepting = restaurantAcceptingOrders({
+      isActive: restaurant.isActive,
+      isOpen: restaurant.isOpen,
+      wantsPreorder,
+      preorderEnabled: restaurant.preorderEnabled,
+    });
+    if (!accepting.ok) return failCode(accepting.error, accepting.code);
+
+    let street: string;
+    let city: string;
+    let postalCode: string;
+    if (pickup) {
+      street = restaurant.address;
+      city = restaurant.city;
+      postalCode = restaurant.postalCode;
+    } else {
+      const addr = assertDeliveryAddress({
+        street: parsed.data.street,
+        city: parsed.data.city,
+        postalCode: parsed.data.postalCode,
+      });
+      if (!addr.ok) return failCode(addr.error, addr.code);
+      street = addr.street;
+      city = addr.city;
+      postalCode = addr.postalCode;
+      const cover = assertDeliveryCoverage({
+        postalCode,
+        restaurant: {
+          lat: restaurant.lat,
+          lng: restaurant.lng,
+          maxDeliveryKm: restaurant.maxDeliveryKm,
+          serviceAreas: restaurant.serviceAreas,
+        },
+      });
+      if (!cover.ok) return failCode(cover.error, cover.code);
     }
     const deliveryFeeCents = pickup ? 0 : listedDeliveryFeeCents(restaurant);
+    if (!pickup) {
+      const feeCheck = assertDeliveryFeeMatches(
+        deliveryFeeCents,
+        parsed.data.expectedDeliveryFeeCents,
+      );
+      if (!feeCheck.ok) return failCode(feeCheck.error, feeCheck.code, 409);
+    }
 
     const menuItems = await prisma.menuItem.findMany({
       where: {
@@ -155,23 +263,19 @@ export async function POST(req: Request) {
         isAvailable: true,
       },
     });
-    if (menuItems.length !== parsed.data.items.length) {
-      return fail("Ein Artikel ist nicht mehr verfügbar.");
-    }
-
-    const lines = parsed.data.items.map((line) => {
-      const item = menuItems.find((m) => m.id === line.menuItemId)!;
-      return {
-        menuItemId: item.id,
-        name: item.name,
-        priceCents: item.priceCents,
-        quantity: line.quantity,
-      };
+    const cartCheck = assertCartLinesAgainstMenu({
+      requested: parsed.data.items,
+      menuItems,
     });
-    const foodSubtotalCents = lines.reduce((s, l) => s + l.priceCents * l.quantity, 0);
-    if (foodSubtotalCents < restaurant.minOrderCents) {
-      return fail("Mindestbestellwert nicht erreicht.");
+    if (!cartCheck.ok) {
+      return failCode(cartCheck.error, cartCheck.code, 409, {
+        changed: cartCheck.changed,
+      });
     }
+    const lines = cartCheck.lines;
+    const foodSubtotalCents = lines.reduce((s, l) => s + l.priceCents * l.quantity, 0);
+    const minCheck = assertMinOrder(foodSubtotalCents, restaurant.minOrderCents);
+    if (!minCheck.ok) return failCode(minCheck.error, minCheck.code);
 
     let coupon = null;
     let couponDiscountCents = 0;
@@ -281,9 +385,12 @@ export async function POST(req: Request) {
       select: { email: true },
     });
 
-    const order = await prisma.order.create({
+    let order: Awaited<ReturnType<typeof prisma.order.create>>;
+    try {
+      order = await prisma.order.create({
       data: {
         shortCode,
+        idempotencyKey,
         customerId: session.id,
         restaurantId: restaurant.id,
         status,
@@ -328,6 +435,20 @@ export async function POST(req: Request) {
         restaurant: { select: { name: true, slug: true, imageUrl: true, address: true } },
       },
     });
+    } catch (createErr) {
+      const code =
+        createErr && typeof createErr === "object" && "code" in createErr
+          ? (createErr as { code?: string }).code
+          : undefined;
+      if (code === "P2002" && idempotencyKey) {
+        const existing = await prisma.order.findFirst({
+          where: { idempotencyKey, customerId: session.id },
+          select: { id: true },
+        });
+        if (existing) return replayOrderResponse(existing.id);
+      }
+      throw createErr;
+    }
     await prisma.$executeRawUnsafe(
       `UPDATE "Order" SET "fulfillmentType" = $1, "deliveryFeeCents" = $2, "totalCents" = $3, "street" = $4, "city" = $5, "postalCode" = $6, "discountCents" = $8, "applicationFeeCents" = $9, "wayPointsDiscountCents" = $10, "wayPointsFundedBy" = $11, "wayPointsRestaurantShareCents" = $12, "wayPointsLieferwayShareCents" = $13, "wayPointsRedeemed" = $14, "wayPointsEligible" = $15, "wayPointsRewardId" = $16 WHERE "id" = $7`,
       fulfillment,
