@@ -25,13 +25,29 @@ export default async function RestaurantMenuPage({
   let categories: Parameters<typeof MenuEditor>[0]["categories"] = [];
   let loadError = false;
   try {
-    const full = await prisma.restaurant.findUnique({
-      where: { id: restaurant.id },
-      include: {
-        categories: { orderBy: { sortOrder: "asc" }, include: { items: { orderBy: { name: "asc" } } } },
+    // Do NOT load via restaurant.findUnique({ include }) — that SELECTs every
+    // Restaurant scalar and blanks the Speisekarte if prod is one migration behind.
+    const rows = await prisma.menuCategory.findMany({
+      where: { restaurantId: restaurant.id },
+      orderBy: { sortOrder: "asc" },
+      select: {
+        id: true,
+        name: true,
+        items: {
+          orderBy: { name: "asc" },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            priceCents: true,
+            isAvailable: true,
+            categoryId: true,
+            imageUrl: true,
+          },
+        },
       },
     });
-    categories = JSON.parse(JSON.stringify(full?.categories ?? []));
+    categories = JSON.parse(JSON.stringify(rows));
   } catch (error) {
     console.error("[restaurant/menu] categories failed", error);
     loadError = true;
