@@ -25,7 +25,8 @@
     "test:bon": "tsx scripts/test-bon-layout.ts",
     "test:admin-audit": "tsx scripts/test-admin-audit.ts",
     "test:checkout": "tsx scripts/test-checkout-guards.ts",
-    "test:authz": "tsx scripts/test-route-guards.ts"
+    "test:authz": "tsx scripts/test-route-guards.ts",
+    "test:settlement": "tsx scripts/test-settlement.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
