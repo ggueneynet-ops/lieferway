@@ -263,6 +263,11 @@ export function monthRange(yyyyMm: string) {
   return { fromYmd, toYmd, from: range.from!, to: range.to!, key: yyyyMm };
 }
 
+/**
+ * TODO(tax/invoice): Speisen-GMV minus Provision only. Does not apply refunds,
+ * Gutschein/WayPoints funding, USt, reverse charge, or ZUGFeRD/XRechnung.
+ * Not a legal Steuerrechnung — settlement snapshot for the restaurant.
+ */
 export async function ensureCommissionInvoice(
   restaurantId: string,
   yyyyMm: string,

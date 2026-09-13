@@ -1,17 +1,35 @@
 import { RestaurantAppShell } from "@/components/restaurant-app-shell";
+import { SettlementBreakdown } from "@/components/settlement-breakdown";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
 import { getCopy } from "@/lib/get-locale";
-import { interpolate, dateLocale } from "@/lib/i18n";
+import { dateLocale } from "@/lib/i18n";
 import { formatEUR } from "@/lib/money";
 import { nextPayoutMonday } from "@/lib/hours";
-import { restaurantReportTotals, resolveReportRange, berlinYmd, addDaysYmd } from "@/lib/restaurant-reports";
+import {
+  parseReportPreset,
+  resolveReportRange,
+  berlinYmd,
+  addDaysYmd,
+} from "@/lib/restaurant-reports";
 import { isBerlinMonthOpen, recentMonthKeys } from "@/lib/invoices";
 import { prisma } from "@/lib/prisma";
 import { remainingOrderTotals } from "@/lib/stripe-money";
+import {
+  bucketOrdersByWeek,
+  loadSettlementOrders,
+  parseWeekStartParam,
+  summarizeOrders,
+  toYmdBerlin,
+  weekEnd,
+} from "@/lib/payouts";
 
 export const dynamic = "force-dynamic";
 
-export default async function RestaurantFinancePage() {
+export default async function RestaurantFinancePage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { restaurant } = await requireOwnedRestaurant();
   const { t, locale } = await getCopy();
   if (!restaurant) {
@@ -22,22 +40,33 @@ export default async function RestaurantFinancePage() {
     );
   }
 
+  const params = (await searchParams) ?? {};
+  const raw = (key: string) => {
+    const v = params[key];
+    return Array.isArray(v) ? v[0] : v;
+  };
+  const week = parseWeekStartParam(raw("week"));
+  const preset = parseReportPreset(raw("preset") ?? (week ? "custom" : "7d"));
+  const range = week
+    ? {
+        from: week,
+        to: new Date(weekEnd(week).getTime() + 1),
+        fromYmd: toYmdBerlin(week),
+        toYmd: toYmdBerlin(weekEnd(week)),
+      }
+    : resolveReportRange(preset, raw("from"), raw("to"));
+
   const next = nextPayoutMonday();
   const weekFrom = addDaysYmd(next.ymd, next.isToday ? 0 : -7);
-  const [week, month, all] = await Promise.all([
-    restaurantReportTotals(restaurant.id, resolveReportRange("custom", weekFrom, berlinYmd())),
-    restaurantReportTotals(restaurant.id, resolveReportRange("month")),
-    restaurantReportTotals(restaurant.id, resolveReportRange("all")),
-  ]);
-  const mondayLabel = new Intl.DateTimeFormat(dateLocale(locale), {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-    timeZone: "Europe/Berlin",
-  }).format(next.date);
-  const percent = restaurant.commissionPercent;
-  const months = recentMonthKeys(4);
-  const [paidOrders, payouts] = await Promise.all([
+  const thisWeekRange = resolveReportRange("custom", weekFrom, berlinYmd());
+  const monthRange = resolveReportRange("month");
+  const allRange = resolveReportRange("all");
+
+  const [periodOrders, weekOrders, monthOrders, allOrders, paidOrders, payouts] = await Promise.all([
+    loadSettlementOrders({ restaurantId: restaurant.id, from: range.from, to: range.to }),
+    loadSettlementOrders({ restaurantId: restaurant.id, from: thisWeekRange.from, to: thisWeekRange.to }),
+    loadSettlementOrders({ restaurantId: restaurant.id, from: monthRange.from, to: monthRange.to }),
+    loadSettlementOrders({ restaurantId: restaurant.id, from: allRange.from, to: allRange.to }),
     prisma.order.findMany({
       where: {
         restaurantId: restaurant.id,
@@ -52,6 +81,22 @@ export default async function RestaurantFinancePage() {
       take: 12,
     }),
   ]);
+
+  const periodTotals = summarizeOrders(periodOrders);
+  const weekTotals = summarizeOrders(weekOrders);
+  const monthTotals = summarizeOrders(monthOrders);
+  const allTotals = summarizeOrders(allOrders);
+  const weekly = bucketOrdersByWeek(periodOrders);
+  const payoutByWeek = new Map(payouts.map((p) => [p.weekStart.toISOString(), p]));
+
+  const mondayLabel = new Intl.DateTimeFormat(dateLocale(locale), {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+    timeZone: "Europe/Berlin",
+  }).format(next.date);
+  const percent = restaurant.commissionPercent;
+  const months = recentMonthKeys(4);
   const pendingNet = paidOrders
     .filter((o) => o.paymentMethod !== "CASH" && (o.payoutStatus === "PENDING" || o.payoutStatus === "UNPAID"))
     .reduce((s, o) => s + remainingOrderTotals(o).remainingRestaurantNetCents, 0);
@@ -59,36 +104,25 @@ export default async function RestaurantFinancePage() {
     .filter((o) => o.payoutStatus === "PAID")
     .reduce((s, o) => s + remainingOrderTotals(o).remainingRestaurantNetCents, 0);
 
-  function Block({
-    title,
-    food,
-    commission,
-  }: {
-    title: string;
-    food: number;
-    commission: number;
-  }) {
-    const payout = food - commission;
-    return (
-      <section className="rounded-[20px] border border-[#E8E8EC] bg-white p-5 shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
-        <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">{title}</h2>
-        <p className="mt-3 font-display text-[1.85rem] font-semibold tabular-nums tracking-tight text-[#E91E63]">
-          {formatEUR(payout, locale)}
-        </p>
-        <p className="mt-1 text-sm font-medium text-[#0F172A]">{t.rpPayoutToRestaurant}</p>
-        <dl className="mt-4 space-y-2 text-[14px]">
-          <div className="flex justify-between gap-3 text-[#64748B]">
-            <dt>{t.revenueFood}</dt>
-            <dd className="tabular-nums text-[#0F172A]">{formatEUR(food, locale)}</dd>
-          </div>
-          <div className="flex justify-between gap-3 text-[#64748B]">
-            <dt>{interpolate(t.rpLieferwayProvision, { percent: String(percent) })}</dt>
-            <dd className="tabular-nums">−{formatEUR(commission, locale)}</dd>
-          </div>
-        </dl>
-      </section>
-    );
-  }
+  const csvWeekly = `/api/restaurant/finance?format=csv&kind=weekly&preset=${encodeURIComponent(preset)}${
+    range.fromYmd ? `&from=${range.fromYmd}` : ""
+  }${range.toYmd ? `&to=${range.toYmd}` : ""}${week ? `&week=${toYmdBerlin(week)}` : ""}`;
+  const csvOrders = csvWeekly.replace("kind=weekly", "kind=orders");
+
+  const breakdownCopy = {
+    settleGross: t.settleGross,
+    revenueFood: t.revenueFood,
+    rpLieferwayProvision: t.rpLieferwayProvision,
+    settleRefunds: t.settleRefunds,
+    settleCoupon: t.settleCoupon,
+    settleWayPointsRestaurant: t.settleWayPointsRestaurant,
+    settleWayPointsPlatform: t.settleWayPointsPlatform,
+    settleCashCommission: t.settleCashCommission,
+    settleCardPayout: t.settleCardPayout,
+    settleNetPayable: t.settleNetPayable,
+    settleOrders: t.settleOrders,
+    settleCancelled: t.settleCancelled,
+  };
 
   return (
     <RestaurantAppShell title={t.rpFinance} restaurantName={restaurant.name} isOpen={restaurant.isOpen}>
@@ -98,6 +132,82 @@ export default async function RestaurantFinancePage() {
         {t.eInvoiceComing}
         <span className="mt-1 block text-[#6B7280]">{t.eInvoiceComingHint}</span>
       </p>
+      <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-[#111827]">
+        {t.settleTaxTodo}
+        <span className="mt-1 block text-[#6B7280]">{t.settleTaxTodoHint}</span>
+      </p>
+
+      <section className="mb-4 rounded-2xl border border-[#E5E7EB] bg-white p-4">
+        <h2 className="text-sm font-semibold text-[#111827]">{t.period}</h2>
+        <form className="mt-3 flex flex-wrap items-end gap-2" action="/restaurant/finance" method="get">
+          <label className="text-xs text-[#6B7280]">
+            {t.period}
+            <select
+              name="preset"
+              defaultValue={week ? "custom" : preset}
+              className="mt-1 block h-11 rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm"
+            >
+              <option value="today">{t.periodToday}</option>
+              <option value="7d">{t.period7d}</option>
+              <option value="30d">{t.period30d}</option>
+              <option value="month">{t.periodMonth}</option>
+              <option value="all">{t.periodAll}</option>
+              <option value="custom">{t.periodCustom}</option>
+            </select>
+          </label>
+          <label className="text-xs text-[#6B7280]">
+            {t.periodFrom}
+            <input
+              type="date"
+              name="from"
+              defaultValue={range.fromYmd ?? ""}
+              className="mt-1 block h-11 rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm"
+            />
+          </label>
+          <label className="text-xs text-[#6B7280]">
+            {t.periodTo}
+            <input
+              type="date"
+              name="to"
+              defaultValue={range.toYmd ?? ""}
+              className="mt-1 block h-11 rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm"
+            />
+          </label>
+          <button
+            type="submit"
+            className="inline-flex h-11 items-center rounded-xl bg-[#E91E63] px-4 text-sm font-semibold text-white"
+          >
+            {t.periodApply}
+          </button>
+          <a
+            href={csvWeekly}
+            className="inline-flex h-11 items-center rounded-xl border border-[#E5E7EB] bg-white px-4 text-sm font-semibold"
+          >
+            {t.settleExportCsv}
+          </a>
+          <a
+            href={csvOrders}
+            className="inline-flex h-11 items-center rounded-xl border border-[#E5E7EB] bg-white px-4 text-sm font-semibold"
+          >
+            {t.settleExportOrdersCsv}
+          </a>
+        </form>
+        <p className="mt-3 text-xs text-[#6B7280]">
+          {range.fromYmd && range.toYmd ? `${range.fromYmd} – ${range.toYmd}` : t.periodAll}
+          {" · "}
+          {t.settleFormulaText}
+        </p>
+      </section>
+
+      <section className="mb-4 rounded-[20px] border border-[#E8E8EC] bg-white p-5 shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+        <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">
+          {t.settlePeriodSummary}
+        </h2>
+        <div className="mt-3">
+          <SettlementBreakdown totals={periodTotals} percent={percent} locale={locale} t={breakdownCopy} />
+        </div>
+      </section>
+
       <section className="mb-4 rounded-2xl border border-[#E5E7EB] bg-white p-4">
         <h2 className="text-sm font-semibold text-[#111827]">{t.commissionInvoice}</h2>
         <p className="mt-1 text-sm text-[#6B7280]">{t.commissionInvoiceHint}</p>
@@ -128,9 +238,19 @@ export default async function RestaurantFinancePage() {
         {next.isToday ? t.rpPayoutMonday : mondayLabel}
       </p>
       <div className="grid gap-3 sm:grid-cols-3">
-        <Block title={t.rpThisWeek} food={week.foodCents} commission={week.commissionCents} />
-        <Block title={t.rpThisMonth} food={month.foodCents} commission={month.commissionCents} />
-        <Block title={t.rpAllTime} food={all.foodCents} commission={all.commissionCents} />
+        {[
+          { title: t.rpThisWeek, totals: weekTotals },
+          { title: t.rpThisMonth, totals: monthTotals },
+          { title: t.rpAllTime, totals: allTotals },
+        ].map((block) => (
+          <section
+            key={block.title}
+            className="rounded-[20px] border border-[#E8E8EC] bg-white p-5 shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
+          >
+            <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">{block.title}</h2>
+            <SettlementBreakdown totals={block.totals} percent={percent} locale={locale} t={breakdownCopy} />
+          </section>
+        ))}
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <section className="rounded-[20px] border border-[#E8E8EC] bg-white p-5">
@@ -151,11 +271,12 @@ export default async function RestaurantFinancePage() {
         {paidOrders.length === 0 ? (
           <p className="px-5 py-4 text-sm text-[#6B7280]">{t.noOrders}</p>
         ) : (
-          <table className="mt-2 w-full min-w-[640px] text-left text-sm">
+          <table className="mt-2 w-full min-w-[720px] text-left text-sm">
             <thead className="border-y border-[#F3F4F6] text-[#64748B]">
               <tr>
                 <th className="px-5 py-2 font-medium">{t.nr}</th>
                 <th className="px-3 py-2 font-medium">{t.financeGross}</th>
+                <th className="px-3 py-2 font-medium">{t.settleCoupon}</th>
                 <th className="px-3 py-2 font-medium">{t.wpDiscountLine}</th>
                 <th className="px-3 py-2 font-medium">{t.platformNetCommission}</th>
                 <th className="px-3 py-2 font-medium">{t.stripeFee}</th>
@@ -166,10 +287,21 @@ export default async function RestaurantFinancePage() {
             <tbody>
               {paidOrders.map((o) => {
                 const left = remainingOrderTotals(o);
+                const couponCents = Math.max(0, o.discountCents - o.wayPointsDiscountCents);
                 return (
                   <tr key={o.id} className="border-b border-[#F3F4F6] last:border-0">
                     <td className="px-5 py-3 font-medium">{o.shortCode}</td>
                     <td className="px-3 py-3 tabular-nums">{formatEUR(o.totalCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">
+                      {couponCents > 0 ? (
+                        <span>
+                          −{formatEUR(couponCents, locale)}
+                          <span className="mt-0.5 block text-[11px] text-[#64748B]">{t.settleCouponHint}</span>
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="px-3 py-3 tabular-nums">
                       {o.wayPointsDiscountCents > 0 ? (
                         <span>
@@ -186,9 +318,15 @@ export default async function RestaurantFinancePage() {
                         "—"
                       )}
                     </td>
-                    <td className="px-3 py-3 tabular-nums">{formatEUR(o.platformNetCommissionCents || left.remainingCommissionCents, locale)}</td>
-                    <td className="px-3 py-3 tabular-nums">{formatEUR(o.stripeFeeActualCents || o.stripeFeeCents || left.remainingStripeFeeCents, locale)}</td>
-                    <td className="px-3 py-3 tabular-nums">{formatEUR(o.restaurantTransferCents || left.remainingRestaurantNetCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">
+                      {formatEUR(o.platformNetCommissionCents || left.remainingCommissionCents, locale)}
+                    </td>
+                    <td className="px-3 py-3 tabular-nums">
+                      {formatEUR(o.stripeFeeActualCents || o.stripeFeeCents || left.remainingStripeFeeCents, locale)}
+                    </td>
+                    <td className="px-3 py-3 tabular-nums">
+                      {formatEUR(o.restaurantTransferCents || left.remainingRestaurantNetCents, locale)}
+                    </td>
                     <td className="px-5 py-3 text-[#64748B]">
                       {o.payoutStatus === "PAID"
                         ? t.payoutPaid
@@ -205,24 +343,48 @@ export default async function RestaurantFinancePage() {
           </table>
         )}
       </section>
-      <section className="mt-4 rounded-[20px] border border-[#E8E8EC] bg-white p-5">
+      <section className="mt-4 overflow-x-auto rounded-[20px] border border-[#E8E8EC] bg-white p-5">
         <h2 className="text-sm font-semibold">{t.financePayoutHistory}</h2>
-        {payouts.length === 0 ? (
+        {weekly.length === 0 && payouts.length === 0 ? (
           <p className="mt-2 text-sm text-[#6B7280]">{t.noOrders}</p>
         ) : (
-          <ul className="mt-3 space-y-2 text-sm">
-            {payouts.map((p) => (
-              <li key={p.id} className="flex justify-between gap-3">
-                <span>
-                  {p.weekStart.toISOString().slice(0, 10)}
-                  <span className="ml-2 text-[#64748B]">
-                    {p.status === "PAID" ? t.payoutPaid : p.status === "FAILED" ? t.payoutFailed : t.payoutPending}
-                  </span>
-                </span>
-                <span className="tabular-nums font-medium">{formatEUR(p.netPayoutCents, locale)}</span>
-              </li>
-            ))}
-          </ul>
+          <table className="mt-3 w-full min-w-[720px] text-left text-sm">
+            <thead className="border-y border-[#F3F4F6] text-[#64748B]">
+              <tr>
+                <th className="py-2 font-medium">{t.settleWeek}</th>
+                <th className="px-3 py-2 font-medium">{t.revenueFood}</th>
+                <th className="px-3 py-2 font-medium">{t.platformCommission}</th>
+                <th className="px-3 py-2 font-medium">{t.settleRefunds}</th>
+                <th className="px-3 py-2 font-medium">{t.settleNetPayable}</th>
+                <th className="px-3 py-2 font-medium">{t.payoutStatus}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {weekly.map((w) => {
+                const stored = payoutByWeek.get(w.weekStart.toISOString());
+                return (
+                  <tr key={w.weekStart.toISOString()} className="border-b border-[#F3F4F6] last:border-0">
+                    <td className="py-3">
+                      {toYmdBerlin(w.weekStart)} – {toYmdBerlin(w.weekEnd)}
+                    </td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(w.totals.foodCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(w.totals.commissionCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums">{formatEUR(w.totals.refundedCents, locale)}</td>
+                    <td className="px-3 py-3 tabular-nums font-medium">
+                      {formatEUR(stored?.status === "PAID" ? stored.netPayoutCents : w.totals.netPayableCents, locale)}
+                    </td>
+                    <td className="px-3 py-3 text-[#64748B]">
+                      {(stored?.status ?? "PENDING") === "PAID"
+                        ? t.payoutPaid
+                        : (stored?.status ?? "PENDING") === "FAILED"
+                          ? t.payoutFailed
+                          : t.payoutPending}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </section>
     </RestaurantAppShell>
