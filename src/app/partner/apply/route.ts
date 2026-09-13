@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { submitPartnerApplication } from "@/lib/partner-application";
+import { AUTH_RATE, clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
 
 function redirectTo(path: string) {
   return new NextResponse(null, { status: 303, headers: { Location: path } });
@@ -10,6 +11,14 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const limited = rateLimit({
+    key: `partner-apply:${clientIpFromRequest(req)}`,
+    limit: AUTH_RATE.partnerApply.limit,
+    windowMs: AUTH_RATE.partnerApply.windowMs,
+  });
+  if (!limited.ok) {
+    return redirectTo("/partner/anmelden?error=rate");
+  }
   const form = await req.formData();
   const result = await submitPartnerApplication({
     businessName: String(form.get("businessName") ?? ""),

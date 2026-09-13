@@ -48,7 +48,7 @@ export async function sendEmailVerification(opts: {
   });
 }
 
-/** TODO: wire when password-reset tokens exist. */
+/** Wired: POST /api/auth/password-reset/request. eventKey uses token fingerprint only. */
 export async function sendPasswordReset(opts: {
   userId: string;
   email: string;
@@ -56,9 +56,10 @@ export async function sendPasswordReset(opts: {
   token: string;
   locale?: EmailLocale;
 }): Promise<SendTransactionalResult> {
+  const tokenFingerprint = opts.token.slice(0, 8);
   return sendTransactionalEmail({
     eventType: "password_reset",
-    eventKey: `password_reset:${opts.userId}:${opts.token}`,
+    eventKey: `password_reset:${opts.userId}:${tokenFingerprint}:${Date.now()}`,
     to: opts.email,
     vars: {
       locale: opts.locale,

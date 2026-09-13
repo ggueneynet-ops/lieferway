@@ -3,6 +3,7 @@ import { applySessionCookie, authenticate, logSafeError, signToken } from "@/lib
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { withPhoneGate } from "@/lib/phone";
+import { AUTH_RATE, clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
 
 export async function OPTIONS() {
   return options();
@@ -15,6 +16,12 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const limited = rateLimit({
+      key: `login:${clientIpFromRequest(req)}`,
+      limit: AUTH_RATE.login.limit,
+      windowMs: AUTH_RATE.login.windowMs,
+    });
+    if (!limited.ok) return fail("Zu viele Anmeldeversuche. Bitte später erneut versuchen.", 429);
     const body = await req.json().catch(() => null);
     const parsed = schema.safeParse(body);
     if (!parsed.success) return fail("E-Mail und Passwort prüfen.");

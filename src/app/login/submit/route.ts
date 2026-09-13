@@ -3,6 +3,7 @@ import { applySessionCookie, authenticate, logSafeError, signToken } from "@/lib
 import { prisma } from "@/lib/prisma";
 import { withPhoneGate } from "@/lib/phone";
 import { requestOrigin } from "@/lib/public-origin";
+import { AUTH_RATE, clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   const form = await req.formData().catch(() => null);
@@ -15,6 +16,16 @@ export async function POST(req: Request) {
   fail.searchParams.set("next", next);
 
   try {
+  const limited = rateLimit({
+    key: `login-form:${clientIpFromRequest(req)}`,
+    limit: AUTH_RATE.login.limit,
+    windowMs: AUTH_RATE.login.windowMs,
+  });
+  if (!limited.ok) {
+    fail.searchParams.set("error", "rate");
+    return NextResponse.redirect(fail, 303);
+  }
+
     const session = await authenticate(email, password);
     if (!session) {
       return NextResponse.redirect(fail, 303);
