@@ -28,8 +28,11 @@ export function HelpCenter({
         ...cat,
         items: cat.items.filter((item) => {
           const answer = item.answer
-            .flat()
-            .map((s) => s.text)
+            .flatMap((block) =>
+              block.type === "p"
+                ? block.spans.map((s) => s.text)
+                : block.items.flat().map((s) => s.text),
+            )
             .join(" ")
             .toLowerCase();
           return item.question.toLowerCase().includes(q) || answer.includes(q) || cat.title.toLowerCase().includes(q);
@@ -89,11 +92,21 @@ export function HelpCenter({
                     </span>
                   </summary>
                   <div className="space-y-3 pb-4 text-[15px] leading-relaxed text-[#111827]">
-                    {item.answer.map((spans, i) => (
-                      <p key={i}>
-                        <LegalInlineText spans={spans} />
-                      </p>
-                    ))}
+                    {item.answer.map((block, i) =>
+                      block.type === "ul" ? (
+                        <ul key={i} className="list-disc space-y-1.5 pl-5">
+                          {block.items.map((spans, j) => (
+                            <li key={j}>
+                              <LegalInlineText spans={spans} />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p key={i}>
+                          <LegalInlineText spans={block.spans} />
+                        </p>
+                      ),
+                    )}
                   </div>
                 </details>
               ))}
