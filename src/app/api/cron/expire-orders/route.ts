@@ -1,6 +1,5 @@
 import { fail, json, options } from "@/lib/http";
 import { expireStalePlacedOrders } from "@/lib/payment-lifecycle";
-import { restaurantAcceptTimeoutMinutes } from "@/lib/constants";
 
 export async function OPTIONS() {
   return options();
@@ -24,11 +23,7 @@ export async function GET(req: Request) {
   if (!authorized(req)) return fail("Unauthorized", 401);
   try {
     const result = await expireStalePlacedOrders(50);
-    return json({
-      ok: true,
-      timeoutMinutes: restaurantAcceptTimeoutMinutes(),
-      ...result,
-    });
+    return json({ ok: true, ...result });
   } catch (e) {
     console.error("cron expire-orders", e);
     return fail(e instanceof Error ? e.message : "expire failed", 500);
