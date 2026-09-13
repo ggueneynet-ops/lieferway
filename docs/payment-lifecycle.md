@@ -41,10 +41,19 @@ RESTAURANT_ACCEPT_TIMEOUT_MINUTES=15   # default
 CRON_SECRET=…                          # Bearer for /api/cron/expire-orders
 ```
 
-`vercel.json` schedules a **daily** safety-net cron (`0 8 * * *` UTC) — Vercel Hobby only allows one run/day.
+Vercel Hobby cannot run sub-daily crons (and adding `crons` in `vercel.json` failed preview deploys on this account).
 
-For the 15-minute accept SLA, also ping `GET /api/cron/expire-orders` every 5 minutes via any external cron
-(cron-job.org, GitHub Action in another repo, `curl -H "Authorization: Bearer $CRON_SECRET" …`),
-or upgrade to Vercel Pro and set the schedule back to `*/5 * * * *`.
+Invoke expire yourself every 5 minutes:
+
+```bash
+curl -fsS -H "Authorization: Bearer $CRON_SECRET" \
+  "$NEXT_PUBLIC_APP_URL/api/cron/expire-orders"
+```
+
+On Vercel Pro you may add to `vercel.json`:
+
+```json
+{ "crons": [{ "path": "/api/cron/expire-orders", "schedule": "*/5 * * * *" }] }
+```
 
 Clock uses `Order.placedAt` (fallback `createdAt`).
