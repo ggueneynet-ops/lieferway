@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HelpPage() {
-  const doc = parseHelpMarkdown(await loadLegalMarkdown("hilfe"));
+  const doc = parseHelpMarkdown(await loadLegalMarkdown("hilfe"), "hilfe");
   return (
     <>
       <SiteHeader />
