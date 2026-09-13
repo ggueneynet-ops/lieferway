@@ -41,8 +41,10 @@ export function CheckoutClient() {
   const [couponCode, setCouponCode] = useState("");
   const [coupon, setCoupon] = useState<{
     code: string;
+    type?: string;
     discountPercent: number | null;
     discountCents: number | null;
+    maxDiscountCents?: number | null;
     minSubtotalCents: number | null;
     isActive: boolean;
   } | null>(null);
@@ -134,6 +136,7 @@ export function CheckoutClient() {
     deliveryFeeCents: pickup ? 0 : cart.deliveryFeeCents,
     discountCents,
     commissionPercent: 8,
+    restaurantCouponCents: couponDiscountCents,
   });
 
   async function applyCode(raw?: string) {
@@ -143,7 +146,14 @@ export function CheckoutClient() {
       return;
     }
     setCouponCode(code);
-    const res = await fetch(`/api/coupons/${encodeURIComponent(code)}?subtotal=${foodSubtotal}`);
+    if (!cart?.restaurantId) {
+      toast.error(t.couponInvalid);
+      return;
+    }
+    const fulfillment = pickup ? "PICKUP" : "DELIVERY";
+    const res = await fetch(
+      `/api/coupons/${encodeURIComponent(code)}?subtotal=${foodSubtotal}&restaurantId=${encodeURIComponent(cart.restaurantId)}&fulfillment=${fulfillment}`,
+    );
     const data = await res.json();
     if (!res.ok) {
       setCoupon(null);

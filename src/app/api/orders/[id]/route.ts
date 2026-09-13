@@ -148,6 +148,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const { syncWayPointsAfterStatusChange } = await import("@/lib/waypoints-service");
     await syncWayPointsAfterStatusChange(updated.id, updated.status);
 
+    if (updated.status === "CANCELLED" || updated.status === "REJECTED") {
+      const { reverseCouponUsageForOrder } = await import("@/lib/coupons");
+      await reverseCouponUsageForOrder(updated.id);
+    }
+
     const { notifyRestaurantOrders } = await import("@/lib/order-events");
     notifyRestaurantOrders(updated.restaurantId);
     const { notifyCustomerOfOrderStatus } = await import("@/lib/notify-customer");

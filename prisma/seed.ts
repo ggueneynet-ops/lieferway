@@ -749,8 +749,10 @@ async function main() {
     const discount = opts.discountCents ?? 0;
     const delivery = opts.restaurant.deliveryFeeCents;
     const commissionPercent = opts.restaurant.commissionPercent;
-    const commissionCents = Math.round((food * commissionPercent) / 100);
-    const restaurantPayoutCents = food - commissionCents;
+    // Restaurant-funded Gutschein: commission on food after coupon.
+    const commissionBase = Math.max(0, food - discount);
+    const commissionCents = Math.round((commissionBase * commissionPercent) / 100);
+    const restaurantPayoutCents = commissionBase - commissionCents;
     const delivered = opts.status === "DELIVERED";
 
     return prisma.order.create({
@@ -775,7 +777,7 @@ async function main() {
         commissionPercent,
         commissionCents,
         restaurantPayoutCents,
-        applicationFeeCents: commissionCents + delivery - discount,
+        applicationFeeCents: commissionCents + delivery, // restaurant-funded coupon not platform-absorbed
         platformNetCommissionCents: commissionCents,
         restaurantTransferCents: restaurantPayoutCents,
         restaurantNetCents: restaurantPayoutCents,

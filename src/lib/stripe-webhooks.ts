@@ -174,6 +174,10 @@ export async function handlePaymentIntentCanceled(pi: Stripe.PaymentIntent) {
         payoutStatus: "NONE",
       },
     });
+    const { reverseCouponUsageForOrder } = await import("./coupons");
+    await reverseCouponUsageForOrder(order.id);
+    const { reverseWayPointsForOrder } = await import("./waypoints-service");
+    await reverseWayPointsForOrder(order.id, "cancel");
   }
   return { ok: true, orderId: order.id };
 }
@@ -260,6 +264,8 @@ export async function applyRefundToOrder(opts: {
   if (remaining >= order.totalCents) {
     const { reverseWayPointsForOrder } = await import("./waypoints-service");
     await reverseWayPointsForOrder(order.id, "refund");
+    const { reverseCouponUsageForOrder } = await import("./coupons");
+    await reverseCouponUsageForOrder(order.id);
   }
 
 return { ok: true, orderId: order.id, slice };

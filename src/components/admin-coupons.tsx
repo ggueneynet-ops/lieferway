@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 type C = {
@@ -12,33 +10,15 @@ type C = {
   description: string;
   discountPercent: number | null;
   discountCents: number | null;
+  type?: string;
   isActive: boolean;
+  funding?: string;
+  restaurantId?: string | null;
+  restaurant?: { id: string; name: string; slug: string } | null;
 };
 
 export function AdminCoupons({ initial }: { initial: C[] }) {
   const [rows, setRows] = useState(initial);
-  const [code, setCode] = useState("");
-  const [description, setDescription] = useState("");
-  const [percent, setPercent] = useState("10");
-  const router = useRouter();
-
-  async function create() {
-    const res = await fetch("/api/admin/coupons", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code,
-        description,
-        discountPercent: Number(percent) || undefined,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) return toast.error(data.error);
-    setRows((r) => [...r, data.coupon]);
-    setCode("");
-    setDescription("");
-    router.refresh();
-  }
 
   async function toggle(c: C) {
     const res = await fetch("/api/admin/coupons", {
@@ -46,34 +26,42 @@ export function AdminCoupons({ initial }: { initial: C[] }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: c.id, isActive: !c.isActive }),
     });
-    if (!res.ok) return;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      toast.error(data.error ?? "Fehler");
+      return;
+    }
     setRows((rs) => rs.map((x) => (x.id === c.id ? { ...x, isActive: !x.isActive } : x)));
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
-      <ul className="divide-y rounded-2xl border bg-white">
-        {rows.map((c) => (
-          <li key={c.id} className="flex items-center justify-between p-4 text-sm">
-            <div>
-              <p className="font-medium">{c.code}</p>
+    <ul className="divide-y rounded-2xl border bg-white">
+      {rows.length === 0 ? (
+        <li className="p-4 text-sm text-muted-foreground">Keine Restaurant-Gutscheine.</li>
+      ) : (
+        rows.map((c) => (
+          <li key={c.id} className="flex items-center justify-between gap-3 p-4 text-sm">
+            <div className="min-w-0">
+              <p className="font-medium">
+                {c.code}
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {c.restaurant?.name ?? (c.restaurantId ? c.restaurantId : "— Plattform (deaktiviert)")}
+                </span>
+              </p>
               <p className="text-muted-foreground">{c.description}</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {c.type ?? (c.discountPercent ? "PERCENT" : "FIXED")}
+                {c.discountPercent != null ? ` · ${c.discountPercent}%` : ""}
+                {c.discountCents != null ? ` · ${(c.discountCents / 100).toFixed(2)} €` : ""}
+                {c.funding ? ` · ${c.funding}` : ""}
+              </p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => toggle(c)}>
+            <Button size="sm" variant="outline" onClick={() => void toggle(c)}>
               {c.isActive ? "Aktiv" : "Aus"}
             </Button>
           </li>
-        ))}
-      </ul>
-      <div className="h-fit space-y-3 rounded-2xl border bg-white p-4">
-        <h2 className="font-semibold">Neuer Gutschein</h2>
-        <Input placeholder="Code" value={code} onChange={(e) => setCode(e.target.value)} />
-        <Input placeholder="Beschreibung" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <Input placeholder="% Rabatt" value={percent} onChange={(e) => setPercent(e.target.value)} />
-        <Button className="w-full" onClick={create}>
-          Anlegen
-        </Button>
-      </div>
-    </div>
+        ))
+      )}
+    </ul>
   );
 }

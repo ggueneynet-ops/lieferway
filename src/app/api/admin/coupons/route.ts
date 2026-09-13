@@ -1,16 +1,21 @@
 import { requireSession } from "@/lib/auth";
 import { fail, json, options } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
 
 export async function OPTIONS() {
   return options();
 }
 
+/** Admin: list all restaurant Gutscheine (with restaurant) — no platform create. */
 export async function GET() {
   try {
     await requireSession(["ADMIN"]);
-    const coupons = await prisma.coupon.findMany({ orderBy: { code: "asc" } });
+    const coupons = await prisma.coupon.findMany({
+      include: {
+        restaurant: { select: { id: true, name: true, slug: true } },
+      },
+      orderBy: [{ isActive: "desc" }, { code: "asc" }],
+    });
     return json({ coupons });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
@@ -20,38 +25,7 @@ export async function GET() {
   }
 }
 
-const schema = z.object({
-  code: z.string().min(3),
-  description: z.string().min(3),
-  discountPercent: z.number().int().min(1).max(80).optional(),
-  discountCents: z.number().int().positive().optional(),
-  minSubtotalCents: z.number().int().min(0).optional(),
-});
-
-export async function POST(req: Request) {
-  try {
-    await requireSession(["ADMIN"]);
-    const body = await req.json().catch(() => null);
-    const parsed = schema.safeParse(body);
-    if (!parsed.success) return fail("Gutschein unvollständig.");
-    const coupon = await prisma.coupon.create({
-      data: {
-        code: parsed.data.code.trim().toUpperCase(),
-        description: parsed.data.description,
-        discountPercent: parsed.data.discountPercent ?? null,
-        discountCents: parsed.data.discountCents ?? null,
-        minSubtotalCents: parsed.data.minSubtotalCents ?? null,
-      },
-    });
-    return json({ coupon }, 201);
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "";
-    if (msg === "UNAUTHENTICATED") return fail("Bitte anmelden.", 401);
-    if (msg === "FORBIDDEN") return fail("Keine Berechtigung.", 403);
-    throw e;
-  }
-}
-
+/** Admin may only deactivate (or re-activate) — restaurants own creation. */
 export async function PATCH(req: Request) {
   try {
     await requireSession(["ADMIN"]);
@@ -60,6 +34,9 @@ export async function PATCH(req: Request) {
     const coupon = await prisma.coupon.update({
       where: { id: body.id },
       data: { isActive: Boolean(body.isActive) },
+      include: {
+        restaurant: { select: { id: true, name: true, slug: true } },
+      },
     });
     return json({ coupon });
   } catch (e) {

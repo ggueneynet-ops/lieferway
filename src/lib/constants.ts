@@ -113,3 +113,11 @@ export const PICKUP_CUSTOMER_STATUS_FLOW: OrderStatus[] = [
   "READY",
   "DELIVERED",
 ];
+
+/**
+ * v1: Gutschein XOR WayPoints on the same order.
+ * Set ALLOW_COUPON_WAYPOINTS_STACK=true to allow future stacking.
+ */
+export function allowCouponWayPointsStack() {
+  return process.env.ALLOW_COUPON_WAYPOINTS_STACK === "true";
+}
