@@ -10,6 +10,18 @@ export async function SiteFooter({
 
   const legalLinks = (
     <>
+      <Link href="/impressum" className="hover:text-ink">
+        {t.imprint}
+      </Link>
+      <span aria-hidden>·</span>
+      <Link href="/datenschutz" className="hover:text-ink">
+        {t.privacy}
+      </Link>
+      <span aria-hidden>·</span>
+      <Link href="/agb" className="hover:text-ink">
+        AGB
+      </Link>
+      <span aria-hidden>·</span>
       <Link href="/hilfe" className="hover:text-ink">
         {t.help}
       </Link>
@@ -21,18 +33,6 @@ export async function SiteFooter({
           </Link>
         </>
       ) : null}
-      <span aria-hidden>·</span>
-      <Link href="/agb" className="hover:text-ink">
-        AGB
-      </Link>
-      <span aria-hidden>·</span>
-      <Link href="/datenschutz" className="hover:text-ink">
-        {t.privacy}
-      </Link>
-      <span aria-hidden>·</span>
-      <Link href="/impressum" className="hover:text-ink">
-        {t.imprint}
-      </Link>
     </>
   );
 
@@ -55,16 +55,15 @@ export async function SiteFooter({
           <p className="mt-2 text-[12px] text-[#9CA3AF]">© 2026 Lieferway</p>
         </div>
         <nav className="flex flex-col gap-2.5 text-sm text-text-secondary">
-          {partner ? null : (
-            <>
-              <Link href="/partner/anmelden" className="hover:text-ink">
-                {t.becomePartner}
-              </Link>
-              <Link href="/ueber" className="hover:text-ink">
-                {t.about}
-              </Link>
-            </>
-          )}
+          <Link href="/impressum" className="hover:text-ink">
+            {t.imprint}
+          </Link>
+          <Link href="/datenschutz" className="hover:text-ink">
+            {t.privacy}
+          </Link>
+          <Link href="/agb" className="hover:text-ink">
+            AGB
+          </Link>
           <Link href="/hilfe" className="hover:text-ink">
             {t.help}
           </Link>
@@ -72,16 +71,11 @@ export async function SiteFooter({
             <Link href="/partner-hilfe" className="hover:text-ink">
               {t.partnerHelp}
             </Link>
-          ) : null}
-          <Link href="/agb" className="hover:text-ink">
-            AGB
-          </Link>
-          <Link href="/datenschutz" className="hover:text-ink">
-            {t.privacy}
-          </Link>
-          <Link href="/impressum" className="hover:text-ink">
-            {t.imprint}
-          </Link>
+          ) : (
+            <Link href="/partner/anmelden" className="hover:text-ink">
+              {t.becomePartner}
+            </Link>
+          )}
         </nav>
       </div>
     </footer>
