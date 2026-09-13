@@ -1,14 +1,33 @@
 import { RestaurantAppShell } from "@/components/restaurant-app-shell";
 import { RestaurantPreorderPanel } from "@/components/restaurant-preorder-panel";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
+import { prisma } from "@/lib/prisma";
 import { getCopy } from "@/lib/get-locale";
 import { parsePreorderHours, parsePreorderWeekdays } from "@/lib/preorder";
 
 export const dynamic = "force-dynamic";
 
 export default async function RestaurantPreorderPage() {
-  const { restaurant } = await requireOwnedRestaurant();
+  const { restaurant: owned } = await requireOwnedRestaurant();
   const { t } = await getCopy();
+  const restaurant = owned
+    ? await prisma.restaurant.findUnique({
+        where: { id: owned.id },
+        select: {
+          id: true,
+          name: true,
+          isOpen: true,
+          preorderEnabled: true,
+          preorderMaxDaysAhead: true,
+          preorderMinLeadMinutes: true,
+          preorderWeekdaysJson: true,
+          preorderHoursJson: true,
+          preorderDelivery: true,
+          preorderPickup: true,
+          preorderMaxConcurrent: true,
+        },
+      })
+    : null;
   if (!restaurant) {
     return (
       <RestaurantAppShell title={t.preorderTitle}>

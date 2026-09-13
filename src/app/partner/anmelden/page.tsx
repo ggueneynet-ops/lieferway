@@ -195,7 +195,7 @@ export default async function PartnerApplyPage({
                   </div>
                   <div>
                     <label htmlFor="city" className="text-sm font-medium">
-                      {t.city}
+                      {t.cityLabel}
                     </label>
                     <input
                       id="city"
