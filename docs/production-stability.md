@@ -27,10 +27,15 @@ When a user reports the Next.js global error page with a **digest** (e.g. `ERROR
 3. Correlate with **Deployments** around the same window (burst deploys, failed builds, migrate errors).
 4. Edge auth failures are already handled in `src/lib/auth-edge.ts` (`verifySessionToken` returns `null` on JWT errors). Middleware itself is wrapped so unexpected throws call `NextResponse.next()` instead of crashing the edge.
 
+## Homepage SSR resilience
+
+`src/app/page.tsx` wraps `listMarketplaceRestaurants` in `try/catch`. On Prisma/Neon failure it logs the error and still renders the shell with an empty list + soft banner — it must **not** throw into the Next.js global error UI. US probes can still see 200 while DE users hit a DB blip; this keeps the homepage usable either way.
+
 ## Related hardening
 
 | Piece | Behavior |
 | --- | --- |
+| `src/app/page.tsx` | `listMarketplaceRestaurants` failure → empty list + soft banner (no throw) |
 | `src/middleware.ts` | Outer `try/catch` → `NextResponse.next()` (fallback redirect `/`) |
 | `CustomerNoticePoller` | `/api/notices` **401** → silent return (no client crash) |
 | `src/app/global-error.tsx` | Lieferway-branded recovery + reload (shows digest when present) |
