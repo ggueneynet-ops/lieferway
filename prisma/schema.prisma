@@ -227,6 +227,8 @@ model Order {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   acceptedAt            DateTime?
+  /// When status first became PLACED (cash create or card webhook). Used for accept timeout.
+  placedAt              DateTime?
   deliveredAt           DateTime?
 
   items    OrderItem[]
@@ -234,6 +236,7 @@ model Order {
   notices  CustomerNotice[]
   invoices Invoice[]
   refunds  StripeRefund[]
+  paymentReleaseLogs PaymentReleaseLog[]
 
   wayPointsRewardId             String?
   wayPointsReward               WayPointsReward? @relation(fields: [wayPointsRewardId], references: [id])
@@ -344,6 +347,26 @@ model StripeRefund {
   createdAt                  DateTime @default(now())
 
   @@index([orderId])
+}
+
+
+model PaymentReleaseLog {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  /// CANCEL_PI | REFUND | EXPIRE | CASH_NOOP
+  action      String
+  /// restaurant_reject | customer_cancel | restaurant_timeout | admin_refund | …
+  reason      String
+  /// OK | FAILED | SKIPPED
+  status      String
+  detail      String?
+  amountCents Int?
+  stripeId    String?
+  createdAt   DateTime @default(now())
+
+  @@index([orderId, createdAt])
+  @@index([status, createdAt])
 }
 
 model Invoice {

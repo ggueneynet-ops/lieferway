@@ -61,11 +61,28 @@ export const PAYMENT_STATUSES = [
   "PAID",
   "FAILED",
   "CASH_ON_DELIVERY",
+  "REFUND_PENDING",
   "REFUNDED",
   "PARTIALLY_REFUNDED",
   "DISPUTED",
 ] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+/**
+ * Stages where the customer may cancel.
+ * PENDING_PAYMENT = unpaid online; PLACED = waiting for restaurant (paid or cash).
+ */
+export const CUSTOMER_CANCELLABLE_STATUSES = ["PENDING_PAYMENT", "PLACED"] as const;
+
+/** Default minutes a restaurant has to accept a PLACED order before auto-expire. */
+export const DEFAULT_RESTAURANT_ACCEPT_TIMEOUT_MINUTES = 15;
+
+export function restaurantAcceptTimeoutMinutes() {
+  const raw = process.env.RESTAURANT_ACCEPT_TIMEOUT_MINUTES?.trim();
+  const n = raw ? Number(raw) : DEFAULT_RESTAURANT_ACCEPT_TIMEOUT_MINUTES;
+  if (!Number.isFinite(n) || n < 1) return DEFAULT_RESTAURANT_ACCEPT_TIMEOUT_MINUTES;
+  return Math.min(Math.floor(n), 24 * 60);
+}
 
 export const PAYOUT_STATUSES = ["NONE", "UNPAID", "PENDING", "PAID", "FAILED"] as const;
 export type PayoutStatus = (typeof PAYOUT_STATUSES)[number];

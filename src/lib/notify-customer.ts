@@ -16,6 +16,7 @@ const NOTIFY_STATUSES = new Set([
   "OUT_FOR_DELIVERY",
   "DELIVERED",
   "REJECTED",
+  "CANCELLED",
 ]);
 
 function noticeCopy(
@@ -31,7 +32,9 @@ function noticeCopy(
       ? t.orderNoticePlaced
       : status === "REJECTED"
         ? t.orderNoticeRejected
-        : status === "READY"
+        : status === "CANCELLED"
+          ? t.orderNoticeCancelled
+          : status === "READY"
           ? pickup
             ? t.orderNoticePickupReady
             : t.orderNoticeReady

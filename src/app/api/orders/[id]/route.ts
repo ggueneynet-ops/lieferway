@@ -5,6 +5,8 @@ import { regeneratePayouts } from "@/lib/payouts";
 import type { OrderStatus, Role } from "@/lib/constants";
 import { parsePrepMinutes } from "@/lib/prep";
 import { isPickup } from "@/lib/fulfillment";
+import { CUSTOMER_CANCELLABLE_STATUSES } from "@/lib/constants";
+import { releaseOrderPayment } from "@/lib/payment-lifecycle";
 
 export async function OPTIONS() {
   return options();
@@ -112,12 +114,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (isCourier && order.courierId && order.courierId !== session.id) return fail("Andere Tour.");
       status = "DELIVERED";
       deliveredAt = new Date();
-    } else if (action === "cancel" && isCustomer && (order.status === "PLACED" || order.status === "PENDING_PAYMENT")) {
+    } else if (
+      action === "cancel" &&
+      isCustomer &&
+      (CUSTOMER_CANCELLABLE_STATUSES as readonly string[]).includes(order.status)
+    ) {
       status = "CANCELLED";
-      if (order.status === "PENDING_PAYMENT" && order.stripePaymentIntentId) {
-        const { cancelPaymentIntent } = await import("@/lib/payments");
-        await cancelPaymentIntent(order.stripePaymentIntentId);
-      }
     } else {
       return fail("Diese Statusänderung ist nicht erlaubt.");
     }
@@ -151,6 +153,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (updated.status === "CANCELLED" || updated.status === "REJECTED") {
       const { reverseCouponUsageForOrder } = await import("@/lib/coupons");
       await reverseCouponUsageForOrder(updated.id);
+
+      const releaseReason =
+        updated.status === "REJECTED" ? "restaurant_reject" : "customer_cancel";
+      const release = await releaseOrderPayment({
+        orderId: updated.id,
+        reason: releaseReason,
+        full: true,
+        stripeReason: "requested_by_customer",
+      });
+      if (!release.ok) {
+        console.error("PATCH /api/orders/[id] payment release failed", release);
+        // Order status already terminal; payment left REFUND_PENDING for admin retry.
+      }
     }
 
     const { notifyRestaurantOrders } = await import("@/lib/order-events");
