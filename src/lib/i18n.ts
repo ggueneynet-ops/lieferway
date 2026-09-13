@@ -32,6 +32,7 @@ export const dictionaries = {
     brand: "Lieferway",
     tagline: "Dein Weg zum Essen.",
     city: "Frankfurt am Main",
+    cityLabel: "Stadt",
     searchPlaceholder: "Restaurant oder Gericht suchen",
     heroTitle: "Dein Essen. Dein Viertel. Dein Weg.",
     heroSubtitle:
@@ -967,6 +968,7 @@ export const dictionaries = {
     brand: "Lieferway",
     tagline: "Your way to food.",
     city: "Frankfurt am Main",
+    cityLabel: "City",
     searchPlaceholder: "Dish, cuisine or restaurant",
     heroTitle: "Your food. Your neighbourhood. Your way.",
     heroSubtitle:
@@ -1902,6 +1904,7 @@ export const dictionaries = {
     brand: "Lieferway",
     tagline: "Yemeğin yolu.",
     city: "Frankfurt am Main",
+    cityLabel: "Şehir",
     searchPlaceholder: "Yemek, mutfak veya restoran",
     heroTitle: "Yemeğin. Mahallen. Yolun.",
     heroSubtitle:
@@ -2841,8 +2844,8 @@ export function t(locale: Locale): Dictionary {
   return dictionaries[locale] ?? dictionaries.de;
 }
 
-export function interpolate(template: string, vars: Record<string, string>) {
-  return template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? "");
+export function interpolate(template: string | null | undefined, vars: Record<string, string>) {
+  return String(template ?? "").replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? "");
 }
 
 export const CUISINE_LABEL: Record<Locale, Record<string, string>> = {

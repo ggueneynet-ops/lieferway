@@ -7,8 +7,22 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function RestaurantWayPointsPage() {
-  const { restaurant } = await requireOwnedRestaurant();
+  const { restaurant: owned } = await requireOwnedRestaurant();
   const { t } = await getCopy();
+  const restaurant = owned
+    ? await prisma.restaurant.findUnique({
+        where: { id: owned.id },
+        select: {
+          id: true,
+          name: true,
+          isOpen: true,
+          wayPointsEnabled: true,
+          wayPointsDisabledByAdmin: true,
+          wayPointsBudgetCents: true,
+          wayPointsBudgetSpentCents: true,
+        },
+      })
+    : null;
   if (!restaurant) {
     return (
       <RestaurantAppShell title={t.wpMarketingTitle}>
