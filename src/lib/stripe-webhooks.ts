@@ -136,6 +136,9 @@ export async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
       stripeFeeNote: stripeFeeVarianceNote(estimated, displayFee),
       payoutStatus: "PENDING",
       disputeStatus: null,
+      ...(nextStatus === "PLACED" && order.status === "PENDING_PAYMENT"
+        ? { placedAt: now }
+        : {}),
     },
   });
 
@@ -215,6 +218,12 @@ export async function applyRefundToOrder(opts: {
         reason: opts.reason,
       },
     });
+    if (order.paymentStatus !== "REFUNDED" && order.paymentStatus !== "PARTIALLY_REFUNDED") {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { paymentStatus: "REFUND_PENDING" },
+      });
+    }
     return { ok: true, orderId: order.id, pending: true };
   }
 

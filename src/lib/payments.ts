@@ -45,7 +45,9 @@ export function weeklyMondayPayoutSchedule(): Stripe.AccountUpdateParams.Setting
   };
 }
 
-/** Destination PaymentIntent: transfer to the restaurant, fee = platform share. */
+/** Destination PaymentIntent: transfer to the restaurant, fee = platform share.
+ * Capture-on-confirm (default) — no auth-hold. Reject/cancel/timeout → refund/cancel PI.
+ */
 export async function createDestinationPaymentIntent(
   opts: DestinationChargeInput,
 ): Promise<PaymentIntent> {
