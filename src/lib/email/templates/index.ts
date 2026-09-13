@@ -395,7 +395,7 @@ function buildCopy(
         bodyLines: [
           "Ein kritischer Fehler bei Zahlung oder Webhook ist aufgetreten.",
           ctx.detail ?? "Details siehe Logs / Monitoring.",
-          ctx.orderCode ? `Bestellung: ${ctx.orderCode}` : "",
+          code ? `Bestellung: ${code}` : "",
         ].filter(Boolean),
       };
 

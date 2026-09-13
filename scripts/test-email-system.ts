@@ -90,15 +90,12 @@ check("provider defaults to console without keys", () => {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     SMTP_HOST: process.env.SMTP_HOST,
     MAIL_WEBHOOK_URL: process.env.MAIL_WEBHOOK_URL,
-    NODE_ENV: process.env.NODE_ENV,
     VERCEL_ENV: process.env.VERCEL_ENV,
   };
   delete process.env.EMAIL_PROVIDER;
   delete process.env.RESEND_API_KEY;
   delete process.env.SMTP_HOST;
   delete process.env.MAIL_WEBHOOK_URL;
-  process.env.NODE_ENV = "development";
-  delete process.env.VERCEL_ENV;
   assert.equal(resolveEmailProvider(), "console");
   process.env.EMAIL_PROVIDER = "console";
   assert.equal(resolveEmailProvider(), "console");
