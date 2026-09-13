@@ -74,9 +74,13 @@ export async function MenuEditor({
             )}
             <input
               name="categoryName"
+              required={categories.length === 0}
               className="mt-2 h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
               placeholder={categories.length ? t.newCategoryHint : "Grill"}
             />
+            {categories.length === 0 ? (
+              <p className="mt-1 text-xs text-[#6B7280]">{t.menuNeedCategory}</p>
+            ) : null}
           </div>
           <div>
             <label htmlFor="item-photo" className="text-base font-medium">

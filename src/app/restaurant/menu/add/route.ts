@@ -33,7 +33,15 @@ export async function POST(req: Request) {
       categoryId = category.id;
     }
     if (!categoryId) {
-      return redirectMenuError("Bitte eine Kategorie wählen.");
+      const existing = await prisma.menuCategory.findFirst({
+        where: { restaurantId: restaurant.id },
+        orderBy: { sortOrder: "asc" },
+        select: { id: true },
+      });
+      if (existing) categoryId = existing.id;
+    }
+    if (!categoryId) {
+      return redirectMenuError("Bitte eine Kategorie wählen oder neu anlegen.");
     }
 
     const imageUrl =
