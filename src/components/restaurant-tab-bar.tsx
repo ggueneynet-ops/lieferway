@@ -11,6 +11,7 @@ const MORE_PREFIXES = [
   "/restaurant/finance",
   "/restaurant/reviews",
   "/restaurant/settings",
+  "/restaurant/marketing",
 ];
 
 export function RestaurantTabBar({

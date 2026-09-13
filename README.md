@@ -1,6 +1,6 @@
 # Lieferway
 
-Germany-focused food delivery for Frankfurt am Main. Customers pay the **platform**. **The restaurant delivers the order itself** (no courier marketplace). Restaurants keep food minus commission (default **5%**). Delivery fee stays with Lieferway. Weekly restaurant payouts on **Monday**.
+Germany-focused food delivery for Frankfurt am Main. Customers pay the **platform**. **The restaurant delivers the order itself** (no courier marketplace). Restaurants keep food minus commission (default **8%**). Delivery fee stays with Lieferway. Weekly restaurant payouts on **Monday**.
 
 Web: Next.js App Router · TypeScript · Tailwind · shadcn/ui  
 Mobile: Expo (React Native) against the same API  
@@ -18,7 +18,9 @@ Password for all accounts: `lieferway`
 | Admin | `admin@lieferway.de` | Hidden `/admin` only |
 | Courier (legacy) | `kurier@lieferway.de` | Hidden `/courier` — not a marketplace |
 
-Coupons: `START5` (5 € ab 20 € Speisen), `LOCAL5` (5 % auf Speisen), `WILLKOMMEN10` (10 %), `FRANKFURT` (5 € ab 20 €), `HOSGELDIN` (3 €). Launch Week: selected restaurants (`pasta-e-basta`, `mainhattan-burger`, `green-bowl`) show **0 € Liefergebühr**.
+Coupons: platform demo codes removed (restaurant Gutschein + WayPoints; no stack in v1). Launch Week: selected restaurants (`pasta-e-basta`, `mainhattan-burger`, `green-bowl`) show **0 € Liefergebühr**.
+
+WayPoints (optional loyalty): restaurant **Mehr → WayPoints** (default off). Earn rate is admin-configurable (default 1 € = 10 WP), credited on **DELIVERED**. Commission stays **8 %**. See [docs/waypoints.md](docs/waypoints.md).
 
 ## Run locally
 
@@ -102,7 +104,7 @@ Default UI language is **German**. Header switcher: **DE | EN | TR** (cookie + l
 
 Marketplace layout: compact address row, prominent search, food-photo category circles, **large hero restaurant cards**. UI accent is pink `#E91E63` on white. Logo rasters are the locked pink pin+fork. Cache `?v=34`. Partnership copy stays on `/partner/anmelden` only.
 
-Customer home shows food photos, prices, Mindestbestellwert, Liefergebühr, and Lieferzeit. Partnership copy (5 % Provision, Auszahlung montags) is on `/partner/anmelden` only.
+Customer home shows food photos, prices, Mindestbestellwert, Liefergebühr, and Lieferzeit. Partnership copy (8 % Provision, Auszahlung montags) is on `/partner/anmelden` only.
 
 Marketplace restaurant cards use wide food photos plus name, cuisine, ETA, min order, delivery fee, rating or Neu, and badges (Beliebt, Restaurant liefert). Demo-Modus is a single info chip — not a stamp on every photo.
 
@@ -176,7 +178,7 @@ Without those, the server logs `[lieferway mail demo] no RESEND_API_KEY/SMTP_HOS
 
 ## Money rules
 
-- Commission = `%` of **food subtotal** (not delivery). Default 5%, overridable per restaurant.
+- Commission = `%` of **food subtotal** (not delivery). Default 8%, overridable per restaurant.
 - Card/wallet: platform collects total; restaurant is owed `food − commission`.
 - Cash: restaurant/courier collects; **commission is due to the platform** and listed separately on the weekly ledger.
 - Delivery fee is never part of the restaurant food payout.

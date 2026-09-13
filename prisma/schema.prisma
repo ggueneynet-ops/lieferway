@@ -23,8 +23,12 @@ model User {
   customerOrders Order[]    @relation("CustomerOrders")
   courierOrders  Order[]    @relation("CourierOrders")
   addresses      Address[]
-  reviews        Review[]
-  notices        CustomerNotice[]
+  reviews              Review[]
+  notices              CustomerNotice[]
+  wayPointsBalance     Int      @default(0)
+  wayPointsLedger      WayPointsLedger[]
+  wayPointsRedemptions WayPointsRedemption[]
+  wayPointsVouchers    WayPointsVoucher[]
 }
 
 model Address {
@@ -61,9 +65,14 @@ model Restaurant {
   etaMin                    Int      @default(25)
   etaMax                    Int      @default(45)
   maxDeliveryKm             Float?
-  commissionPercent         Float    @default(5)
+  commissionPercent         Float    @default(8)
   pickupAllowed             Boolean  @default(true)
   launchWeekFreeDelivery    Boolean  @default(false)
+  wayPointsEnabled          Boolean  @default(false)
+  wayPointsDisabledByAdmin  Boolean  @default(false)
+  /// Max restaurant-funded WP discount cents; null = unlimited.
+  wayPointsBudgetCents      Int?
+  wayPointsBudgetSpentCents Int      @default(0)
   isOpen            Boolean  @default(true)
   isActive          Boolean  @default(true)
   hoursJson         String?
@@ -81,6 +90,8 @@ model Restaurant {
   serviceAreas RestaurantServiceArea[]
   reviews      Review[]
   invoices     Invoice[]
+  wayPointsRewards   WayPointsReward[]
+  wayPointsCampaigns WayPointsCampaign[]
 }
 
 model RestaurantServiceArea {
@@ -112,8 +123,9 @@ model MenuItem {
   description  String
   priceCents   Int
   imageUrl     String?
-  isAvailable  Boolean      @default(true)
-  orderItems   OrderItem[]
+  isAvailable        Boolean           @default(true)
+  orderItems         OrderItem[]
+  wayPointsRewards   WayPointsReward[]
 }
 
 model Coupon {
@@ -184,6 +196,19 @@ model Order {
   notices  CustomerNotice[]
   invoices Invoice[]
   refunds  StripeRefund[]
+
+  wayPointsRewardId             String?
+  wayPointsReward               WayPointsReward? @relation(fields: [wayPointsRewardId], references: [id])
+  wayPointsDiscountCents        Int      @default(0)
+  wayPointsFundedBy             String?
+  wayPointsRestaurantShareCents Int      @default(0)
+  wayPointsLieferwayShareCents  Int      @default(0)
+  wayPointsEarned               Int      @default(0)
+  wayPointsRedeemed             Int      @default(0)
+  wayPointsEligible             Boolean  @default(false)
+  wayPointsLedger               WayPointsLedger[]
+  wayPointsRedemption           WayPointsRedemption?
+  wayPointsVouchers             WayPointsVoucher[]
 
   @@index([stripePaymentIntentId])
   @@index([stripeChargeId])
@@ -326,4 +351,127 @@ model PartnerApplication {
 
   @@index([status])
   @@index([email])
+}
+
+/// Platform-wide WayPoints config. Single row, id = "default".
+model WayPointsSettings {
+  id            String   @id @default("default")
+  pointsPerEuro Int      @default(10)
+  updatedAt     DateTime @updatedAt
+}
+
+model WayPointsLedger {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delta        Int
+  balanceAfter Int
+  type         String
+  uniqueKey    String   @unique
+  title        String
+  orderId      String?
+  order        Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  rewardId     String?
+  reward       WayPointsReward? @relation(fields: [rewardId], references: [id], onDelete: SetNull)
+  campaignId   String?
+  campaign     WayPointsCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  restaurantId String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([orderId])
+  @@index([type])
+}
+
+model WayPointsReward {
+  id                 String    @id @default(cuid())
+  restaurantId       String
+  restaurant         Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  title              String
+  description        String    @default("")
+  pointsCost         Int
+  type               String
+  percentOff         Int?
+  discountCents      Int?
+  freeMenuItemId     String?
+  freeMenuItem       MenuItem? @relation(fields: [freeMenuItemId], references: [id], onDelete: SetNull)
+  minOrderCents      Int?
+  validFrom          DateTime?
+  validUntil         DateTime?
+  usageLimit         Int?
+  perCustomerLimit   Int?      @default(1)
+  usageCount         Int       @default(0)
+  isActive           Boolean   @default(true)
+  fundedBy           String    @default("RESTAURANT")
+  restaurantShareBps Int       @default(10000)
+  lieferwayShareBps  Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  redemptions WayPointsRedemption[]
+  ledger      WayPointsLedger[]
+  orders      Order[]
+
+  @@index([restaurantId, isActive])
+}
+
+model WayPointsCampaign {
+  id                 String    @id @default(cuid())
+  title              String
+  description        String    @default("")
+  type               String
+  multiplier         Float?
+  bonusPoints        Int?
+  bonusDiscountCents Int?
+  fundedBy           String    @default("LIEFERWAY")
+  restaurantId       String?
+  restaurant         Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  validFrom          DateTime?
+  validUntil         DateTime?
+  isActive           Boolean   @default(true)
+  firstOrderOnly     Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  ledger   WayPointsLedger[]
+  vouchers WayPointsVoucher[]
+
+  @@index([isActive, type])
+}
+
+model WayPointsRedemption {
+  id                   String   @id @default(cuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId              String   @unique
+  order                Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rewardId             String
+  reward               WayPointsReward @relation(fields: [rewardId], references: [id])
+  pointsSpent          Int
+  discountCents        Int
+  fundedBy             String
+  restaurantShareCents Int
+  lieferwayShareCents  Int
+  status               String   @default("APPLIED")
+  createdAt            DateTime @default(now())
+
+  @@index([userId, rewardId])
+}
+
+model WayPointsVoucher {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  discountCents Int
+  fundedBy      String    @default("LIEFERWAY")
+  expiresAt     DateTime?
+  redeemedAt    DateTime?
+  orderId       String?
+  order         Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  campaignId    String?
+  campaign      WayPointsCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+
+  @@index([userId, redeemedAt])
 }

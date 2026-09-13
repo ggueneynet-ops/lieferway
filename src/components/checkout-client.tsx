@@ -46,6 +46,13 @@ export function CheckoutClient() {
     minSubtotalCents: number | null;
     isActive: boolean;
   } | null>(null);
+  const [wp, setWp] = useState<{
+    participating: boolean;
+    earnPreview: number;
+    availableCount: number;
+    rewards: { rewardId: string; title: string; pointsCost: number; discountCents: number; available: boolean }[];
+  } | null>(null);
+  const [wpRewardId, setWpRewardId] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [phone, setPhone] = useState("");
@@ -75,6 +82,31 @@ export function CheckoutClient() {
     if (cityCk?.[1]) setCity(decodeURIComponent(cityCk[1]));
   }, [router]);
 
+  useEffect(() => {
+    if (!cart) {
+      setWp(null);
+      return;
+    }
+    const items = cart.items.map((i) => i.menuItemId).join(",");
+    const url = `/api/waypoints?restaurantId=${encodeURIComponent(cart.restaurantId)}&subtotal=${foodSubtotal}&items=${encodeURIComponent(items)}`;
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.participating) {
+          setWp({
+            participating: true,
+            earnPreview: data.earnPreview ?? 0,
+            availableCount: data.availableCount ?? 0,
+            rewards: data.rewards ?? [],
+          });
+        } else {
+          setWp({ participating: false, earnPreview: 0, availableCount: 0, rewards: [] });
+          setWpRewardId("");
+        }
+      })
+      .catch(() => setWp(null));
+  }, [cart, foodSubtotal]);
+
   if (!cart) {
     return (
       <main className="mx-auto max-w-lg flex-1 px-4 py-16 text-center">
@@ -86,14 +118,22 @@ export function CheckoutClient() {
     );
   }
 
-  const discountCents = applyCoupon(foodSubtotal, coupon);
-  const couponBlocked = couponBelowMinimum(foodSubtotal, coupon);
+  const selectedWp = wp?.rewards.find((r) => r.rewardId === wpRewardId && r.available);
+  // v1: Gutschein XOR WayPoints — never stack.
+  const usingWp = Boolean(selectedWp);
+  const activeCoupon = usingWp ? null : coupon;
+  const couponDiscountCents = applyCoupon(foodSubtotal, activeCoupon);
+  const wpDiscountCents = usingWp
+    ? Math.min(selectedWp!.discountCents, Math.max(0, foodSubtotal))
+    : 0;
+  const discountCents = couponDiscountCents + wpDiscountCents;
+  const couponBlocked = couponBelowMinimum(foodSubtotal, activeCoupon);
   const pickup = isPickup(cart.fulfillmentType) && cart.pickupAllowed;
   const totals = computeOrderTotals({
     foodSubtotalCents: foodSubtotal,
     deliveryFeeCents: pickup ? 0 : cart.deliveryFeeCents,
     discountCents,
-    commissionPercent: 5,
+    commissionPercent: 8,
   });
 
   async function applyCode(raw?: string) {
@@ -120,6 +160,7 @@ export function CheckoutClient() {
       return;
     }
     setCoupon(data.coupon);
+    setWpRewardId(""); // v1: no stack with WayPoints
     toast.success(interpolate(t.couponActive, { code: data.coupon.code }));
   }
 
@@ -163,7 +204,8 @@ export function CheckoutClient() {
           city: pickup ? current.restaurantCity || city : city,
           postalCode: pickup ? current.restaurantPostalCode || postalCode : postalCode,
           notes,
-          couponCode: coupon && !couponBlocked ? coupon.code : undefined,
+          couponCode: activeCoupon && !couponBlocked ? activeCoupon.code : undefined,
+          wayPointsRewardId: usingWp ? selectedWp?.rewardId : undefined,
           fulfillmentType: pickup ? "PICKUP" : "DELIVERY",
         }),
       });
@@ -356,7 +398,7 @@ export function CheckoutClient() {
             </ul>
             <div className="mt-3 flex gap-2">
               <Input
-                placeholder="START5 · LOCAL5"
+                placeholder={t.coupon}
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
                 onKeyDown={(e) => {
@@ -371,25 +413,38 @@ export function CheckoutClient() {
               </Button>
             </div>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {(["START5", "LOCAL5"] as const).map((code) => (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => void applyCode(code)}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                    coupon?.code === code
-                      ? "bg-[#E91E63] text-white"
-                      : "bg-[#FCE4EC] text-[#C2185B]"
-                  }`}
-                >
-                  {code}
-                </button>
-              ))}
             </div>
-            <p className="mt-2 text-[11px] leading-relaxed text-[#6B7280]">
-              {t.couponHintStart5} · {t.couponHintLocal5}
-            </p>
-            {couponBlocked && coupon ? (
+            <p className="mt-2 text-[11px] leading-relaxed text-[#6B7280]">{t.wpCheckoutXorHint}</p>
+            {wp?.participating ? (
+              <div className="mt-3 rounded-xl bg-[#FFF7FA] px-3 py-2.5">
+                <p className="text-[13px] font-medium text-[#0F172A]">
+                  {interpolate(t.wpCheckoutEarn, { n: String(wp.earnPreview) })}
+                </p>
+                {wp.availableCount > 0 ? (
+                  <div className="mt-2">
+                    <p className="text-[12px] font-semibold text-[#C2185B]">{t.wpCheckoutReward}</p>
+                    <select
+                      className="mt-1 h-10 w-full rounded-md border border-[#F8BBD0] bg-white px-2 text-sm"
+                      value={wpRewardId}
+                      onChange={(e) => {
+                        setWpRewardId(e.target.value);
+                        if (e.target.value) setCoupon(null); // v1: XOR with Gutschein
+                      }}
+                    >
+                      <option value="">{t.wpCheckoutNone}</option>
+                      {wp.rewards
+                        .filter((r) => r.available)
+                        .map((r) => (
+                          <option key={r.rewardId} value={r.rewardId}>
+                            {r.title} · {r.pointsCost} WP
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+            {couponBlocked && activeCoupon ? (
               <p className="mt-2 text-[12px] font-medium text-destructive">
                 {interpolate(t.couponMinNotMet, {
                   code: coupon.code,

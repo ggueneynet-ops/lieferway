@@ -83,6 +83,9 @@ export function AccountMenu({
             <Link href="/orders" className="block px-3 py-2.5 text-sm hover:bg-muted">
               {copy.myOrders}
             </Link>
+            <Link href="/waypoints" className="block px-3 py-2.5 text-sm hover:bg-muted">
+              {copy.wpNav}
+            </Link>
           </>
         ) : null}
         {user.role === "RESTAURANT" ? (

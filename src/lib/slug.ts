@@ -37,6 +37,7 @@ export const RESERVED_SLUGS = new Set([
   "ueber",
   "uploads",
   "warenkorb",
+  "waypoints",
   "_next",
 ]);
 

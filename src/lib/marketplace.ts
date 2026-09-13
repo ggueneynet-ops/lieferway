@@ -47,6 +47,7 @@ export type MarketplaceRestaurant = {
   distanceKm: number | null;
   pickupAllowed: boolean;
   launchWeekFreeDelivery: boolean;
+  wayPointsEnabled: boolean;
 };
 
 export async function listMarketplaceRestaurants(opts: {
@@ -102,6 +103,7 @@ export async function listMarketplaceRestaurants(opts: {
       distanceKm,
       pickupAllowed: r.pickupAllowed !== false,
       launchWeekFreeDelivery: Boolean(r.launchWeekFreeDelivery),
+      wayPointsEnabled: Boolean(r.wayPointsEnabled) && !r.wayPointsDisabledByAdmin,
     });
   }
 

@@ -4,7 +4,7 @@ import { PersonalOrderLink } from "@/components/personal-order-link";
 import { requireOwnedRestaurant } from "@/lib/restaurant-access";
 import { getCopy } from "@/lib/get-locale";
 import { publicOrigin } from "@/lib/public-origin";
-import { Bike, Clock, HelpCircle, Settings, Star, Wallet } from "lucide-react";
+import { Bike, Clock, HelpCircle, Settings, Sparkles, Star, Wallet } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +27,20 @@ export default async function RestaurantMorePage() {
           <PersonalOrderLink slug={restaurant.slug} origin={origin} />
         </div>
       ) : null}
+      <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#64748B]">Marketing</p>
+      <Link
+        href="/restaurant/marketing/waypoints"
+        className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-[#E8E8EC] bg-white px-4 py-4 text-[#0F172A] shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
+      >
+        <span className="flex items-center gap-3">
+          <Sparkles className="size-6 text-[#E91E63]" strokeWidth={1.75} />
+          <span>
+            <span className="block text-[15px] font-semibold">{t.wpMarketingTitle}</span>
+            <span className="block text-[12px] text-[#64748B]">{t.wpMarketingHint}</span>
+          </span>
+        </span>
+        <span className="text-lg font-semibold">→</span>
+      </Link>
       <Link
         href="/restaurant/finance"
         className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-[#E8E8EC] bg-white px-4 py-4 text-[#0F172A] shadow-[0_6px_18px_rgba(15,23,42,0.04)]"

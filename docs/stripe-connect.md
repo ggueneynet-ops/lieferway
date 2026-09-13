@@ -16,7 +16,8 @@ This document is Test Mode only (`sk_test_`, `pk_test_`, `whsec_`). Do not put s
 ```
 netCommission     = food × commission%          (default 8 %)
 stripeFeeEstimate = STRIPE_FEE_FIXED_CENTS + round(amount × STRIPE_FEE_PERCENT_BPS / 10_000)
-application_fee   = netCommission + stripeFeeEstimate + delivery − discount
+application_fee   = netCommission + stripeFeeEstimate + delivery − platformAbsorbedDiscount
+# platformAbsorbedDiscount = coupons + Lieferway-funded WayPoints share (not restaurant-funded WP)
 restaurant xfer   = amount − application_fee
 platform net      = application_fee − actual Stripe fee  ≈ 8 % of food
 ```

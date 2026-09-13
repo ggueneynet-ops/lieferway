@@ -255,7 +255,14 @@ export async function applyRefundToOrder(opts: {
       },
     }),
   ]);
-  return { ok: true, orderId: order.id, slice };
+  
+  const remaining = order.refundedCents + slice.amountCents;
+  if (remaining >= order.totalCents) {
+    const { reverseWayPointsForOrder } = await import("./waypoints-service");
+    await reverseWayPointsForOrder(order.id, "refund");
+  }
+
+return { ok: true, orderId: order.id, slice };
 }
 
 export async function handleChargeRefunded(charge: Stripe.Charge) {
