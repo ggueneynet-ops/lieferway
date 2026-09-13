@@ -1,26 +1,19 @@
-import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { eurosToCents } from "@/lib/money";
 import { dishPhoto } from "@/lib/media";
-
-function redirectTo(path: string) {
-  revalidatePath("/restaurant/menu");
-  revalidatePath("/");
-  return new NextResponse(null, { status: 303, headers: { Location: path } });
-}
-
-async function ownedRestaurant(userId: string, role: string) {
-  if (role === "ADMIN") return prisma.restaurant.findFirst();
-  return prisma.restaurant.findUnique({ where: { ownerId: userId } });
-}
+import {
+  findOwnedRestaurantForMenu,
+  isAuthFailure,
+  redirectMenu,
+  redirectMenuError,
+} from "@/lib/restaurant-menu-actions";
 
 export async function POST(req: Request) {
   try {
     const session = await requireSession(["RESTAURANT", "ADMIN"]);
-    const restaurant = await ownedRestaurant(session.id, session.role);
-    if (!restaurant) return redirectTo("/restaurant/menu");
+    const restaurant = await findOwnedRestaurantForMenu(session.id, session.role);
+    if (!restaurant) return redirectMenuError("Kein Restaurant gefunden.");
 
     const form = await req.formData();
     const name = String(form.get("name") ?? "").trim();
@@ -30,7 +23,7 @@ export async function POST(req: Request) {
     const imageRaw = String(form.get("imageUrl") ?? "").trim();
 
     if (name.length < 2 || priceCents <= 0) {
-      return redirectTo("/restaurant/menu?error=" + encodeURIComponent("Name und Preis prüfen."));
+      return redirectMenuError("Name und Preis prüfen.");
     }
 
     if (categoryName) {
@@ -40,7 +33,7 @@ export async function POST(req: Request) {
       categoryId = category.id;
     }
     if (!categoryId) {
-      return redirectTo("/restaurant/menu?error=" + encodeURIComponent("Bitte eine Kategorie wählen."));
+      return redirectMenuError("Bitte eine Kategorie wählen.");
     }
 
     const imageUrl =
@@ -59,8 +52,12 @@ export async function POST(req: Request) {
         isAvailable: true,
       },
     });
-    return redirectTo("/restaurant/menu?ok=1");
-  } catch {
-    return redirectTo("/login?next=/restaurant/menu");
+    return redirectMenu("/restaurant/menu?ok=1");
+  } catch (error) {
+    console.error("[restaurant/menu/add]", error);
+    if (isAuthFailure(error)) {
+      return redirectMenu("/login?next=/restaurant/menu");
+    }
+    return redirectMenuError("Gericht konnte nicht gespeichert werden. Bitte erneut versuchen.");
   }
 }
