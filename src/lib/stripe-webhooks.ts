@@ -7,7 +7,8 @@ import { syncRestaurantByStripeAccount } from "./stripe-connect";
 import { getStripe } from "./stripe";
 import { paymentStatusAfterRefund, refundSlice } from "./stripe-money";
 import { platformNetAfterStripeFee, stripeFeeVarianceNote } from "./stripe-fees";
-import { sendCriticalPaymentOrWebhookError, sendOrderRefunded, sendPaymentFailed } from "./email";
+import { sendOrderRefunded, sendPaymentFailed } from "./email";
+import { alertCritical, safeErrorMessage } from "./alerts";
 import { formatEUR } from "./money";
 import { parseLocale } from "./i18n";
 
@@ -164,6 +165,15 @@ export async function handlePaymentIntentFailed(pi: Stripe.PaymentIntent) {
       paymentStatus: "FAILED",
       payoutStatus: "UNPAID",
     },
+  });
+  await alertCritical({
+    kind: "payment_capture_failure",
+    dedupeKey: `pi_failed:${pi.id}`,
+    detail: `payment_intent.payment_failed last_error=${pi.last_payment_error?.message ?? pi.last_payment_error?.code ?? "unknown"}`,
+    orderCode: order.shortCode,
+    orderId: order.id,
+    restaurantId: order.restaurantId,
+    metadata: { paymentIntentId: pi.id },
   });
   try {
     const full = await prisma.order.findUnique({
@@ -548,15 +558,12 @@ export async function handleStripeEvent(event: Stripe.Event) {
     return { ok: true, type: event.type };
   } catch (e) {
     await releaseStripeEvent(event.id);
-    try {
-      const detail = e instanceof Error ? `${event.type}: ${e.message}` : `${event.type}: unknown error`;
-      await sendCriticalPaymentOrWebhookError({
-        dedupeKey: `${event.id}:handler`,
-        detail,
-      });
-    } catch (mailErr) {
-      console.error("stripe.critical.email", mailErr);
-    }
+    await alertCritical({
+      kind: "stripe_webhook_failure",
+      dedupeKey: `${event.id}:handler`,
+      detail: `${event.type}: ${safeErrorMessage(e)}`,
+      metadata: { eventType: event.type, eventId: event.id },
+    });
     throw e;
   }
 }

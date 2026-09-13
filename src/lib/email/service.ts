@@ -174,6 +174,21 @@ export async function sendTransactionalEmail(
     messageId,
   });
 
+  // Ops alert — never recurse when the failing send is itself a critical alert.
+  if (input.eventType !== "critical_payment_or_webhook_error") {
+    try {
+      const { alertCritical } = await import("@/lib/alerts");
+      await alertCritical({
+        kind: "email_provider_failure",
+        dedupeKey: `email_failed:${input.eventKey}`,
+        detail: `provider=${lastChannel} eventType=${input.eventType} error=${lastError ?? "send_failed"}`,
+        metadata: { eventType: input.eventType, channel: lastChannel },
+      });
+    } catch (alertErr) {
+      console.error("[lieferway email] alert failed", alertErr);
+    }
+  }
+
   return {
     ok: false,
     skipped: false,

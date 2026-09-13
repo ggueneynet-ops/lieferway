@@ -26,6 +26,6 @@ export const EMAIL_EVENT_REGISTRY: Record<
   restaurant_payout_summary: { status: "todo", notes: "Payout regenerate exists; no partner email job yet" },
   critical_payment_or_webhook_error: {
     status: "wired",
-    notes: "handleStripeEvent catch → admin ops mailbox",
+    notes: "src/lib/alerts.ts → EMAIL_OPS_TO (webhook/payment/refund/order/mail/DB/printer)",
   },
 };
