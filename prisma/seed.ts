@@ -25,6 +25,11 @@ function addDays(d: Date, n: number) {
 }
 
 async function main() {
+  await prisma.wayPointsLedger.deleteMany();
+  await prisma.wayPointsRedemption.deleteMany();
+  await prisma.wayPointsVoucher.deleteMany();
+  await prisma.wayPointsReward.deleteMany();
+  await prisma.wayPointsCampaign.deleteMany();
   await prisma.invoice.deleteMany();
   await prisma.customerNotice.deleteMany();
   await prisma.review.deleteMany();
@@ -125,7 +130,7 @@ async function main() {
       minOrderCents: 1200,
       etaMin: 25,
       etaMax: 40,
-      commissionPercent: 5,
+      commissionPercent: 8,
       categories: [
         {
           name: "Grill",
@@ -199,7 +204,7 @@ async function main() {
       minOrderCents: 1500,
       etaMin: 30,
       etaMax: 50,
-      commissionPercent: 5,
+      commissionPercent: 8,
       categories: [
         {
           name: "Pasta",
@@ -308,7 +313,7 @@ async function main() {
       minOrderCents: 1800,
       etaMin: 35,
       etaMax: 55,
-      commissionPercent: 5,
+      commissionPercent: 8,
       categories: [
         {
           name: "Sets",
@@ -360,7 +365,7 @@ async function main() {
       minOrderCents: 1400,
       etaMin: 30,
       etaMax: 50,
-      commissionPercent: 5,
+      commissionPercent: 8,
       categories: [
         {
           name: "Klassiker",
@@ -412,7 +417,7 @@ async function main() {
       minOrderCents: 1200,
       etaMin: 25,
       etaMax: 40,
-      commissionPercent: 5,
+      commissionPercent: 8,
       categories: [
         {
           name: "Pho & Schalen",
@@ -469,7 +474,7 @@ async function main() {
       minOrderCents: 1000,
       etaMin: 20,
       etaMax: 35,
-      commissionPercent: 5,
+      commissionPercent: 8,
       categories: [
         {
           name: "Bowls",
@@ -521,7 +526,7 @@ async function main() {
       minOrderCents: 1100,
       etaMin: 25,
       etaMax: 40,
-      commissionPercent: 5,
+      commissionPercent: 8,
       categories: [
         {
           name: "Pizze",
@@ -711,43 +716,7 @@ async function main() {
     });
   }
 
-  const welcome = await prisma.coupon.create({
-    data: {
-      code: "WILLKOMMEN10",
-      description: "10 % auf den Warenkorb (Speisen)",
-      discountPercent: 10,
-    },
-  });
-  await prisma.coupon.create({
-    data: {
-      code: "FRANKFURT",
-      description: "5 € Rabatt ab 20 € Speisen",
-      discountCents: 500,
-      minSubtotalCents: 2000,
-    },
-  });
-  await prisma.coupon.create({
-    data: {
-      code: "HOSGELDIN",
-      description: "3 € Willkommensrabatt",
-      discountCents: 300,
-    },
-  });
-  await prisma.coupon.create({
-    data: {
-      code: "LOCAL5",
-      description: "5 % auf Speisen — lokaler Tüten-Coupon",
-      discountPercent: 5,
-    },
-  });
-  await prisma.coupon.create({
-    data: {
-      code: "START5",
-      description: "5 € Startguthaben ab 20 € Speisen",
-      discountCents: 500,
-      minSubtotalCents: 2000,
-    },
-  });
+  // Platform coupons removed — restaurant Gutschein / WayPoints only (v1).
 
   const anadolu = createdRestaurants.find((x) => x.slug === "anadolu-grill")!;
   const pizza = createdRestaurants.find((x) => x.slug === "pizza-vesuvio")!;
@@ -870,8 +839,6 @@ async function main() {
     paymentStatus: "PAID",
     createdAt: addDays(lastWeek, 3),
     courierId: courier2.id,
-    couponId: welcome.id,
-    couponCode: "WILLKOMMEN10",
     discountCents: Math.round(1090 * 2 * 0.1),
   });
   await placeOrder({
@@ -988,6 +955,12 @@ async function main() {
         status: "CONTACTED",
       },
     ],
+  });
+
+  await prisma.wayPointsSettings.upsert({
+    where: { id: "default" },
+    update: {},
+    create: { id: "default", pointsPerEuro: 10 },
   });
 
   console.log("Lieferway seed ready.");

@@ -86,6 +86,28 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           <p className="mt-3 font-semibold">{formatEUR(order.totalCents, locale)}</p>
           <dl className="mt-4 space-y-1.5 text-sm">
             <div className="flex justify-between gap-3">
+              <dt className="text-text-secondary">{t.wpFoodValue}</dt>
+              <dd className="tabular-nums">{formatEUR(order.foodSubtotalCents, locale)}</dd>
+            </div>
+            {order.wayPointsDiscountCents > 0 ? (
+              <>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-text-secondary">{t.wpDiscountLine}</dt>
+                  <dd className="tabular-nums">−{formatEUR(order.wayPointsDiscountCents, locale)}</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-text-secondary">{t.wpFinancedBy}</dt>
+                  <dd>
+                    {order.wayPointsFundedBy === "LIEFERWAY"
+                      ? t.wpFundLieferway
+                      : order.wayPointsFundedBy === "SHARED"
+                        ? `${t.wpFundShared} (${formatEUR(order.wayPointsRestaurantShareCents, locale)} / ${formatEUR(order.wayPointsLieferwayShareCents, locale)})`
+                        : t.wpFundRestaurant}
+                  </dd>
+                </div>
+              </>
+            ) : null}
+            <div className="flex justify-between gap-3">
               <dt className="text-text-secondary">{t.financeGross}</dt>
               <dd className="tabular-nums">{formatEUR(order.totalCents, locale)}</dd>
             </div>

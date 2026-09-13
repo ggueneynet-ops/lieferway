@@ -21,6 +21,7 @@ export type RestaurantCardData = {
   isOpen: boolean;
   pickupAllowed?: boolean;
   launchWeekFreeDelivery?: boolean;
+  wayPointsEnabled?: boolean;
 };
 
 export function restaurantCardCopy(t: Dictionary) {
@@ -35,6 +36,7 @@ export function restaurantCardCopy(t: Dictionary) {
     pickupLabel: t.restaurantOffersPickup,
     pickupFeeLabel: t.pickupFeeNone,
     launchWeekLabel: t.launchWeekBadge,
+    wayPointsLabel: t.wpBadge,
   };
 }
 
@@ -50,6 +52,7 @@ export function RestaurantCard({
   pickupLabel,
   pickupFeeLabel,
   launchWeekLabel,
+  wayPointsLabel,
   fulfillment = "DELIVERY",
 }: {
   r: RestaurantCardData;
@@ -64,6 +67,7 @@ export function RestaurantCard({
   pickupLabel?: string;
   pickupFeeLabel?: string;
   launchWeekLabel?: string;
+  wayPointsLabel?: string;
   fulfillment?: FulfillmentType;
 }) {
   const photo = restaurantPhoto(r.imageUrl, r.cuisine, r.slug);
@@ -102,6 +106,11 @@ export function RestaurantCard({
           </div>
         )}
         <div className="absolute left-2.5 top-2.5 flex max-w-[88%] flex-wrap items-center gap-1">
+          {r.wayPointsEnabled && wayPointsLabel ? (
+            <span className="rounded-full bg-white/95 px-2 py-[3px] text-[10px] font-bold text-[#C2185B] shadow-sm ring-1 ring-[#F8BBD0]/80">
+              ✦ {wayPointsLabel}
+            </span>
+          ) : null}
           {launchWeek && launchWeekLabel ? (
             <span className="rounded-full bg-white px-2 py-[3px] text-[10px] font-bold text-[#E91E63] shadow-sm">
               {launchWeekLabel}
