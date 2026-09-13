@@ -1,97 +1,198 @@
-# Hilfe
+# Hilfe-Center
 
-Antworten zu Bestellung, Zahlung, Stornierung, Lieferung, WayPoints und Konto. Weitere Fragen: [info@lieferway.de](mailto:info@lieferway.de).
+Willkommen beim Lieferway Hilfe-Center.
 
-## Bestellung
+Hier findest du Antworten auf die wichtigsten Fragen rund um Bestellungen, Zahlungen, Lieferungen, Rückerstattungen und WayPoints.
 
-### Wie funktioniert Lieferway?
 
-Lieferway ist der Marktplatz für Essen in Frankfurt. Sie wählen ein Restaurant in Ihrem Umkreis, legen Speisen in den Warenkorb und bezahlen an der Kasse. Das Restaurant nimmt die Bestellung an, bereitet zu und liefert selbst — oder Sie holen ab, wenn das Restaurant Abholung anbietet. Lieferway vermittelt die Bestellung und die Zahlung, fährt aber nicht selbst.
+1. Wie funktioniert Lieferway?
 
-### Brauche ich ein Konto, um zu bestellen?
+Gib deine Lieferadresse ein und wähle ein Restaurant aus, das in dein Gebiet liefert.
 
-Ja. An der Kasse müssen Sie angemeldet sein. Ein Kundenkonto legen Sie unter Konto erstellen mit Name, E-Mail, Passwort und Telefonnummer an. Alternativ können Kundinnen und Kunden sich mit Google anmelden. Partnerrestaurants registrieren sich nicht selbst; sie bewerben sich unter Restaurant werden.
+Lege deine gewünschten Produkte in den Warenkorb und schließe die Bestellung über Lieferway ab.
 
-### Wie gebe ich eine Bestellung auf?
+Das ausgewählte Restaurant erhält anschließend deine Bestellung direkt über das Lieferway-System.
 
-Setzen Sie Ihren Standort (Adresse, PLZ oder aktueller Standort). Wählen Sie Lieferung oder Abholung, öffnen Sie ein Restaurant, legen Sie Speisen in den Warenkorb — nur ein Restaurant pro Bestellung — und gehen Sie zur Kasse. Prüfen Sie Adresse, Hinweise, Zahlungsmittel und Mindestbestellwert. Nach erfolgreicher Online-Zahlung sieht die Küche die Bestellung.
 
-### Kann ich meine Bestellung verfolgen?
+2. Wer liefert meine Bestellung?
 
-Ja. Unter Bestellungen sehen Sie den Status: eingegangen, angenommen, in Zubereitung, unterwegs bzw. abholbereit, geliefert oder abgeholt. Statusänderungen können Sie auch in den Hinweisen in Ihrem Konto nachlesen.
+Die Lieferung erfolgt direkt durch das jeweilige Restaurant.
 
-### Gibt es einen Mindestbestellwert?
+Lieferway betreibt derzeit keinen eigenen Kurierdienst.
 
-Viele Restaurants setzen einen Mindestbestellwert für die Lieferung. Den Betrag sehen Sie in der Restaurantkarte und an der Kasse. Bis der Mindestwert erreicht ist, können Sie die Bestellung nicht abschließen. Für Abholung gilt der Mindestbestellwert in der Regel nicht in gleicher Weise; maßgeblich ist die Angabe des Restaurants.
+Das Restaurant ist für die Zubereitung und Lieferung der Bestellung verantwortlich.
 
-## Zahlung
 
-### Welche Zahlungsmittel akzeptiert Lieferway?
+3. Wo sehe ich den Status meiner Bestellung?
 
-An der Kasse zahlen Sie online mit Karte, Apple Pay oder Google Pay über Stripe. Zusätzlich bieten viele Restaurants Barzahlung bei Lieferung oder Abholung an. PayPal gibt es nicht. Die Zahlung läuft an Lieferway; das Restaurant erhält seinen Anteil nach Abzug der Provision.
+Nach Abschluss deiner Bestellung kannst du den aktuellen Bestellstatus über Lieferway verfolgen.
 
-### Wann werde ich belastet?
+Mögliche Status können beispielsweise sein:
 
-Bei Karte, Apple Pay und Google Pay wird der Betrag bei der Bestellung autorisiert bzw. eingezogen. Die Küche sieht Online-Bestellungen erst, wenn die Zahlung erfolgreich ist. Bei Barzahlung zahlen Sie direkt an das Restaurant, wenn das Essen ankommt oder Sie es abholen.
+- Bestellung eingegangen
+- Vom Restaurant angenommen
+- In Zubereitung
+- Unterwegs
+- Zugestellt
+- Storniert
 
-### Bekomme ich eine Rechnung?
 
-Zum Auftrag gehören Beleg und Status in Ihrem Konto unter Bestellungen. Eine Kundenrechnung kann dort bereitgestellt werden. Die steuerliche Rechnung über Speisen stellt das Restaurant; Lieferway rechnet die Plattformprovision mit dem Partner ab.
+4. Kann ich meine Bestellung stornieren?
 
-## Stornierung & Rückerstattung
+Solange deine Bestellung vom Restaurant noch nicht angenommen wurde, kann eine Stornierung – sofern technisch möglich – direkt über Lieferway erfolgen.
 
-### Kann ich eine Bestellung stornieren?
+Wurde die Bestellung bereits vom Restaurant angenommen, kann eine automatische Stornierung nicht garantiert werden.
 
-Solange das Restaurant noch nicht angenommen hat, kann eine Stornierung in der Regel noch erfolgen. Nach der Annahme entscheiden Restaurant und Support im Einzelfall. Schreiben Sie an [info@lieferway.de](mailto:info@lieferway.de) und nennen Sie die Bestellnummer. Lehnt das Restaurant ab, kommt die Bestellung nicht in die Küche.
+Das Restaurant kann zu diesem Zeitpunkt bereits mit der Zubereitung begonnen haben.
 
-### Wie funktioniert eine Rückerstattung?
+In diesem Fall wird geprüft, ob eine Stornierung und Rückerstattung noch möglich ist.
 
-Erstattungen von Online-Zahlungen laufen über Lieferway und Stripe zurück auf das ursprüngliche Zahlungsmittel. Sie werden im Panel ausgelöst, nicht von Hand im Stripe-Dashboard. Barzahlungen erstattet Stripe nicht; eine Rückzahlung erfolgt direkt mit dem Restaurant. Teil- und Vollerstattungen sind möglich.
 
-### Was passiert, wenn das Restaurant ablehnt oder geschlossen ist?
+5. Was passiert, wenn das Restaurant meine Bestellung ablehnt?
 
-Wird die Bestellung abgelehnt oder kann sie nicht ausgeführt werden, wird eine bereits geleistete Online-Zahlung erstattet. Ein geschlossenes Restaurant nimmt in der Regel keine neuen Bestellungen an. Der Status erscheint unter Bestellungen.
+Wird eine Bestellung vom Restaurant nicht angenommen oder abgelehnt, wird der Zahlungsvorgang automatisch entsprechend verarbeitet.
 
-## Lieferung
+Wenn die Zahlung lediglich reserviert bzw. autorisiert wurde, wird die Reservierung aufgehoben.
 
-### Wer liefert meine Bestellung?
+Eine manuelle Bearbeitung durch den Kunden ist normalerweise nicht erforderlich.
 
-Das Restaurant liefert selbst mit eigenen Fahrern oder einem von ihm beauftragten Dienst. Lieferway stellt keine eigenen Kuriere und vermittelt keine unabhängigen Fahrer an Gäste.
 
-### Gibt es Lieferway-Kuriere?
+6. Wie funktioniert eine Rückerstattung?
 
-Nein. Es gibt keinen Lieferway-Kurier und keine öffentliche Fahrer-Anmeldung. Küche und Auslieferung gehören zum Restaurant.
+Wenn eine bereits bezahlte Bestellung ordnungsgemäß storniert wird und eine Rückerstattung vorgesehen ist, wird die Erstattung automatisch über die ursprünglich verwendete Zahlungsmethode ausgelöst.
 
-### Kann ich abholen statt liefern zu lassen?
+Je nach Bank oder Zahlungsmethode kann es einige Bankarbeitstage dauern, bis der Betrag wieder auf dem Konto sichtbar ist.
 
-Ja, wenn das Restaurant Abholung anbietet. Stellen Sie vor der Bestellung auf Abholung um. Es fällt keine Liefergebühr an; Sie holen das Essen zur angegebenen Zeit an der Theke ab.
 
-### Wie lange dauert die Lieferung?
+7. Kann auch nur ein Teil meiner Bestellung erstattet werden?
 
-Die angezeigte Spanne (zum Beispiel 30–45 Minuten) setzt das Restaurant. Sie umfasst Zubereitung und Fahrt. Nach der Annahme sehen Sie die vom Restaurant gesetzte Zubereitungszeit. Verkehr und Auslastung können die Dauer ändern.
+Ja.
 
-## WayPoints
+Wenn beispielsweise ein Artikel fehlt oder falsch geliefert wurde, kann gegebenenfalls eine Teilrückerstattung durchgeführt werden.
 
-### Was sind WayPoints?
+Bitte kontaktiere hierzu den Lieferway Support und gib deine Bestellnummer sowie eine kurze Beschreibung des Problems an.
 
-WayPoints ist das optionale Treueprogramm von Lieferway. Bei teilnehmenden Restaurants können Sie Punkte sammeln und Prämien einlösen. Nicht jedes Restaurant macht mit.
 
-### Wie sammle und löse ich WayPoints ein?
+8. Was mache ich bei fehlenden oder falschen Artikeln?
 
-Punkte werden gutgeschrieben, wenn die Bestellung als geliefert bzw. übergeben gilt. Einlösen können Sie an der Kasse bei einem teilnehmenden Restaurant, soweit eine Prämie verfügbar ist und der Mindestbestellwert erfüllt ist. Bei Storno, Ablehnung oder voller Erstattung werden Gutschrift und Einlösung zurückgenommen. Die Teilnahme ist freiwillig; ohne Opt-in des Restaurants gibt es dort weder Punkte noch Einlösung. Details stehen unter WayPoints, sobald das Programm für Sie sichtbar ist.
+Bitte prüfe deine Bestellung nach Erhalt.
 
-## Konto
+Bei fehlenden, falschen oder beschädigten Artikeln kannst du den Support kontaktieren.
 
-### Wie erstelle oder bearbeite ich mein Konto?
+Bitte gib möglichst folgende Informationen an:
 
-Unter Konto erstellen legen Sie ein Kundenkonto an. Angemeldet bearbeiten Sie Name, Telefon und Sprache unter Konto. Das Passwort wählen Sie bei der Registrierung. Partner nutzen die Partner-Anmeldung, keine Kundenregistrierung.
+- Bestellnummer
+- Restaurant
+- betroffener Artikel
+- kurze Beschreibung des Problems
 
-### Kann ich mein Konto löschen?
+Kontakt:
 
-Ja. Schreiben Sie an [info@lieferway.de](mailto:info@lieferway.de). Wir schließen das Konto, soweit keine offenen Bestellungen oder gesetzlichen Aufbewahrungspflichten entgegenstehen. Bestellbelege können wir für steuerliche Fristen behalten.
+info@lieferway.de
 
-## Support
 
-### Wie erreiche ich den Support?
+9. Was mache ich, wenn meine Bestellung nicht angekommen ist?
 
-Schreiben Sie an [info@lieferway.de](mailto:info@lieferway.de). Bitte Bestellnummer, Restaurant und Ihr Anliegen nennen. Wir helfen zu Bestellung, Zahlung, Konto und WayPoints. Partner finden zusätzliche Antworten unter Partner-Hilfe.
+Prüfe zunächst den aktuellen Bestellstatus.
+
+Da die Lieferung durch das jeweilige Restaurant erfolgt, kann es insbesondere zu Stoßzeiten zu Verzögerungen kommen.
+
+Sollte deine Bestellung deutlich überfällig sein, kontaktiere bitte das Restaurant oder den Lieferway Support.
+
+
+10. Welche Zahlungsmethoden werden angeboten?
+
+Die jeweils verfügbaren Zahlungsmethoden werden dir beim Checkout angezeigt.
+
+Online-Zahlungen können über unseren Zahlungsdienstleister abgewickelt werden.
+
+Je nach technischer Verfügbarkeit können beispielsweise Karten- oder Wallet-Zahlungen angeboten werden.
+
+
+11. Meine Zahlung ist fehlgeschlagen. Was kann ich tun?
+
+Bitte überprüfe:
+
+- deine Zahlungsdaten
+- verfügbares Guthaben bzw. Kartenlimit
+- die Freigabe der Zahlung durch deine Bank
+- deine Internetverbindung
+
+Sollte das Problem weiterhin bestehen, versuche gegebenenfalls eine andere angebotene Zahlungsmethode.
+
+Bei weiteren Fragen:
+
+info@lieferway.de
+
+
+12. Was sind WayPoints?
+
+WayPoints ist das Bonusprogramm von Lieferway.
+
+Bei teilnehmenden Restaurants kannst du mit qualifizierten Bestellungen WayPoints sammeln.
+
+Gesammelte WayPoints können – abhängig vom jeweiligen Angebot – gegen verfügbare Prämien oder Vorteile eingelöst werden.
+
+
+13. Warum bekomme ich bei manchen Restaurants keine WayPoints?
+
+Die Teilnahme am WayPoints-Programm ist für Restaurants freiwillig.
+
+Nur Restaurants, die am Programm teilnehmen, vergeben WayPoints.
+
+Teilnehmende Restaurants werden innerhalb von Lieferway entsprechend gekennzeichnet.
+
+
+14. Wann werden WayPoints gutgeschrieben?
+
+WayPoints werden grundsätzlich erst gutgeschrieben, wenn eine Bestellung erfolgreich abgeschlossen wurde.
+
+Bei stornierten oder vollständig zurückerstatteten Bestellungen werden keine WayPoints vergeben bzw. bereits vergebene Punkte können entsprechend korrigiert werden.
+
+
+15. Was passiert mit WayPoints bei einer Teilrückerstattung?
+
+Bei einer Teilrückerstattung können die für die Bestellung vergebenen WayPoints entsprechend dem endgültigen Bestellwert angepasst werden.
+
+
+16. Kann ich WayPoints in jedem Restaurant einsetzen?
+
+Nicht zwingend.
+
+Welche Prämien und Vorteile verfügbar sind, hängt vom jeweiligen teilnehmenden Restaurant und der jeweiligen Aktion ab.
+
+Die gültigen Bedingungen werden dir vor der Einlösung angezeigt.
+
+
+17. Ich habe mein Passwort vergessen.
+
+Nutze auf der Login-Seite die Funktion zur Passwort-Wiederherstellung.
+
+Du erhältst anschließend weitere Anweisungen an die hinterlegte E-Mail-Adresse.
+
+
+18. Wie kann ich meine Daten ändern?
+
+Verfügbare persönliche Daten können innerhalb deines Kundenkontos geändert werden.
+
+Falls eine Änderung dort nicht möglich ist, kontaktiere uns unter:
+
+info@lieferway.de
+
+
+19. Wie kann ich mein Konto löschen?
+
+Wenn du dein Lieferway-Konto löschen möchtest, kontaktiere uns unter:
+
+info@lieferway.de
+
+Gesetzliche Aufbewahrungspflichten können dazu führen, dass bestimmte Daten trotz Kontolöschung für einen vorgeschriebenen Zeitraum aufbewahrt werden müssen.
+
+
+20. Wie erreiche ich den Lieferway Support?
+
+E-Mail:
+
+info@lieferway.de
+
+Bitte gib bei Fragen zu einer Bestellung möglichst immer deine Bestellnummer an.
