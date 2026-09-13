@@ -58,7 +58,7 @@ export function PaymentPicker({
           <p className="mt-1 text-sm text-[#6B7280]">{t.payHint}</p>
         </div>
         <span className="shrink-0 rounded-full bg-[#F3F4F6] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
-          {t.stripeTestMode}
+          
         </span>
       </div>
       <p className="mt-2 text-[12px] text-[#9CA3AF]">{t.demoPaymentNote}</p>
@@ -106,7 +106,7 @@ export function PaymentPicker({
       </div>
 
       {method !== "CASH" ? (
-        <p className="mt-4 text-center text-[13px] text-[#6B7280]">{t.stripeTestHint}</p>
+        
       ) : null}
     </section>
   );

@@ -61,7 +61,7 @@ function InnerForm({
       <Button className="h-12 w-full text-base" size="lg" type="submit" disabled={busy || !stripe}>
         {busy ? t.processing : t.payNow}
       </Button>
-      <p className="text-center text-[11px] text-[#9CA3AF]">{t.stripeTestHint}</p>
+      
     </form>
   );
 }
