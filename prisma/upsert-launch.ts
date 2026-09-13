@@ -4,44 +4,17 @@ import { LAUNCH_WEEK_RESTAURANT_SLUGS } from "../src/lib/constants";
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.coupon.upsert({
-    where: { code: "LOCAL5" },
-    create: {
-      code: "LOCAL5",
-      description: "5 % auf Speisen — lokaler Tüten-Coupon",
-      discountPercent: 5,
-      isActive: true,
-    },
-    update: {
-      description: "5 % auf Speisen — lokaler Tüten-Coupon",
-      discountPercent: 5,
-      discountCents: null,
-      minSubtotalCents: null,
-      isActive: true,
-    },
-  });
-
-  await prisma.coupon.upsert({
-    where: { code: "START5" },
-    create: {
-      code: "START5",
-      description: "5 € Startguthaben ab 20 € Speisen",
-      discountCents: 500,
-      minSubtotalCents: 2000,
-      isActive: true,
-    },
-    update: {
-      description: "5 € Startguthaben ab 20 € Speisen",
-      discountPercent: null,
-      discountCents: 500,
-      minSubtotalCents: 2000,
-      isActive: true,
-    },
-  });
-
+  // Platform coupons removed — restaurant Gutscheine only.
+  // Deactivate any leftover global campaign codes.
   await prisma.coupon.updateMany({
-    where: { code: "FRANKFURT" },
-    data: { minSubtotalCents: 2000, description: "5 € Rabatt ab 20 € Speisen" },
+    where: { restaurantId: null, isActive: true },
+    data: { isActive: false },
+  });
+  await prisma.coupon.updateMany({
+    where: {
+      code: { in: ["LOCAL5", "LOCAL8", "START5", "WILLKOMMEN10", "FRANKFURT", "HOSGELDIN"] },
+    },
+    data: { isActive: false },
   });
 
   await prisma.restaurant.updateMany({

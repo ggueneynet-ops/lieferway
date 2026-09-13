@@ -146,6 +146,10 @@ export function CheckoutClient() {
       return;
     }
     setCouponCode(code);
+    if (!cart?.restaurantId) {
+      toast.error(t.couponInvalid);
+      return;
+    }
     const fulfillment = pickup ? "PICKUP" : "DELIVERY";
     const res = await fetch(
       `/api/coupons/${encodeURIComponent(code)}?subtotal=${foodSubtotal}&restaurantId=${encodeURIComponent(cart.restaurantId)}&fulfillment=${fulfillment}`,
