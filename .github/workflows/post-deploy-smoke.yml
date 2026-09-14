@@ -1,0 +1,78 @@
+name: Post-deploy production smoke
+
+# Runs after a successful Vercel Production deployment of app.lieferway.de.
+#
+# STRIPE TEST ONLY — NO LIVE. This job is read-only by construction: it performs
+# GET requests and public-page browser checks. It never signs in as staff, never
+# places an order, and no Stripe secret is exposed to it. See docs/qa/release-gate.md.
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "URL to smoke (default: PRODUCTION_URL variable or https://app.lieferway.de)"
+        required: false
+        type: string
+
+concurrency:
+  group: post-deploy-smoke
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  smoke:
+    name: Production smoke
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       (startsWith(github.event.deployment_status.environment, 'Production') ||
+        startsWith(github.event.deployment_status.environment, 'production')))
+    runs-on: ubuntu-latest
+    env:
+      TARGET_URL: ${{ inputs.url || vars.PRODUCTION_URL || 'https://app.lieferway.de' }}
+      QA_SMOKE_SLUG: ${{ vars.QA_SMOKE_SLUG || 'anadolu-grill' }}
+    steps:
+      - name: Guard — no Stripe keys in this job
+        run: |
+          set -eu
+          for name in STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY; do
+            value="$(printenv "$name" || true)"
+            if [ -n "$value" ]; then
+              echo "::error::$name must not be available to the production smoke (Test only, no Live)."
+              exit 1
+            fi
+          done
+          echo "Read-only smoke against $TARGET_URL — GET requests only, no Stripe."
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: GET-only HTTP probe
+        run: npm run qa:probe -- --base-url="$TARGET_URL"
+
+      - name: Install Chromium
+        run: npm run e2e:install
+
+      - name: Playwright public smoke
+        run: BASE_URL="$TARGET_URL" npm run e2e:smoke
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production
+          path: |
+            qa/playwright-report
+            qa/playwright-artifacts
+          retention-days: 14
+          if-no-files-found: ignore

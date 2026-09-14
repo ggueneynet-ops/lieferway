@@ -1,0 +1,152 @@
+name: PR gate
+
+# Release gate for the feature freeze: nothing reaches main without lint,
+# typecheck, a real CI build (migrations included) and a browser smoke against
+# the PR's Vercel Preview. See docs/qa/release-gate.md.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Deployed URL to smoke (skips the Vercel Preview lookup)"
+        required: false
+        type: string
+      run_journey:
+        description: "Also run the Playwright order journey (needs demo credentials)"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: pr-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: ESLint (regression gate vs qa/lint-baseline.json)
+        run: npm run lint:gate
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: next typegen + tsc --noEmit
+        run: npm run typecheck
+
+  build:
+    name: CI build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: lieferway
+          POSTGRES_PASSWORD: lieferway
+          POSTGRES_DB: lieferway
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      # Throwaway CI database: `npm run build` applies migrations and seeds it,
+      # so a broken migration fails the gate instead of a production deploy.
+      DATABASE_URL: postgresql://lieferway:lieferway@127.0.0.1:5432/lieferway
+      AUTH_SECRET: ci-build-only-secret-not-used-anywhere-else
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:43123
+      EXPO_PUBLIC_API_URL: http://127.0.0.1:43123
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: prisma migrate deploy + seed + next build
+        run: npm run build
+
+  preview-smoke:
+    name: Preview smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: read
+      statuses: read
+    env:
+      QA_SMOKE_SLUG: ${{ vars.QA_SMOKE_SLUG || 'anadolu-grill' }}
+      # Optional demo credentials — the journey step is skipped when unset.
+      E2E_CUSTOMER_EMAIL: ${{ secrets.E2E_CUSTOMER_EMAIL }}
+      E2E_CUSTOMER_PASSWORD: ${{ secrets.E2E_CUSTOMER_PASSWORD }}
+      E2E_RESTAURANT_EMAIL: ${{ secrets.E2E_RESTAURANT_EMAIL }}
+      E2E_RESTAURANT_PASSWORD: ${{ secrets.E2E_RESTAURANT_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Resolve Vercel Preview URL
+        id: preview
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+          PREVIEW_URL: ${{ inputs.preview_url }}
+          QA_PREVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run qa:preview-url
+
+      - name: GET-only HTTP probe
+        run: npm run qa:probe -- --base-url="${{ steps.preview.outputs.preview_url }}"
+
+      - name: Install Chromium
+        run: npm run e2e:install
+
+      - name: Playwright smoke
+        env:
+          BASE_URL: ${{ steps.preview.outputs.preview_url }}
+        run: npm run e2e:smoke
+
+      - name: Playwright order journey (opt-in)
+        if: ${{ inputs.run_journey && env.E2E_CUSTOMER_EMAIL != '' }}
+        env:
+          BASE_URL: ${{ steps.preview.outputs.preview_url }}
+        run: npm run e2e:journey
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-preview
+          path: |
+            qa/playwright-report
+            qa/playwright-artifacts
+          retention-days: 14
+          if-no-files-found: ignore
