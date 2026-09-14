@@ -63,6 +63,19 @@ export async function seedDeliveryLocation(
 }
 
 /**
+ * A protected Preview redirects to the Vercel SSO wall, which answers 200 with its
+ * own HTML — without this check the suite would assert against Vercel's page.
+ */
+export async function expectAppNotProtectionWall(page: Page) {
+  if (!/^https:\/\/vercel\.com\/(sso|login)/.test(page.url())) return;
+  throw new Error(
+    "Vercel Deployment Protection answered instead of the app. Set " +
+      "VERCEL_AUTOMATION_BYPASS_SECRET (Vercel → Project → Settings → Deployment Protection → " +
+      "Protection Bypass for Automation).",
+  );
+}
+
+/**
  * Fails with the Next.js digest when a page fell through to the global error UI.
  * The digest is what ops correlates in Vercel Runtime Logs (docs/production-stability.md).
  */
@@ -81,6 +94,7 @@ export async function gotoChecked(page: Page, path: string) {
   const response = await page.goto(path, { waitUntil: "domcontentloaded" });
   expect(response, `no response for ${path}`).not.toBeNull();
   expect(response!.status(), `unexpected status for ${path}`).toBeLessThan(400);
+  await expectAppNotProtectionWall(page);
   await expectNoSsrErrorPage(page);
   return response!;
 }
@@ -88,6 +102,7 @@ export async function gotoChecked(page: Page, path: string) {
 /** Plain POST form login (`src/app/login/page.tsx` → `/login/submit`). */
 export async function loginWith(page: Page, email: string, password: string, next = "/") {
   await page.goto(`/login?next=${encodeURIComponent(next)}`, { waitUntil: "domcontentloaded" });
+  await expectAppNotProtectionWall(page);
   await page.locator('input[name="email"]').fill(email);
   await page.locator('input[name="password"]').fill(password);
   await Promise.all([

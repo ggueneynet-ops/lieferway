@@ -40,6 +40,8 @@ if (!/^https?:\/\//.test(baseUrl)) {
 }
 
 const slug = (args.get("slug") ?? process.env.QA_SMOKE_SLUG ?? "anadolu-grill").trim();
+/** Vercel → Project → Settings → Deployment Protection → Protection Bypass for Automation. */
+const bypassSecret = (process.env.VERCEL_AUTOMATION_BYPASS_SECRET ?? "").trim();
 const attempts = Number(args.get("attempts") ?? process.env.QA_PROBE_ATTEMPTS ?? 3);
 const timeoutMs = Number(args.get("timeout-ms") ?? process.env.QA_PROBE_TIMEOUT_MS ?? 25_000);
 
@@ -50,14 +52,16 @@ const SSR_FAILURE_MARKERS = [
   "A server error occurred",
 ];
 
+/** A Vercel SSO / password wall answers 200 with its own HTML, so every page probe
+ *  asserts a Lieferway marker instead of trusting the status code. */
 const probes = [
   { path: "/api/health", expect: 200, json: { ok: true }, label: "health" },
   { path: "/", expect: 200, contains: "Lieferway", label: "homepage" },
-  { path: `/restaurants/${slug}`, expect: 200, label: "public restaurant (canonical)" },
-  { path: `/${slug}`, expect: 200, label: "public restaurant (vanity)" },
-  { path: "/suchen", expect: 200, label: "search" },
-  { path: "/login", expect: 200, label: "login" },
-  { path: "/impressum", expect: 200, label: "impressum" },
+  { path: `/restaurants/${slug}`, expect: 200, contains: "Lieferway", label: "public restaurant (canonical)" },
+  { path: `/${slug}`, expect: 200, contains: "Lieferway", label: "public restaurant (vanity)" },
+  { path: "/suchen", expect: 200, contains: "Lieferway", label: "search" },
+  { path: "/login", expect: 200, contains: "Lieferway", label: "login" },
+  { path: "/impressum", expect: 200, contains: "Lieferway", label: "impressum" },
 ];
 
 /** React splits `Digest {digest}` with comment markers, so match on stripped text. */
@@ -68,6 +72,12 @@ function digestFrom(body) {
     body.match(/digest["':\s]+(\d{6,})/i)?.[1] ??
     null
   );
+}
+
+/** The Vercel SSO wall — a protected Preview without a bypass secret lands here. */
+function isProtectionWall(finalUrl, body) {
+  if (/^https:\/\/vercel\.com\/(sso|login)/.test(finalUrl)) return true;
+  return body.includes("_vercel_sso_nonce") || body.includes("Authentication Required");
 }
 
 async function fetchOnce(url) {
@@ -81,10 +91,16 @@ async function fetchOnce(url) {
       headers: {
         "user-agent": "lieferway-release-gate/1.0 (+docs/qa/release-gate.md)",
         "accept-language": "de-DE,de;q=0.9",
+        ...(bypassSecret
+          ? {
+              "x-vercel-protection-bypass": bypassSecret,
+              "x-vercel-set-bypass-cookie": "true",
+            }
+          : {}),
       },
     });
     const body = await res.text();
-    return { status: res.status, body };
+    return { status: res.status, body, finalUrl: res.url };
   } finally {
     clearTimeout(timer);
   }
@@ -95,7 +111,10 @@ async function runProbe(probe) {
   let last = "unknown error";
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const { status, body } = await fetchOnce(url);
+      const { status, body, finalUrl } = await fetchOnce(url);
+      if (isProtectionWall(finalUrl ?? url, body)) {
+        return { ok: false, url, blocked: true, detail: "blocked by Vercel Deployment Protection" };
+      }
       const problems = [];
       if (status !== probe.expect) problems.push(`status ${status} (want ${probe.expect})`);
       const plain = body.replace(/<!--.*?-->/g, "");
@@ -130,12 +149,21 @@ async function runProbe(probe) {
 console.log(`[probe] GET-only smoke against ${baseUrl} (slug: ${slug}, attempts: ${attempts})`);
 
 let failed = 0;
+let blocked = false;
 for (const probe of probes) {
   const result = await runProbe(probe);
   console.log(`${result.ok ? "PASS" : "FAIL"}  ${probe.label.padEnd(30)} ${probe.path}  ${result.detail}`);
   if (!result.ok) failed += 1;
+  if (result.blocked) blocked = true;
 }
 
+if (blocked) {
+  console.error(
+    "[probe] Vercel Deployment Protection answered instead of the app. Set " +
+      "VERCEL_AUTOMATION_BYPASS_SECRET (Vercel → Project → Settings → Deployment Protection → " +
+      "Protection Bypass for Automation) so the gate can reach protected Previews.",
+  );
+}
 if (failed > 0) {
   console.error(`[probe] ${failed}/${probes.length} probe(s) failed`);
   process.exit(1);

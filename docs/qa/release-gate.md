@@ -52,6 +52,7 @@ for the smoke jobs.
 | Name | Kind | Required | Purpose |
 | --- | --- | --- | --- |
 | `GITHUB_TOKEN` | automatic | — | reads the Vercel Preview deployment for the PR head SHA (`deployments: read`) |
+| `VERCEL_AUTOMATION_BYPASS_SECRET` | secret | **yes, while Preview protection is on** | lets the smoke reach a protected Preview — see below |
 | `VERCEL_TOKEN` | secret | optional | fallback Preview lookup via the Vercel REST API |
 | `VERCEL_PROJECT_ID` | secret | optional | required with `VERCEL_TOKEN` |
 | `VERCEL_TEAM_ID` | secret | optional | only for team-scoped Vercel projects |
@@ -69,6 +70,28 @@ Preview URL resolution order (`scripts/qa/resolve-preview-url.mjs`):
 
 If no Preview appears within 15 minutes the job fails: an unverified build is
 not a passing gate.
+
+### Vercel Deployment Protection
+
+Preview deployments on this project are protected, so an unauthenticated request
+is redirected to `https://vercel.com/sso-api…`. That wall answers **200 with its
+own HTML**, which is why every probe asserts a Lieferway marker instead of
+trusting the status code — otherwise a blocked Preview would look green.
+
+To let the gate through:
+
+1. Vercel → project → **Settings → Deployment Protection → Protection Bypass for
+   Automation** → generate the secret.
+2. Add it to GitHub as the repository secret
+   `VERCEL_AUTOMATION_BYPASS_SECRET`.
+
+Both the probe and Playwright then send `x-vercel-protection-bypass` and
+`x-vercel-set-bypass-cookie: true` on every request. Without the secret the jobs
+fail with an explicit message naming this setting — a protected Preview is not a
+verified Preview.
+
+The alternative (disabling protection for Previews) works too, but publishes
+every Preview with real demo data, so the bypass secret is preferred.
 
 ## The lint gate
 
@@ -124,7 +147,7 @@ workflow artifact for 14 days.
 
 `e2e/public.smoke.spec.ts`, all read-only:
 
-- `/api/health` returns `{ ok: true }`
+- `/api/health` returns `{ ok: true }` (JSON, not the Vercel protection wall)
 - homepage renders the `#restaurants` section with cards — or the documented soft
   banner, which is the intended degraded state (`docs/production-stability.md`)
 - `/restaurants/<slug>` and `/<slug>` render an `h1`, the ETA fact chip and at

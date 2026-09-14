@@ -15,6 +15,18 @@ const baseURL = (
 
 const isCI = Boolean(process.env.CI);
 
+/**
+ * Protected Vercel Previews answer with the SSO wall unless every request carries
+ * the automation bypass secret (Project → Settings → Deployment Protection).
+ */
+const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim();
+const extraHTTPHeaders = bypassSecret
+  ? {
+      "x-vercel-protection-bypass": bypassSecret,
+      "x-vercel-set-bypass-cookie": "true",
+    }
+  : undefined;
+
 export default defineConfig({
   testDir: "./e2e",
   outputDir: "qa/playwright-artifacts",
@@ -33,6 +45,7 @@ export default defineConfig({
     : [["list"], ["html", { outputFolder: "qa/playwright-report", open: "never" }]],
   use: {
     baseURL,
+    extraHTTPHeaders,
     locale: "de-DE",
     timezoneId: "Europe/Berlin",
     trace: "retain-on-failure",

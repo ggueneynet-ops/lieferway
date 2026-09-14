@@ -99,6 +99,9 @@ jobs:
       statuses: read
     env:
       QA_SMOKE_SLUG: ${{ vars.QA_SMOKE_SLUG || 'anadolu-grill' }}
+      # Required while Vercel Deployment Protection is on: without it the Preview
+      # answers with the Vercel SSO wall instead of the app.
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
       # Optional demo credentials — the journey step is skipped when unset.
       E2E_CUSTOMER_EMAIL: ${{ secrets.E2E_CUSTOMER_EMAIL }}
       E2E_CUSTOMER_PASSWORD: ${{ secrets.E2E_CUSTOMER_PASSWORD }}
@@ -122,6 +125,11 @@ jobs:
           PREVIEW_URL: ${{ inputs.preview_url }}
           QA_PREVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: npm run qa:preview-url
+
+      - name: Warn when no Preview protection bypass is configured
+        if: ${{ env.VERCEL_AUTOMATION_BYPASS_SECRET == '' }}
+        run: |
+          echo "::warning::VERCEL_AUTOMATION_BYPASS_SECRET is not set. If Vercel Deployment Protection is enabled for Previews, the smoke will be answered by the Vercel SSO wall and fail. See docs/qa/release-gate.md."
 
       - name: GET-only HTTP probe
         run: npm run qa:probe -- --base-url="${{ steps.preview.outputs.preview_url }}"

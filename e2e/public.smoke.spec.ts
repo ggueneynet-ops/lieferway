@@ -19,7 +19,12 @@ test.describe("public smoke", () => {
   test("health endpoint answers ok", async ({ request }) => {
     const response = await request.get("/api/health");
     expect(response.status()).toBe(200);
-    expect(await response.json()).toMatchObject({ ok: true });
+    const body = await response.text();
+    expect(
+      body,
+      "health did not answer JSON — a protected Preview needs VERCEL_AUTOMATION_BYPASS_SECRET",
+    ).toContain('"ok"');
+    expect(JSON.parse(body)).toMatchObject({ ok: true });
   });
 
   test("homepage renders the marketplace", async ({ page }) => {
