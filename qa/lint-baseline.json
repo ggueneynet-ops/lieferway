@@ -1,0 +1,58 @@
+{
+  "note": "Accepted lint debt during the QA/Release Gate freeze. Errors per file per rule; regressions fail `npm run lint:gate`. Refresh with `npm run lint:baseline` after a cleanup PR.",
+  "generatedAt": "2026-09-14",
+  "totals": {
+    "errors": 29,
+    "warnings": 18
+  },
+  "files": {
+    "scripts/test-i18n-language.ts": {
+      "@typescript-eslint/no-require-imports": 1
+    },
+    "src/app/api/orders/route.ts": {
+      "prefer-const": 1
+    },
+    "src/components/cart-provider.tsx": {
+      "react-hooks/set-state-in-effect": 1
+    },
+    "src/components/cart-sheet.tsx": {
+      "react-hooks/set-state-in-effect": 1
+    },
+    "src/components/checkout-client.tsx": {
+      "react-hooks/set-state-in-effect": 2
+    },
+    "src/components/checkout-preorder.tsx": {
+      "prefer-const": 1,
+      "react-hooks/set-state-in-effect": 1
+    },
+    "src/components/customer-notice-poller.tsx": {
+      "react-hooks/refs": 2
+    },
+    "src/components/location-picker.tsx": {
+      "react-hooks/refs": 6,
+      "react-hooks/set-state-in-effect": 1
+    },
+    "src/components/location-provider.tsx": {
+      "react-hooks/set-state-in-effect": 1
+    },
+    "src/components/order-timeline.tsx": {
+      "react-hooks/set-state-in-effect": 2
+    },
+    "src/components/radius-chips.tsx": {
+      "react-hooks/immutability": 1
+    },
+    "src/components/restaurant-fulfillment.tsx": {
+      "react-hooks/set-state-in-effect": 2
+    },
+    "src/components/restaurant-orders.tsx": {
+      "react-hooks/refs": 3,
+      "react-hooks/set-state-in-effect": 1
+    },
+    "src/components/splash-intro.tsx": {
+      "react-hooks/set-state-in-effect": 1
+    },
+    "src/lib/stripe-webhooks.ts": {
+      "prefer-const": 1
+    }
+  }
+}
