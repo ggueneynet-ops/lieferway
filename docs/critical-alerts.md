@@ -15,6 +15,7 @@ Central helper: `src/lib/alerts.ts` → transactional event `critical_payment_or
 | `email_provider_failure` | `sendTransactionalEmail` after provider retries (skips recursion on critical alerts) |
 | `printer_failure` | Server-side `GET …/bon` unexpected 500 (client printer offline is **not** detectable — TODO) |
 | `database_error` | Catchable Prisma connection/timeout codes on order create |
+| `public_ssr_failure` | `alertPublicSsrFailure({ route, error, digest })` — hook for public SSR crashes (homepage / `/[slug]`). **Not wired to a page yet**; the P0 public-SSR fix PR is expected to call it from its `catch`. |
 
 ## Privacy
 
