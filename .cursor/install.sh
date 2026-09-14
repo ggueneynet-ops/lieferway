@@ -14,15 +14,7 @@ if ! command -v pg_ctlcluster >/dev/null 2>&1; then
 fi
 
 # 2. Start the default cluster (created automatically by the apt package).
-PG_VER="$(pg_lsclusters -h | awk 'NR==1{print $1}')"
-PG_CLUSTER="$(pg_lsclusters -h | awk 'NR==1{print $2}')"
-sudo pg_ctlcluster "$PG_VER" "$PG_CLUSTER" start 2>/dev/null || true
-
-for _ in $(seq 1 30); do
-  pg_isready -h 127.0.0.1 -p 5432 >/dev/null 2>&1 && break
-  sleep 1
-done
-pg_isready -h 127.0.0.1 -p 5432
+bash "$REPO_ROOT/.cursor/ensure-db.sh"
 
 # 3. Provision the lieferway role and database (matches docker-compose defaults).
 sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='lieferway'" | grep -q 1 \
