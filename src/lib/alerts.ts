@@ -15,7 +15,8 @@ export type CriticalAlertKind =
   | "order_creation_failure"
   | "email_provider_failure"
   | "printer_failure"
-  | "database_error";
+  | "database_error"
+  | "public_ssr_failure";
 
 export type AlertCriticalInput = {
   kind: CriticalAlertKind;
@@ -94,6 +95,8 @@ function kindLabel(kind: CriticalAlertKind): string {
       return "Printer / Lieferbon failure";
     case "database_error":
       return "Critical database error";
+    case "public_ssr_failure":
+      return "Public page SSR failure";
     default:
       return "Critical error";
   }
@@ -167,4 +170,29 @@ export async function alertCritical(input: AlertCriticalInput): Promise<{
   });
 
   return { emailed, skipped, audited };
+}
+
+/**
+ * Ops hook for a public page that fell through to the Next.js global error UI.
+ *
+ * Deduped per route + digest so one bad deploy sends one mail instead of one per
+ * visitor. `digest` is the number rendered by `src/app/global-error.tsx` and the
+ * key ops searches for in Vercel Runtime Logs (docs/production-stability.md).
+ */
+export async function alertPublicSsrFailure(input: {
+  route: string;
+  error: unknown;
+  digest?: string | null;
+  slug?: string;
+  restaurantId?: string;
+}) {
+  const route = sanitizeAlertDetail(input.route, 120);
+  const digest = input.digest ? sanitizeAlertDetail(String(input.digest), 40) : null;
+  return alertCritical({
+    kind: "public_ssr_failure",
+    dedupeKey: digest ? `${route}:${digest}` : route,
+    detail: `${route} failed to render — ${safeErrorMessage(input.error)}`,
+    restaurantId: input.restaurantId,
+    metadata: { route, digest, slug: input.slug ?? null },
+  });
 }
