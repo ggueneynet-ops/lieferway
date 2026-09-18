@@ -1,0 +1,18 @@
+{
+  "name": "Lieferway",
+  "install": "bash .cursor/install.sh",
+  "start": "bash .cursor/start.sh",
+  "terminals": [
+    {
+      "name": "web",
+      "command": "bash .cursor/ensure-db.sh && npm run dev",
+      "description": "Next.js dev server on http://127.0.0.1:43123 (App Router + Turbopack). Ensures PostgreSQL is up first."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 43123
+    }
+  ]
+}
