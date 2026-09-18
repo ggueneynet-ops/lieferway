@@ -53,6 +53,12 @@ prisma/*.db
 # generated invoice PDFs
 /data/invoices/**/*.pdf
 
+# playwright / release gate artifacts
+/qa/playwright-report
+/qa/playwright-artifacts
+/test-results
+/playwright-report
+
 # expo
 mobile/.expo
 mobile/dist

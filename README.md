@@ -37,6 +37,18 @@ npm run dev            # http://127.0.0.1:43123
 
 Or point `DATABASE_URL` at a Neon/Vercel Postgres URL instead of Docker. Format: `postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require`.
 
+### Release gate checks
+
+```bash
+npm run lint:gate      # ESLint, fails on new errors vs qa/lint-baseline.json
+npm run typecheck      # next typegen + tsc --noEmit
+npm run qa:probe -- --base-url=https://app.lieferway.de   # GET-only smoke
+npm run e2e:install && BASE_URL=http://127.0.0.1:43123 npm run e2e:smoke
+```
+
+These are the same checks GitHub Actions runs on every PR to `main`. Details,
+required check names and secrets: [docs/qa/release-gate.md](docs/qa/release-gate.md).
+
 ### Expo customer app
 
 ```bash
